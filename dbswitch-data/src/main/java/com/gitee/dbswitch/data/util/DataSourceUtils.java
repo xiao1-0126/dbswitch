@@ -179,7 +179,9 @@ public final class DataSourceUtils {
         throw new RuntimeException(e);
       }
     }).toArray(URL[]::new);
-    URLClassLoader loader = new URLClassLoader(urls, null);
+    ClassLoader parent = driverClass.contains("postgresql")
+        ? Thread.currentThread().getContextClassLoader() : null;
+    URLClassLoader loader = new URLClassLoader(urls, parent);
     try {
       Class<?> clazz = loader.loadClass(driverClass);
       clazz.newInstance();
