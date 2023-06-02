@@ -75,11 +75,6 @@ public final class JDBCURL {
    */
   public static boolean reachable(String host, String port) {
     try {
-      InetAddress address = InetAddress.getByName(host);
-      if (!address.isReachable(1500)) {
-        return false;
-      }
-
       try (Socket socket = new Socket()) {
         socket.connect(new InetSocketAddress(host, Integer.parseInt(port)), 1500);
       }

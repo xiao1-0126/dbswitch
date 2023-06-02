@@ -111,8 +111,13 @@ public final class DataSourceUtils {
     } else {
       ds.setConnectionTestQuery("SELECT 1");
     }
-    ds.setMaximumPoolSize(MAX_THREAD_COUNT);
-    ds.setMinimumIdle(MAX_THREAD_COUNT);
+    if (properties.getDriverClassName().contains("sqlite")) {
+      ds.setMaximumPoolSize(1);
+      ds.setMinimumIdle(1);
+    } else {
+      ds.setMaximumPoolSize(MAX_THREAD_COUNT);
+      ds.setMinimumIdle(MAX_THREAD_COUNT);
+    }
     ds.setMaxLifetime(properties.getMaxLifeTime());
     ds.setConnectionTimeout(properties.getConnectionTimeout());
     ds.setIdleTimeout(MAX_TIMEOUT_MS);

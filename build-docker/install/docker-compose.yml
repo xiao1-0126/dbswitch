@@ -11,6 +11,12 @@ services:
       MYSQL_PASSWORD: 123456
       MYSQL_ROOT_PASSWORD: 123456
       MYSQL_ROOT_HOST: '%'
+    healthcheck:
+      test: ["CMD", "mysql", "-uroot", "-p123456" ,"-e"," select 1 "]
+      interval: 10s
+      timeout: 3s
+      retries: 60
+      start_period: 30s
   dbswitch:
     container_name: dbswitch_webui
     image: inrgihc/dbswitch:1.7.0
