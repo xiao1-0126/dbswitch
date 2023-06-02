@@ -30,5 +30,6 @@ services:
     ports:
       - 9088:9088
     depends_on:
-      - mysqldb
+      mysqldb:
+        condition: service_healthy
 
