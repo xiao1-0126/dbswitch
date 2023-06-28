@@ -185,7 +185,8 @@ public final class DataSourceUtils {
       }
     }).toArray(URL[]::new);
     ClassLoader parent = driverClass.contains("postgresql")
-        ? Thread.currentThread().getContextClassLoader() : null;
+        ? Thread.currentThread().getContextClassLoader()
+        : ClassLoader.getSystemClassLoader().getParent();
     URLClassLoader loader = new URLClassLoader(urls, parent);
     try {
       Class<?> clazz = loader.loadClass(driverClass);
