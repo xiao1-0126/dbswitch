@@ -1,7 +1,7 @@
 package com.gitee.dbswitch.admin.service;
 
 import com.gitee.dbswitch.admin.config.DbswitchConfig;
-import com.gitee.dbswitch.admin.type.SupportDbTypeEnum;
+import com.gitee.dbswitch.common.type.ProductTypeEnum;
 import java.io.File;
 import java.util.EnumMap;
 import java.util.HashMap;
@@ -20,7 +20,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class DriverLoadService {
 
-  private Map<SupportDbTypeEnum, Map<String, File>> drivers = new EnumMap<>(SupportDbTypeEnum.class);
+  private Map<ProductTypeEnum, Map<String, File>> drivers = new EnumMap<>(ProductTypeEnum.class);
 
   @Resource
   private DbswitchConfig dbswitchConfig;
@@ -45,7 +45,7 @@ public class DriverLoadService {
           "No drivers type found from path:" + driversBasePath);
     }
     for (File type : types) {
-      if (!SupportDbTypeEnum.exists(type.getName())) {
+      if (!ProductTypeEnum.exists(type.getName())) {
         continue;
       }
       File[] driverVersions = type.listFiles();
@@ -58,7 +58,7 @@ public class DriverLoadService {
           throw new IllegalArgumentException(
               "No driver version jar file found from path:" + driverVersion.getAbsolutePath());
         }
-        SupportDbTypeEnum typeEnum = SupportDbTypeEnum.of(type.getName());
+        ProductTypeEnum typeEnum = ProductTypeEnum.of(type.getName());
         Map<String, File> versionMap = drivers.computeIfAbsent(typeEnum, k -> new HashMap<>());
         versionMap.put(driverVersion.getName(), driverVersion);
         log.info("Load driver for {} ,version:{},path:{}",
@@ -67,16 +67,16 @@ public class DriverLoadService {
     }
   }
 
-  public List<String> getDriverVersion(SupportDbTypeEnum dbTypeEnum) {
+  public List<String> getDriverVersion(ProductTypeEnum dbTypeEnum) {
     return Optional.ofNullable(drivers.get(dbTypeEnum)).orElseGet(HashMap::new)
         .keySet().stream().collect(Collectors.toList());
   }
 
-  public Map<String, File> getDriverVersionWithPath(SupportDbTypeEnum dbTypeEnum) {
+  public Map<String, File> getDriverVersionWithPath(ProductTypeEnum dbTypeEnum) {
     return Optional.ofNullable(drivers.get(dbTypeEnum)).orElse(new HashMap<>());
   }
 
-  public File getVersionDriverFile(SupportDbTypeEnum dbTypeEnum, String driverVersion) {
+  public File getVersionDriverFile(ProductTypeEnum dbTypeEnum, String driverVersion) {
     return drivers.get(dbTypeEnum).get(driverVersion);
   }
 

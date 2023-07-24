@@ -7,7 +7,7 @@
 // Date : 2020/1/2
 // Location: beijing , china
 /////////////////////////////////////////////////////////////
-package com.gitee.dbswitch.admin.common.converter;
+package com.gitee.dbswitch.common.converter;
 
 import java.util.List;
 import java.util.Set;

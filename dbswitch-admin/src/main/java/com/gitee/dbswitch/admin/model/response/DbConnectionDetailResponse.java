@@ -10,7 +10,7 @@
 package com.gitee.dbswitch.admin.model.response;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.gitee.dbswitch.admin.type.SupportDbTypeEnum;
+import com.gitee.dbswitch.common.type.ProductTypeEnum;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import java.sql.Timestamp;
@@ -29,7 +29,7 @@ public class DbConnectionDetailResponse {
   private String name;
 
   @ApiModelProperty("数据库类型")
-  private SupportDbTypeEnum type;
+  private ProductTypeEnum type;
 
   @ApiModelProperty("驱动版本")
   private String version;

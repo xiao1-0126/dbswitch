@@ -9,6 +9,7 @@
 /////////////////////////////////////////////////////////////
 package com.gitee.dbswitch.common.util;
 
+import cn.hutool.core.convert.Convert;
 import java.lang.reflect.Field;
 import java.sql.Types;
 import java.util.HashMap;
@@ -134,5 +135,20 @@ public final class JdbcTypesUtils {
   // REF
   // DATALINK
   // REF_CURSOR
-  
+
+  public static long getObjectSize(int jdbcType, Object value) {
+    if (null == value) {
+      return 0;
+    }
+
+    if (isBinary(jdbcType)) {
+      byte[] bytes = Convert.toPrimitiveByteArray(value);
+      return null == bytes ? 0 : bytes.length;
+    } else if (isBoolean(jdbcType)) {
+      return 1;
+    } else {
+      String strValue = Convert.toStr(value);
+      return null == strValue ? 0 : strValue.length();
+    }
+  }
 }

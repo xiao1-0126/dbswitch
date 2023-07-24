@@ -10,7 +10,7 @@
 package com.gitee.dbswitch.admin.model.request;
 
 import com.gitee.dbswitch.admin.entity.DatabaseConnectionEntity;
-import com.gitee.dbswitch.admin.type.SupportDbTypeEnum;
+import com.gitee.dbswitch.common.type.ProductTypeEnum;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -19,7 +19,7 @@ import lombok.NoArgsConstructor;
 public class DbConnectionCreateRequest {
 
   private String name;
-  private SupportDbTypeEnum type;
+  private ProductTypeEnum type;
   private String version;
   private String driver;
   private String url;
@@ -29,7 +29,7 @@ public class DbConnectionCreateRequest {
   public DatabaseConnectionEntity toDatabaseConnection() {
     DatabaseConnectionEntity databaseConnectionEntity = new DatabaseConnectionEntity();
     databaseConnectionEntity.setId(null);
-    databaseConnectionEntity.setName(name.trim());
+    databaseConnectionEntity.setName(name);
     databaseConnectionEntity.setType(type);
     databaseConnectionEntity.setVersion(version.trim());
     databaseConnectionEntity.setDriver(driver.trim());

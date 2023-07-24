@@ -9,7 +9,7 @@
 /////////////////////////////////////////////////////////////
 package com.gitee.dbswitch.data.domain;
 
-import com.gitee.dbswitch.data.util.BytesUnitUtils;
+import cn.hutool.core.io.unit.DataSizeUtil;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
@@ -32,6 +32,6 @@ public class PerfStat {
     return "Data Source Index: \t" + index + "\n" +
         "Total Tables Count: \t" + total + "\n" +
         "Failure Tables count: \t" + failure + "\n" +
-        "Total Transfer Size: \t" + BytesUnitUtils.bytesSizeToHuman(bytes) + "\n";
+        "Total Transfer Size: \t" + DataSizeUtil.format(bytes) + "\n";
   }
 }

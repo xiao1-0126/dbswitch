@@ -10,7 +10,7 @@
 package com.gitee.dbswitch.admin.controller.converter;
 
 import cn.hutool.extra.spring.SpringUtil;
-import com.gitee.dbswitch.admin.common.converter.AbstractConverter;
+import com.gitee.dbswitch.common.converter.AbstractConverter;
 import com.gitee.dbswitch.admin.dao.AssignmentConfigDAO;
 import com.gitee.dbswitch.admin.dao.DatabaseConnectionDAO;
 import com.gitee.dbswitch.admin.entity.AssignmentConfigEntity;

@@ -9,7 +9,7 @@
 /////////////////////////////////////////////////////////////
 package com.gitee.dbswitch.admin.service;
 
-import com.gitee.dbswitch.admin.common.converter.ConverterFactory;
+import com.gitee.dbswitch.common.converter.ConverterFactory;
 import com.gitee.dbswitch.admin.common.response.Result;
 import com.gitee.dbswitch.admin.common.response.ResultCode;
 import com.gitee.dbswitch.admin.controller.converter.SystemUserDetailConverter;

@@ -350,7 +350,6 @@ public class ColumnMetaData {
 
           // If we're dealing with PostgreSQL and double precision types
           if ((desc.getProductType() == ProductTypeEnum.POSTGRESQL
-              || desc.getProductType() == ProductTypeEnum.GREENPLUM
               || desc.getProductType() == ProductTypeEnum.KINGBASE)
               && type == java.sql.Types.DOUBLE
               && precision >= 16
@@ -402,8 +401,7 @@ public class ColumnMetaData {
         }
 
         if (desc.getProductType() == ProductTypeEnum.POSTGRESQL
-            || desc.getProductType() == ProductTypeEnum.KINGBASE
-            || desc.getProductType() == ProductTypeEnum.GREENPLUM) {
+            || desc.getProductType() == ProductTypeEnum.KINGBASE) {
           // undefined size => arbitrary precision
           if (type == java.sql.Types.NUMERIC && length == 0 && precision == 0) {
             valtype = ColumnMetaData.TYPE_BIGNUMBER;

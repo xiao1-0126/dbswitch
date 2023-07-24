@@ -20,7 +20,7 @@ import com.gitee.dbswitch.admin.model.request.DbConnectionUpdateRequest;
 import com.gitee.dbswitch.admin.model.response.DbConnectionDetailResponse;
 import com.gitee.dbswitch.admin.model.response.DbConnectionNameResponse;
 import com.gitee.dbswitch.admin.service.ConnectionService;
-import com.gitee.dbswitch.admin.type.SupportDbTypeEnum;
+import com.gitee.dbswitch.common.type.ProductTypeEnum;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import javax.annotation.Resource;
@@ -52,7 +52,7 @@ public class ConnectionController {
   @TokenCheck
   @ApiOperation(value = "数据库类型")
   @GetMapping(value = "/{type}/drivers", produces = MediaType.APPLICATION_JSON_VALUE)
-  public Result getDrivers(@PathVariable("type") SupportDbTypeEnum type) {
+  public Result getDrivers(@PathVariable("type") ProductTypeEnum type) {
     return Result.success(connectionService.getDrivers(type));
   }
 

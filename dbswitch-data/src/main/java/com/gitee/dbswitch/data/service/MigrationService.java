@@ -9,6 +9,7 @@
 /////////////////////////////////////////////////////////////
 package com.gitee.dbswitch.data.service;
 
+import cn.hutool.core.io.unit.DataSizeUtil;
 import cn.hutool.core.stream.StreamUtil;
 import cn.hutool.core.text.StrPool;
 import cn.hutool.core.util.StrUtil;
@@ -21,12 +22,11 @@ import com.gitee.dbswitch.data.config.DbswichProperties;
 import com.gitee.dbswitch.data.domain.PerfStat;
 import com.gitee.dbswitch.data.entity.SourceDataSourceProperties;
 import com.gitee.dbswitch.data.handler.MigrationHandler;
-import com.gitee.dbswitch.data.util.BytesUnitUtils;
 import com.gitee.dbswitch.data.util.DataSourceUtils;
 import com.gitee.dbswitch.data.util.JsonUtils;
 import com.gitee.dbswitch.schema.TableDescription;
-import com.gitee.dbswitch.service.MetadataService;
 import com.gitee.dbswitch.service.DefaultMetadataService;
+import com.gitee.dbswitch.service.MetadataService;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -222,7 +222,7 @@ public class MigrationService {
             log.info(
                 "#### Complete data migration for the [ {} ] data source:\ntotal count={}\nfailure count={}\ntotal bytes size={}",
                 sourcePropertiesIndex, futures.size(), numberOfFailures.get(),
-                BytesUnitUtils.bytesSizeToHuman(totalBytesSize.get()));
+                DataSizeUtil.format(totalBytesSize.get()));
             perfStats.add(new PerfStat(sourcePropertiesIndex, futures.size(),
                 numberOfFailures.get(), totalBytesSize.get()));
             ++sourcePropertiesIndex;

@@ -63,12 +63,6 @@
       </dependency>
 
       <dependency>
-        <groupId>org.ehcache</groupId>
-        <artifactId>sizeof</artifactId>
-        <version>0.4.0</version>
-      </dependency>
-
-      <dependency>
         <groupId>net.minidev</groupId>
         <artifactId>json-smart</artifactId>
         <version>2.3</version>

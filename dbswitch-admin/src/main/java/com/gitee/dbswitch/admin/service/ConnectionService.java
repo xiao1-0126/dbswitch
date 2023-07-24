@@ -9,7 +9,7 @@
 /////////////////////////////////////////////////////////////
 package com.gitee.dbswitch.admin.service;
 
-import com.gitee.dbswitch.admin.common.converter.ConverterFactory;
+import com.gitee.dbswitch.common.converter.ConverterFactory;
 import com.gitee.dbswitch.admin.common.exception.DbswitchException;
 import com.gitee.dbswitch.admin.common.response.PageResult;
 import com.gitee.dbswitch.admin.common.response.Result;
@@ -24,13 +24,13 @@ import com.gitee.dbswitch.admin.model.response.DatabaseTypeDetailResponse;
 import com.gitee.dbswitch.admin.model.response.DatabaseTypeDriverResponse;
 import com.gitee.dbswitch.admin.model.response.DbConnectionDetailResponse;
 import com.gitee.dbswitch.admin.model.response.DbConnectionNameResponse;
-import com.gitee.dbswitch.admin.type.SupportDbTypeEnum;
 import com.gitee.dbswitch.admin.util.PageUtils;
 import com.gitee.dbswitch.common.entity.CloseableDataSource;
+import com.gitee.dbswitch.common.type.ProductTypeEnum;
 import com.gitee.dbswitch.common.util.JdbcUrlUtils;
-import com.gitee.dbswitch.service.MetadataService;
-import com.gitee.dbswitch.service.DefaultMetadataService;
 import com.gitee.dbswitch.data.util.DataSourceUtils;
+import com.gitee.dbswitch.service.DefaultMetadataService;
+import com.gitee.dbswitch.service.MetadataService;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
@@ -53,7 +53,7 @@ public class ConnectionService {
 
   public MetadataService getMetaDataCoreService(DatabaseConnectionEntity dbConn) {
     String typeName = dbConn.getType().getName().toUpperCase();
-    SupportDbTypeEnum supportDbType = SupportDbTypeEnum.valueOf(typeName);
+    ProductTypeEnum supportDbType = ProductTypeEnum.valueOf(typeName);
     if (supportDbType.hasAddress()) {
       for (String pattern : supportDbType.getUrl()) {
         final Matcher matcher = JdbcUrlUtils.getPattern(pattern).matcher(dbConn.getUrl());
@@ -86,7 +86,7 @@ public class ConnectionService {
 
   public List<DatabaseTypeDetailResponse> getTypes() {
     List<DatabaseTypeDetailResponse> lists = new ArrayList<>();
-    for (SupportDbTypeEnum type : SupportDbTypeEnum.values()) {
+    for (ProductTypeEnum type : ProductTypeEnum.values()) {
       DatabaseTypeDetailResponse detail = new DatabaseTypeDetailResponse();
       detail.setId(type.getId());
       detail.setType(type.getName().toUpperCase());
@@ -99,7 +99,7 @@ public class ConnectionService {
     return lists;
   }
 
-  public List<DatabaseTypeDriverResponse> getDrivers(SupportDbTypeEnum dbTypeEnum) {
+  public List<DatabaseTypeDriverResponse> getDrivers(ProductTypeEnum dbTypeEnum) {
     List<DatabaseTypeDriverResponse> lists = new ArrayList<>();
     driverLoadService.getDriverVersionWithPath(dbTypeEnum)
         .forEach(
@@ -256,7 +256,7 @@ public class ConnectionService {
 
   private void validJdbcUrlFormat(DatabaseConnectionEntity conn) {
     String typeName = conn.getType().getName().toUpperCase();
-    SupportDbTypeEnum supportDbType = SupportDbTypeEnum.valueOf(typeName);
+    ProductTypeEnum supportDbType = ProductTypeEnum.valueOf(typeName);
     if (!conn.getUrl().startsWith(supportDbType.getUrlPrefix())) {
       throw new DbswitchException(ResultCode.ERROR_INVALID_JDBC_URL, conn.getUrl());
     }

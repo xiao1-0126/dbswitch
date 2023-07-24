@@ -15,8 +15,8 @@ import com.gitee.dbswitch.common.util.JdbcTypesUtils;
 import com.gitee.dbswitch.common.util.TypeConvertUtils;
 import com.gitee.dbswitch.provider.ProductProviderFactory;
 import com.gitee.dbswitch.provider.query.TableDataQueryProvider;
-import com.gitee.dbswitch.service.MetadataService;
 import com.gitee.dbswitch.service.DefaultMetadataService;
+import com.gitee.dbswitch.service.MetadataService;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
@@ -268,6 +268,7 @@ public final class ChangeCalculatorService implements IDatabaseChangeCalculator 
       }
 
       // 初始化计算结果数据字段列信息
+      int[] jdbcTypes = new int[metaData.getColumnCount()];
       List<String> targetColumns = new ArrayList<>();
       for (int k = 1; k <= metaData.getColumnCount(); ++k) {
         String key = metaData.getColumnLabel(k);
@@ -275,6 +276,7 @@ public final class ChangeCalculatorService implements IDatabaseChangeCalculator 
           key = metaData.getColumnName(k);
         }
         targetColumns.add(columnsMap.getOrDefault(key, key));
+        jdbcTypes[k - 1] = metaData.getColumnType(k);
       }
 
       if (log.isDebugEnabled()) {
@@ -329,7 +331,7 @@ public final class ChangeCalculatorService implements IDatabaseChangeCalculator 
         }
 
         // 这里对计算的单条记录结果进行处理
-        handler.handle(Collections.unmodifiableList(targetColumns), outputRow, flagField);
+        handler.handle(Collections.unmodifiableList(targetColumns), outputRow, jdbcTypes, flagField);
       }
 
       if (log.isDebugEnabled()) {

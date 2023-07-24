@@ -9,7 +9,7 @@
 /////////////////////////////////////////////////////////////
 package com.gitee.dbswitch.admin.service;
 
-import com.gitee.dbswitch.admin.common.converter.ConverterFactory;
+import com.gitee.dbswitch.common.converter.ConverterFactory;
 import com.gitee.dbswitch.admin.common.exception.DbswitchException;
 import com.gitee.dbswitch.admin.common.response.PageResult;
 import com.gitee.dbswitch.admin.common.response.Result;
@@ -27,8 +27,8 @@ import com.gitee.dbswitch.admin.model.request.AssigmentUpdateRequest;
 import com.gitee.dbswitch.admin.model.response.AssignmentDetailResponse;
 import com.gitee.dbswitch.admin.model.response.AssignmentInfoResponse;
 import com.gitee.dbswitch.admin.type.ScheduleModeEnum;
-import com.gitee.dbswitch.admin.type.SupportDbTypeEnum;
 import com.gitee.dbswitch.admin.util.PageUtils;
+import com.gitee.dbswitch.common.type.ProductTypeEnum;
 import com.gitee.dbswitch.data.config.DbswichProperties;
 import com.gitee.dbswitch.data.entity.SourceDataSourceProperties;
 import com.gitee.dbswitch.data.entity.TargetDataSourceProperties;
@@ -73,11 +73,11 @@ public class AssignmentService {
 
     Long targetConnectionId = assignmentConfigEntity.getTargetConnectionId();
     DatabaseConnectionEntity entity = databaseConnectionDAO.getById(targetConnectionId);
-    if (SupportDbTypeEnum.HIVE == entity.getType()) {
+    if (ProductTypeEnum.HIVE == entity.getType()) {
       throw new DbswitchException(ResultCode.ERROR_INVALID_ASSIGNMENT_CONFIG, "不支持目的端数据源为Hive");
     }
-    if (SupportDbTypeEnum.SQLITE3 == entity.getType()) {
-      if (SupportDbTypeEnum.isUnsupportedTargetSqlite(entity.getUrl())) {
+    if (ProductTypeEnum.SQLITE3 == entity.getType()) {
+      if (ProductTypeEnum.isUnsupportedTargetSqlite(entity.getUrl())) {
         throw new DbswitchException(ResultCode.ERROR_INVALID_ASSIGNMENT_CONFIG,
             "不支持目的端数据源为远程服务器上的SQLite或内存方式下的SQLite");
       }
@@ -111,11 +111,11 @@ public class AssignmentService {
 
     Long targetConnectionId = assignmentConfigEntity.getTargetConnectionId();
     DatabaseConnectionEntity entity = databaseConnectionDAO.getById(targetConnectionId);
-    if (SupportDbTypeEnum.HIVE == entity.getType()) {
+    if (ProductTypeEnum.HIVE == entity.getType()) {
       throw new DbswitchException(ResultCode.ERROR_INVALID_ASSIGNMENT_CONFIG, "不支持目的端数据源为Hive");
     }
-    if (SupportDbTypeEnum.SQLITE3 == entity.getType()) {
-      if (SupportDbTypeEnum.isUnsupportedTargetSqlite(entity.getUrl())) {
+    if (ProductTypeEnum.SQLITE3 == entity.getType()) {
+      if (ProductTypeEnum.isUnsupportedTargetSqlite(entity.getUrl())) {
         throw new DbswitchException(ResultCode.ERROR_INVALID_ASSIGNMENT_CONFIG,
             "不支持目的端数据源为远程服务器上的SQLite或内存方式下的SQLite");
       }

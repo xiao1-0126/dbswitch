@@ -9,7 +9,7 @@
 /////////////////////////////////////////////////////////////
 package com.gitee.dbswitch.admin.entity;
 
-import com.gitee.dbswitch.admin.type.SupportDbTypeEnum;
+import com.gitee.dbswitch.common.type.ProductTypeEnum;
 import java.sql.Timestamp;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -36,7 +36,7 @@ public class DatabaseConnectionEntity {
   private String name;
 
   @Column(name = "type")
-  private SupportDbTypeEnum type;
+  private ProductTypeEnum type;
 
   @Column(name = "version")
   private String version;

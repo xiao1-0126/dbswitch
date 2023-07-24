@@ -35,7 +35,6 @@ public final class DatabaseAwareUtils {
     productNameMap = new HashMap<>();
     driverNameMap = new HashMap<>();
 
-    productNameMap.put("Greenplum", ProductTypeEnum.GREENPLUM);
     productNameMap.put("Microsoft SQL Server", ProductTypeEnum.SQLSERVER);
     productNameMap.put("DM DBMS", ProductTypeEnum.DM);
     productNameMap.put("KingbaseES", ProductTypeEnum.KINGBASE);
@@ -116,5 +115,5 @@ public final class DatabaseAwareUtils {
       throw new RuntimeException(se);
     }
   }
-  
+
 }

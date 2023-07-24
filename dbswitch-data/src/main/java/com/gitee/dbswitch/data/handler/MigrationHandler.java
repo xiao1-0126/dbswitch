@@ -9,6 +9,7 @@
 /////////////////////////////////////////////////////////////
 package com.gitee.dbswitch.data.handler;
 
+import cn.hutool.core.io.unit.DataSizeUtil;
 import com.gitee.dbswitch.calculate.ChangeCalculatorService;
 import com.gitee.dbswitch.calculate.IDatabaseChangeCalculator;
 import com.gitee.dbswitch.calculate.IDatabaseRowHandler;
@@ -18,10 +19,10 @@ import com.gitee.dbswitch.common.entity.CloseableDataSource;
 import com.gitee.dbswitch.common.entity.ResultSetWrapper;
 import com.gitee.dbswitch.common.type.ProductTypeEnum;
 import com.gitee.dbswitch.common.util.DatabaseAwareUtils;
+import com.gitee.dbswitch.common.util.JdbcTypesUtils;
 import com.gitee.dbswitch.common.util.PatterNameUtils;
 import com.gitee.dbswitch.data.config.DbswichProperties;
 import com.gitee.dbswitch.data.entity.SourceDataSourceProperties;
-import com.gitee.dbswitch.data.util.BytesUnitUtils;
 import com.gitee.dbswitch.provider.ProductFactoryProvider;
 import com.gitee.dbswitch.provider.ProductProviderFactory;
 import com.gitee.dbswitch.provider.meta.MetadataProvider;
@@ -31,9 +32,10 @@ import com.gitee.dbswitch.provider.sync.TableDataSynchronizer;
 import com.gitee.dbswitch.provider.write.TableDataWriteProvider;
 import com.gitee.dbswitch.schema.ColumnDescription;
 import com.gitee.dbswitch.schema.TableDescription;
-import com.gitee.dbswitch.service.MetadataService;
 import com.gitee.dbswitch.service.DefaultMetadataService;
+import com.gitee.dbswitch.service.MetadataService;
 import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -45,7 +47,6 @@ import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
-import org.ehcache.sizeof.SizeOf;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.util.StringUtils;
 
@@ -57,7 +58,7 @@ import org.springframework.util.StringUtils;
 @Slf4j
 public class MigrationHandler implements Supplier<Long> {
 
-  private final long MAX_CACHE_BYTES_SIZE = 512 * 1024 * 1024;
+  private final long MAX_CACHE_BYTES_SIZE = 128 * 1024 * 1024;
 
   private int fetchSize = 100;
   private final DbswichProperties properties;
@@ -360,15 +361,19 @@ public class MigrationHandler implements Supplier<Long> {
     long totalCount = 0;
     long totalBytes = 0;
     try (ResultSet rs = srs.getResultSet()) {
+      ResultSetMetaData metaData = rs.getMetaData();
       while (rs.next()) {
         if (interrupted) {
           log.info("task job is interrupted!");
           throw new RuntimeException("task is interrupted");
         }
         Object[] record = new Object[sourceFields.size()];
+        long bytes = 0;
         for (int i = 1; i <= sourceFields.size(); ++i) {
           try {
-            record[i - 1] = rs.getObject(i);
+            Object value = rs.getObject(i);
+            bytes += JdbcTypesUtils.getObjectSize(metaData.getColumnType(i), value);
+            record[i - 1] = value;
           } catch (Exception e) {
             log.warn("!!! Read data from table [ {} ] use function ResultSet.getObject() error",
                 tableNameMapString, e);
@@ -377,14 +382,13 @@ public class MigrationHandler implements Supplier<Long> {
         }
 
         cache.add(record);
-        long bytes = SizeOf.newInstance().deepSizeOf(record);
         cacheBytes += bytes;
         ++totalCount;
 
         if (cache.size() >= BATCH_SIZE || cacheBytes >= MAX_CACHE_BYTES_SIZE) {
           long ret = writer.write(targetFields, cache);
           log.info("[FullCoverSync] handle table [{}] data count: {}, the batch bytes sie: {}",
-              tableNameMapString, ret, BytesUnitUtils.bytesSizeToHuman(cacheBytes));
+              tableNameMapString, ret, DataSizeUtil.format(cacheBytes));
           cache.clear();
           totalBytes += cacheBytes;
           cacheBytes = 0;
@@ -394,13 +398,13 @@ public class MigrationHandler implements Supplier<Long> {
       if (cache.size() > 0) {
         long ret = writer.write(targetFields, cache);
         log.info("[FullCoverSync] handle table [{}] data count: {}, last batch bytes sie: {}",
-            tableNameMapString, ret, BytesUnitUtils.bytesSizeToHuman(cacheBytes));
+            tableNameMapString, ret, DataSizeUtil.format(cacheBytes));
         cache.clear();
         totalBytes += cacheBytes;
       }
 
       log.info("[FullCoverSync] handle table [{}] total data count:{}, total bytes={}",
-          tableNameMapString, totalCount, BytesUnitUtils.bytesSizeToHuman(totalBytes));
+          tableNameMapString, totalCount, DataSizeUtil.format(totalBytes));
     } catch (Exception e) {
       throw new RuntimeException(e);
     } finally {
@@ -465,7 +469,7 @@ public class MigrationHandler implements Supplier<Long> {
       private final List<Object[]> cacheDelete = new LinkedList<>();
 
       @Override
-      public void handle(List<String> fields, Object[] record, RecordChangeTypeEnum flag) {
+      public void handle(List<String> fields, Object[] record, int[] jdbcTypes, RecordChangeTypeEnum flag) {
         if (flag == RecordChangeTypeEnum.VALUE_INSERT) {
           cacheInsert.add(record);
           countInsert++;
@@ -477,7 +481,11 @@ public class MigrationHandler implements Supplier<Long> {
           countDelete++;
         }
 
-        long bytes = SizeOf.newInstance().deepSizeOf(record);
+        long bytes = 0;
+        for (int i = 0; i < record.length; ++i) {
+          Object value = record[i];
+          bytes += JdbcTypesUtils.getObjectSize(jdbcTypes[i], value);
+        }
         cacheBytes += bytes;
         totalBytes.addAndGet(bytes);
         countTotal++;
@@ -509,7 +517,7 @@ public class MigrationHandler implements Supplier<Long> {
           }
 
           log.info("[IncreaseSync] Handle table [{}] data one batch size: {}",
-              tableNameMapString, BytesUnitUtils.bytesSizeToHuman(cacheBytes));
+              tableNameMapString, DataSizeUtil.format(cacheBytes));
           cacheBytes = 0;
         }
       }
