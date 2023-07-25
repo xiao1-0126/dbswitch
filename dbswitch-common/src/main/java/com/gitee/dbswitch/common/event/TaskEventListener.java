@@ -9,7 +9,7 @@
 /////////////////////////////////////////////////////////////
 package com.gitee.dbswitch.common.event;
 
-public interface EventListener extends java.util.EventListener {
+public interface TaskEventListener extends java.util.EventListener {
 
   /**
    * The event callback
@@ -17,5 +17,5 @@ public interface EventListener extends java.util.EventListener {
    * @param event object
    * @return event result
    */
-  Object event(ListenEvent event);
+  Object event(ListenedEvent event);
 }

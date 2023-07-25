@@ -24,42 +24,36 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import javax.annotation.Nullable;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.concurrent.BasicThreadFactory;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-public class EventHub {
-
-  private static final Logger LOG = LoggerFactory.getLogger(EventHub.class);
+@Slf4j
+public class TaskEventHub {
 
   public static final String EVENT_WORKER = "event-worker-%d";
   public static final String ANY_EVENT = "*";
 
-  private static final List<EventListener> EMPTY = ImmutableList.of();
+  private static final List<TaskEventListener> EMPTY = ImmutableList.of();
 
   // Event executor
   private static ExecutorService executor = null;
 
   private String name;
-  private Map<String, List<EventListener>> listeners;
+  private Map<String, List<TaskEventListener>> listeners;
 
-  public EventHub() {
-    this("hub");
-  }
-
-  public EventHub(String name) {
-    LOG.debug("Create new EventHub: {}", name);
+  public TaskEventHub(String name) {
+    log.info("Create new EventHub: {}", name);
 
     this.name = name;
     this.listeners = new ConcurrentHashMap<>();
-    EventHub.init(1);
+    TaskEventHub.init(1);
   }
 
   public static synchronized void init(int poolSize) {
     if (executor != null) {
       return;
     }
-    LOG.debug("Init pool(size {}) for EventHub", poolSize);
+    log.debug("Init pool(size {}) for EventHub", poolSize);
     executor = new ThreadPoolExecutor(
         poolSize,
         poolSize,
@@ -74,7 +68,7 @@ public class EventHub {
 
   public static synchronized boolean destroy(long timeout)
       throws InterruptedException {
-    LOG.debug("Destroy pool for EventHub");
+    log.debug("Destroy pool for EventHub");
     executor.shutdown();
     return executor.awaitTermination(timeout, TimeUnit.SECONDS);
   }
@@ -90,34 +84,34 @@ public class EventHub {
   }
 
   public boolean containsListener(String event) {
-    List<EventListener> ls = this.listeners.get(event);
+    List<TaskEventListener> ls = this.listeners.get(event);
     return ls != null && ls.size() > 0;
   }
 
-  public List<EventListener> listeners(String event) {
-    List<EventListener> ls = this.listeners.get(event);
+  public List<TaskEventListener> listeners(String event) {
+    List<TaskEventListener> ls = this.listeners.get(event);
     return ls == null ? EMPTY : Collections.unmodifiableList(ls);
   }
 
-  public void listen(String event, EventListener listener) {
+  public void listen(String event, TaskEventListener listener) {
     Preconditions.checkNotNull(event, "event");
     Preconditions.checkNotNull(listener, "event listener");
 
     if (!this.listeners.containsKey(event)) {
       this.listeners.putIfAbsent(event, new CopyOnWriteArrayList<>());
     }
-    List<EventListener> ls = this.listeners.get(event);
+    List<TaskEventListener> ls = this.listeners.get(event);
     assert ls != null : this.listeners;
     ls.add(listener);
   }
 
-  public List<EventListener> unlisten(String event) {
-    List<EventListener> ls = this.listeners.remove(event);
+  public List<TaskEventListener> unlisten(String event) {
+    List<TaskEventListener> ls = this.listeners.remove(event);
     return ls == null ? EMPTY : Collections.unmodifiableList(ls);
   }
 
-  public int unlisten(String event, EventListener listener) {
-    List<EventListener> ls = this.listeners.get(event);
+  public int unlisten(String event, TaskEventListener listener) {
+    List<TaskEventListener> ls = this.listeners.get(event);
     if (ls == null) {
       return 0;
     }
@@ -130,13 +124,13 @@ public class EventHub {
   }
 
   public Future<Integer> notify(String event, @Nullable Object... args) {
-    List<EventListener> all = Collections.synchronizedList(new ArrayList<>());
+    List<TaskEventListener> all = Collections.synchronizedList(new ArrayList<>());
 
-    List<EventListener> ls = this.listeners.get(event);
+    List<TaskEventListener> ls = this.listeners.get(event);
     if (ls != null && !ls.isEmpty()) {
       all.addAll(ls);
     }
-    List<EventListener> lsAny = this.listeners.get(ANY_EVENT);
+    List<TaskEventListener> lsAny = this.listeners.get(ANY_EVENT);
     if (lsAny != null && !lsAny.isEmpty()) {
       all.addAll(lsAny);
     }
@@ -145,18 +139,18 @@ public class EventHub {
       return CompletableFuture.completedFuture(0);
     }
 
-    ListenEvent ev = new ListenEvent(this, event, args);
+    ListenedEvent ev = new ListenedEvent(this, event, args);
 
     // The submit will catch params: `all`(Listeners) and `ev`(Event)
     return executor().submit(() -> {
       int count = 0;
       // Notify all listeners, and ignore the results
-      for (EventListener listener : all) {
+      for (TaskEventListener listener : all) {
         try {
           listener.event(ev);
           count++;
         } catch (Throwable e) {
-          LOG.warn("Failed to handle event: {}", ev, e);
+          log.warn("Failed to handle event: {}", ev, e);
         }
       }
       return count;
@@ -164,14 +158,14 @@ public class EventHub {
   }
 
   public Object call(String event, @Nullable Object... args) {
-    List<EventListener> ls = this.listeners.get(event);
+    List<TaskEventListener> ls = this.listeners.get(event);
     if (ls == null) {
       throw new RuntimeException("Not found listener for: " + event);
     } else if (ls.size() != 1) {
       throw new RuntimeException("Too many listeners for: " + event);
     }
-    EventListener listener = ls.get(0);
-    return listener.event(new ListenEvent(this, event, args));
+    TaskEventListener listener = ls.get(0);
+    return listener.event(new ListenedEvent(this, event, args));
   }
 
 }

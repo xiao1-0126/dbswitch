@@ -142,7 +142,7 @@ public final class JdbcTypesUtils {
     }
 
     if (isBinary(jdbcType)) {
-      byte[] bytes = Convert.toPrimitiveByteArray(value);
+      byte[] bytes = TypeConvertUtils.castToByteArray(value);
       return null == bytes ? 0 : bytes.length;
     } else if (isBoolean(jdbcType)) {
       return 1;
@@ -151,4 +151,5 @@ public final class JdbcTypesUtils {
       return null == strValue ? 0 : strValue.length();
     }
   }
+
 }

@@ -66,7 +66,7 @@ public class DefaultTableDataQueryProvider
     sb.append(productType.quoteSchemaTableName(schemaName, tableName));
     if (CollectionUtils.isNotEmpty(orders)) {
       sb.append(" ORDER BY ");
-      sb.append(StringUtils.join(orders, productType.quoteName(",")));
+      sb.append(productType.quoteName(StringUtils.join(orders, productType.quoteName(","))));
     }
     return this.selectTableData(sb.toString(), getProductFeatures().convertFetchSize(this.fetchSize));
   }

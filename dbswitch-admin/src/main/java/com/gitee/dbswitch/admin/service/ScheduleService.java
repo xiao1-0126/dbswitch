@@ -13,12 +13,15 @@ import com.gitee.dbswitch.admin.dao.AssignmentJobDAO;
 import com.gitee.dbswitch.admin.dao.AssignmentTaskDAO;
 import com.gitee.dbswitch.admin.entity.AssignmentJobEntity;
 import com.gitee.dbswitch.admin.entity.AssignmentTaskEntity;
+import com.gitee.dbswitch.admin.execution.ExecuteJobTaskRunnable;
 import com.gitee.dbswitch.admin.type.JobStatusEnum;
 import com.gitee.dbswitch.admin.type.ScheduleModeEnum;
+import com.gitee.dbswitch.common.event.TaskEventHub;
 import com.gitee.dbswitch.common.util.UuidUtils;
 import java.sql.Timestamp;
-import java.util.Date;
+import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.ConcurrentHashMap;
 import javax.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -28,17 +31,24 @@ import org.quartz.JobDetail;
 import org.quartz.JobKey;
 import org.quartz.Scheduler;
 import org.quartz.SchedulerException;
-import org.quartz.SimpleScheduleBuilder;
 import org.quartz.Trigger;
 import org.quartz.TriggerBuilder;
 import org.quartz.TriggerKey;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.context.event.ApplicationReadyEvent;
+import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.quartz.SchedulerFactoryBean;
 import org.springframework.stereotype.Service;
 
 @Slf4j
 @Service
 public class ScheduleService {
+
+  private static final String evenName = "start";
+
+  static {
+    TaskEventHub.init(5);
+  }
 
   /**
    * @Bean是一个方法级别上的注解，Bean的ID为方法名字。
@@ -53,6 +63,32 @@ public class ScheduleService {
 
   @Resource
   private AssignmentJobDAO assignmentJobDAO;
+
+  private TaskEventHub manualRunEvenHub = new TaskEventHub("manualRun");
+
+  private Map<String, ExecuteJobTaskRunnable> taskRunnableMap = new ConcurrentHashMap<>();
+
+  @EventListener(ApplicationReadyEvent.class)
+  public void registerEventListener() {
+    manualRunEvenHub.listen(
+        evenName,
+        (event) -> {
+          event.checkArgs(Long.class, String.class);
+          Long taskId = (Long) event.getArgs()[0];
+          Integer schedule = ScheduleModeEnum.MANUAL.getValue();
+          String jobKey = (String) event.getArgs()[1];
+          ExecuteJobTaskRunnable taskRunnable
+              = new ExecuteJobTaskRunnable(taskId, schedule, jobKey);
+          taskRunnableMap.put(jobKey, taskRunnable);
+          try {
+            taskRunnable.run();
+          } finally {
+            taskRunnableMap.remove(jobKey);
+          }
+          return null;
+        }
+    );
+  }
 
   public void scheduleTask(Long taskId, ScheduleModeEnum scheduleMode) {
     /** 准备JobDetail */
@@ -70,11 +106,12 @@ public class ScheduleService {
     String triggerGroup = JobExecutorService.GROUP;
     TriggerKey triggerKey = TriggerKey.triggerKey(triggerName, triggerGroup);
 
-    log.info("Create schedule task, taskId: {}", taskId);
+    log.info("Create schedule task, taskId: {}, jobKey: {}", taskId, jobKeyName);
 
     AssignmentTaskEntity task = assignmentTaskDAO.getById(taskId);
     if (ScheduleModeEnum.MANUAL == scheduleMode) {
-      scheduleOnce(jobBuilder.storeDurably(false).build(), triggerKey);
+      manualRunEvenHub.notify(evenName, taskId, jobKeyName);
+      //scheduleOnce(jobBuilder.storeDurably(false).build(), triggerKey);
     } else {
       scheduleCron(jobBuilder.storeDurably(true).build(), triggerKey, task.getCronExpression());
     }
@@ -85,6 +122,12 @@ public class ScheduleService {
 
   public void cancelByJobKey(String jobKeyName) {
     if (StringUtils.isBlank(jobKeyName)) {
+      return;
+    }
+
+    ExecuteJobTaskRunnable runnable = taskRunnableMap.get(jobKeyName);
+    if (null != runnable) {
+      runnable.interrupt();
       return;
     }
 
@@ -122,23 +165,23 @@ public class ScheduleService {
     }
   }
 
-  private void scheduleOnce(JobDetail jobDetail, TriggerKey triggerKey) {
-    Scheduler scheduler = schedulerFactoryBean.getScheduler();
-    Trigger simpleTrigger = TriggerBuilder.newTrigger()
-        .startAt(new Date())
-        .withIdentity(triggerKey)
-        .withSchedule(SimpleScheduleBuilder.simpleSchedule().withRepeatCount(0))
-        .build();
-
-    try {
-      scheduler.scheduleJob(jobDetail, simpleTrigger);
-    } catch (SchedulerException e) {
-      log.error("Quartz schedule task by manual failed, taskId: {}.",
-          jobDetail.getJobDataMap().get(JobExecutorService.TASK_ID), e);
-      throw new RuntimeException(e);
-    }
-
-  }
+//  private void scheduleOnce(JobDetail jobDetail, TriggerKey triggerKey) {
+//    Scheduler scheduler = schedulerFactoryBean.getScheduler();
+//    Trigger simpleTrigger = TriggerBuilder.newTrigger()
+//        .startAt(new Date())
+//        .withIdentity(triggerKey)
+//        .withSchedule(SimpleScheduleBuilder.simpleSchedule().withRepeatCount(0))
+//        .build();
+//
+//    try {
+//      scheduler.scheduleJob(jobDetail, simpleTrigger);
+//    } catch (SchedulerException e) {
+//      log.error("Quartz schedule task by manual failed, taskId: {}.",
+//          jobDetail.getJobDataMap().get(JobExecutorService.TASK_ID), e);
+//      throw new RuntimeException(e);
+//    }
+//
+//  }
 
   private void scheduleCron(JobDetail jobDetail, TriggerKey triggerKey, String cronExpression) {
     Scheduler scheduler = schedulerFactoryBean.getScheduler();

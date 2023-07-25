@@ -15,16 +15,16 @@ import java.util.Collections;
 import lombok.Getter;
 
 @Getter
-public class ListenEvent extends java.util.EventObject {
+public class ListenedEvent extends java.util.EventObject {
 
   private String name;
   private Object[] args;
 
-  public ListenEvent(Object source, String event) {
+  public ListenedEvent(Object source, String event) {
     this(source, event, Collections.emptyList().toArray());
   }
 
-  public ListenEvent(Object source, String event, Object... args) {
+  public ListenedEvent(Object source, String event, Object... args) {
     super(source);
     this.name = event;
     this.args = args;
