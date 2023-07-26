@@ -69,7 +69,7 @@
 			</includes>
 		</fileSet>
 
-		<!-- 将模块dbswitch-core的jar文件放到打包目录/lib 下 -->
+		<!-- 将模块dbswitch-data的jar文件放到打包目录/lib 下 -->
 		<fileSet>
 			<directory>${project.parent.basedir}/dbswitch-data/target</directory>
 			<outputDirectory>lib</outputDirectory>
@@ -88,16 +88,15 @@
 			</includes>
 		</fileSet>
 
-		<!-- 将模块dbswitch-product-repository的jar文件放到打包目录/lib 下 -->
+		<!-- 将模块dbswitch-product下的jar文件放到打包目录/lib 下 -->
 		<fileSet>
-			<directory>${project.parent.basedir}/dbswitch-product/dbswitch-product-repository/target
+			<directory>${project.parent.basedir}/dbswitch-product/dbswitch-register-product/target
 			</directory>
 			<outputDirectory>lib</outputDirectory>
 			<includes>
 				<include>*.jar</include>
 			</includes>
 		</fileSet>
-
 
 		<!-- 将模块drivers驱动等打包目录/drivers 下 -->
 		<fileSet>

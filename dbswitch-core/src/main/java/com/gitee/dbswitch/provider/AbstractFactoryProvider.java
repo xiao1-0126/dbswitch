@@ -9,7 +9,10 @@
 /////////////////////////////////////////////////////////////
 package com.gitee.dbswitch.provider;
 
+import com.gitee.dbswitch.annotation.Product;
+import com.gitee.dbswitch.common.type.ProductTypeEnum;
 import com.gitee.dbswitch.common.util.ExamineUtils;
+import java.util.Objects;
 import javax.sql.DataSource;
 
 public abstract class AbstractFactoryProvider implements ProductFactoryProvider {
@@ -23,6 +26,15 @@ public abstract class AbstractFactoryProvider implements ProductFactoryProvider 
 
   public DataSource getDataSource() {
     return this.dataSource;
+  }
+
+  @Override
+  public final ProductTypeEnum getProductType() {
+    Product annotation = getClass().getAnnotation(Product.class);
+    if (Objects.isNull(annotation)) {
+      throw new RuntimeException("Should use Product annotation for class :" + getClass().getName());
+    }
+    return annotation.value();
   }
 
 }

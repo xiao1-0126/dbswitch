@@ -9,6 +9,7 @@
 /////////////////////////////////////////////////////////////
 package com.gitee.dbswitch.product.mysql;
 
+import com.gitee.dbswitch.annotation.Product;
 import com.gitee.dbswitch.common.type.ProductTypeEnum;
 import com.gitee.dbswitch.features.ProductFeatures;
 import com.gitee.dbswitch.provider.AbstractFactoryProvider;
@@ -16,15 +17,11 @@ import com.gitee.dbswitch.provider.meta.MetadataProvider;
 import com.gitee.dbswitch.provider.sync.TableDataSynchronizer;
 import javax.sql.DataSource;
 
+@Product(ProductTypeEnum.MYSQL)
 public class MysqlFactoryProvider extends AbstractFactoryProvider {
 
   public MysqlFactoryProvider(DataSource dataSource) {
     super(dataSource);
-  }
-
-  @Override
-  public ProductTypeEnum getProductType() {
-    return ProductTypeEnum.MYSQL;
   }
 
   public ProductFeatures getProductFeatures() {

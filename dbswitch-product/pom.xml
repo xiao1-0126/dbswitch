@@ -25,7 +25,7 @@
     <module>dbswitch-product-mariadb</module>
     <module>dbswitch-product-hive</module>
     <module>dbswitch-product-gbase</module>
-    <module>dbswitch-product-repository</module>
+    <module>dbswitch-register-product</module>
   </modules>
 
 </project>

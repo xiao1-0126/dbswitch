@@ -170,10 +170,67 @@ public enum ProductTypeEnum {
     return String.format("%s%s%s.%s%s%s", quote, schema, quote, quote, table, quote);
   }
 
+  /**
+   * 类似于PostgreSQL系列的数据库类型
+   *
+   * @return boolean
+   */
+  public boolean isLikePostgres() {
+    return this == POSTGRESQL || this == KINGBASE;
+  }
+
+  /**
+   * 类似于MySQL系列的数据库类型
+   *
+   * @return boolean
+   */
+  public boolean isLikeMysql() {
+    return this == MYSQL || this == MARIADB || this == GBASE8A;
+  }
+
+  /**
+   * 类似于Oracle系列的数据库类型
+   *
+   * @return boolean
+   */
+  public boolean isLikeOracle() {
+    return this == ORACLE || this == DM;
+  }
+
+  /**
+   * 类似于SQL Server系列的数据库类型
+   *
+   * @return boolean
+   */
+  public boolean isLikeSqlServer() {
+    return this == SQLSERVER || this == SYBASE;
+  }
+
+  /**
+   * 类似于Hive系列的数据库类型
+   *
+   * @return boolean
+   */
+  public boolean isLikeHive() {
+    return this == HIVE;
+  }
+
+  /**
+   * 是否存在指定字符串名称的数据库类型
+   *
+   * @param name 字符串名称
+   * @return boolean
+   */
   public static boolean exists(String name) {
     return Arrays.stream(values()).anyMatch(item -> item.name().equalsIgnoreCase(name));
   }
 
+  /**
+   * 将字符串名称转换为枚举值
+   *
+   * @param name 字符串名称
+   * @return ProductTypeEnum
+   */
   public static ProductTypeEnum of(String name) {
     if (!StringUtils.isEmpty(name)) {
       for (ProductTypeEnum type : ProductTypeEnum.values()) {
@@ -186,6 +243,12 @@ public enum ProductTypeEnum {
     throw new IllegalArgumentException("cannot find enum name: " + name);
   }
 
+  /**
+   * 针对SQLite数据库的URL连接串判断
+   *
+   * @param url SQLite数据库的URL连接串
+   * @return boolean
+   */
   public static boolean isUnsupportedTargetSqlite(String url) {
     String prefix1 = "jdbc:sqlite::resource:";
     //String prefix2 = "jdbc:sqlite::memory:";

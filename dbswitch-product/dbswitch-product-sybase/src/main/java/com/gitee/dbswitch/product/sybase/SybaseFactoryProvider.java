@@ -9,6 +9,7 @@
 /////////////////////////////////////////////////////////////
 package com.gitee.dbswitch.product.sybase;
 
+import com.gitee.dbswitch.annotation.Product;
 import com.gitee.dbswitch.common.type.ProductTypeEnum;
 import com.gitee.dbswitch.features.ProductFeatures;
 import com.gitee.dbswitch.product.sqlserver.SqlserverTableOperateProvider;
@@ -19,15 +20,11 @@ import com.gitee.dbswitch.provider.operate.TableOperateProvider;
 import com.gitee.dbswitch.provider.sync.TableDataSynchronizer;
 import javax.sql.DataSource;
 
+@Product(ProductTypeEnum.SYBASE)
 public class SybaseFactoryProvider extends AbstractFactoryProvider {
 
   public SybaseFactoryProvider(DataSource dataSource) {
     super(dataSource);
-  }
-
-  @Override
-  public ProductTypeEnum getProductType() {
-    return ProductTypeEnum.SYBASE;
   }
 
   public ProductFeatures getProductFeatures() {

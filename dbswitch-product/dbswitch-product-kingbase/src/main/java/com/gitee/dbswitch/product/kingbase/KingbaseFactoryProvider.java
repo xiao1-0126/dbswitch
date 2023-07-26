@@ -9,6 +9,7 @@
 /////////////////////////////////////////////////////////////
 package com.gitee.dbswitch.product.kingbase;
 
+import com.gitee.dbswitch.annotation.Product;
 import com.gitee.dbswitch.common.type.ProductTypeEnum;
 import com.gitee.dbswitch.features.ProductFeatures;
 import com.gitee.dbswitch.product.postgresql.PostgresTableOperateProvider;
@@ -20,15 +21,11 @@ import com.gitee.dbswitch.provider.sync.TableDataSynchronizer;
 import com.gitee.dbswitch.provider.write.TableDataWriteProvider;
 import javax.sql.DataSource;
 
+@Product(ProductTypeEnum.KINGBASE)
 public class KingbaseFactoryProvider extends AbstractFactoryProvider {
 
   public KingbaseFactoryProvider(DataSource dataSource) {
     super(dataSource);
-  }
-
-  @Override
-  public ProductTypeEnum getProductType() {
-    return ProductTypeEnum.KINGBASE;
   }
 
   public ProductFeatures getProductFeatures() {

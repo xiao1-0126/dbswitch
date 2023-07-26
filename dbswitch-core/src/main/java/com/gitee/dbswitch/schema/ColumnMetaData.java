@@ -10,7 +10,6 @@
 package com.gitee.dbswitch.schema;
 
 import com.gitee.dbswitch.common.consts.Constants;
-import com.gitee.dbswitch.common.type.ProductTypeEnum;
 
 /**
  * 数据库表列的元信息
@@ -349,8 +348,7 @@ public class ColumnMetaData {
           }
 
           // If we're dealing with PostgreSQL and double precision types
-          if ((desc.getProductType() == ProductTypeEnum.POSTGRESQL
-              || desc.getProductType() == ProductTypeEnum.KINGBASE)
+          if ((desc.getProductType().isLikePostgres())
               && type == java.sql.Types.DOUBLE
               && precision >= 16
               && length >= 16) {
@@ -360,8 +358,7 @@ public class ColumnMetaData {
 
           // MySQL: max resolution is double precision floating point (double)
           // The (12,31) that is given back is not correct
-          if (desc.getProductType() == ProductTypeEnum.MYSQL
-              || desc.getProductType() == ProductTypeEnum.MARIADB) {
+          if (desc.getProductType().isLikeMysql()) {
             if (precision >= length) {
               precision = -1;
               length = -1;
@@ -369,7 +366,7 @@ public class ColumnMetaData {
           }
 
           // If we're dealing with Hive and double/float precision types
-          if (desc.getProductType() == ProductTypeEnum.HIVE) {
+          if (desc.getProductType().isLikeHive()) {
             if (type == java.sql.Types.DOUBLE
                 && precision >= 15
                 && length >= 15) {
@@ -400,8 +397,7 @@ public class ColumnMetaData {
           }
         }
 
-        if (desc.getProductType() == ProductTypeEnum.POSTGRESQL
-            || desc.getProductType() == ProductTypeEnum.KINGBASE) {
+        if (desc.getProductType().isLikePostgres()) {
           // undefined size => arbitrary precision
           if (type == java.sql.Types.NUMERIC && length == 0 && precision == 0) {
             valtype = ColumnMetaData.TYPE_BIGNUMBER;
@@ -410,8 +406,7 @@ public class ColumnMetaData {
           }
         }
 
-        if (desc.getProductType() == ProductTypeEnum.ORACLE ||
-            desc.getProductType() == ProductTypeEnum.DM) {
+        if (desc.getProductType().isLikeOracle()) {
           if (precision == 0 && length == 38) {
             valtype = ColumnMetaData.TYPE_INTEGER;
           }

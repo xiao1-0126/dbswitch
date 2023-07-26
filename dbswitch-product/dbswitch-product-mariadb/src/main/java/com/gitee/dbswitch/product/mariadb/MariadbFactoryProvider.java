@@ -9,6 +9,7 @@
 /////////////////////////////////////////////////////////////
 package com.gitee.dbswitch.product.mariadb;
 
+import com.gitee.dbswitch.annotation.Product;
 import com.gitee.dbswitch.common.type.ProductTypeEnum;
 import com.gitee.dbswitch.features.ProductFeatures;
 import com.gitee.dbswitch.product.mysql.MysqlMetadataQueryProvider;
@@ -18,15 +19,11 @@ import com.gitee.dbswitch.provider.meta.MetadataProvider;
 import com.gitee.dbswitch.provider.sync.TableDataSynchronizer;
 import javax.sql.DataSource;
 
+@Product(ProductTypeEnum.MARIADB)
 public class MariadbFactoryProvider extends AbstractFactoryProvider {
 
   public MariadbFactoryProvider(DataSource dataSource) {
     super(dataSource);
-  }
-
-  @Override
-  public ProductTypeEnum getProductType() {
-    return ProductTypeEnum.MARIADB;
   }
 
   public ProductFeatures getProductFeatures() {
