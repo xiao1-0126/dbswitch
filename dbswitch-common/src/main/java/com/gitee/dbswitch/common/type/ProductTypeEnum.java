@@ -128,6 +128,14 @@ public enum ProductTypeEnum {
       "SELECT 1",
       "jdbc:sqlite:",
       new String[]{"jdbc:sqlite:{file}", "jdbc:sqlite::resource:{file}"}),
+
+  /**
+   * OpenGauss数据库类型
+   */
+  OPENGAUSS(14, "\"", "opengauss", "org.opengauss.Driver", 15432,
+      "SELECT 1",
+      "jdbc:opengauss://",
+      new String[]{"jdbc:opengauss://{host}[:{port}]/[{database}][\\?{params}]"}),
   ;
 
   private int id;
@@ -176,7 +184,7 @@ public enum ProductTypeEnum {
    * @return boolean
    */
   public boolean isLikePostgres() {
-    return this == POSTGRESQL || this == KINGBASE;
+    return this == POSTGRESQL || this == KINGBASE || this == OPENGAUSS;
   }
 
   /**

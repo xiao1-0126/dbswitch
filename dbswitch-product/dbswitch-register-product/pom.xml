@@ -78,6 +78,11 @@
       <version>${project.version}</version>
     </dependency>
     <!-- 新增加的数据库产品需要在这里追加依赖-->
+    <dependency>
+      <groupId>com.gitee.dbswitch</groupId>
+      <artifactId>dbswitch-product-openguass</artifactId>
+      <version>${project.version}</version>
+    </dependency>
   </dependencies>
 
 </project>

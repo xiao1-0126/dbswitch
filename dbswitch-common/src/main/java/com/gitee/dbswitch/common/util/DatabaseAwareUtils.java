@@ -75,7 +75,14 @@ public final class DatabaseAwareUtils {
       String productName = connection.getMetaData().getDatabaseProductName();
       String driverName = connection.getMetaData().getDriverName();
       if (driverNameMap.containsKey(driverName)) {
-        return driverNameMap.get(driverName);
+        ProductTypeEnum productType = driverNameMap.get(driverName);
+        if (productType == ProductTypeEnum.POSTGRESQL) {
+          String url = connection.getMetaData().getURL();
+          if (null != url && url.contains("opengauss")) {
+            return ProductTypeEnum.OPENGAUSS;
+          }
+        }
+        return productType;
       }
 
       ProductTypeEnum type = productNameMap.get(productName);
