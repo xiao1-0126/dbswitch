@@ -12,7 +12,7 @@ package com.gitee.dbswitch.calculate;
 import com.gitee.dbswitch.common.consts.Constants;
 import com.gitee.dbswitch.common.entity.ResultSetWrapper;
 import com.gitee.dbswitch.common.util.JdbcTypesUtils;
-import com.gitee.dbswitch.common.util.TypeConvertUtils;
+import com.gitee.dbswitch.common.util.ObjectCastUtils;
 import com.gitee.dbswitch.provider.ProductProviderFactory;
 import com.gitee.dbswitch.provider.query.TableDataQueryProvider;
 import com.gitee.dbswitch.service.DefaultMetadataService;
@@ -441,8 +441,8 @@ public final class ChangeCalculatorService implements IDatabaseChangeCalculator 
      * </p>
      */
     if (JdbcTypesUtils.isString(type)) {
-      String s1 = TypeConvertUtils.castToString(o1);
-      String s2 = TypeConvertUtils.castToString(o2);
+      String s1 = ObjectCastUtils.castToString(o1);
+      String s2 = ObjectCastUtils.castToString(o2);
       return s1.compareTo(s2);
     } else if (JdbcTypesUtils.isNumeric(type) && o1 instanceof java.lang.Number
         && o2 instanceof java.lang.Number) {
@@ -475,8 +475,8 @@ public final class ChangeCalculatorService implements IDatabaseChangeCalculator 
     } else {
       try {
         return compareTo(
-            TypeConvertUtils.castToByteArray(o1),
-            TypeConvertUtils.castToByteArray(o2)
+            ObjectCastUtils.castToByteArray(o1),
+            ObjectCastUtils.castToByteArray(o2)
         );
       } catch (Exception e) {
         log.warn("CDC compare field value failed, return 0 instead,{}", e.getMessage());

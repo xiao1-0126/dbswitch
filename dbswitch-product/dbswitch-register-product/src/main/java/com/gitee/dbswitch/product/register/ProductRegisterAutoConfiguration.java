@@ -7,9 +7,10 @@
 // Date : 2020/1/2
 // Location: beijing , china
 /////////////////////////////////////////////////////////////
-package com.gitee.dbswitch.product.repository;
+package com.gitee.dbswitch.product.register;
 
 import com.gitee.dbswitch.annotation.Product;
+import com.gitee.dbswitch.common.consts.Constants;
 import com.gitee.dbswitch.common.type.ProductTypeEnum;
 import com.gitee.dbswitch.provider.ProductFactoryProvider;
 import com.gitee.dbswitch.provider.ProductProviderFactory;
@@ -35,7 +36,6 @@ import org.springframework.context.annotation.Configuration;
 @ConditionalOnClass(ProductProviderFactory.class)
 public class ProductRegisterAutoConfiguration implements InitializingBean, BeanClassLoaderAware {
 
-  private static final String SPI_FILE = "META-INF/services/dbswitch.providers";
   private static final Set<String> providers = new HashSet<>();
 
   private ClassLoader classLoader;
@@ -111,7 +111,7 @@ public class ProductRegisterAutoConfiguration implements InitializingBean, BeanC
     ClassLoader loader = (null != classLoader)
         ? classLoader
         : ProductProviderFactory.class.getClassLoader();
-    Enumeration<URL> resources = loader.getResources(SPI_FILE);
+    Enumeration<URL> resources = loader.getResources(Constants.SPI_FILE);
     while (resources.hasMoreElements()) {
       URL url = resources.nextElement();
       providers.addAll(parse(url));

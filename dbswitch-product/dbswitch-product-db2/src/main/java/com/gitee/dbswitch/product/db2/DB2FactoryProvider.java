@@ -15,7 +15,9 @@ import com.gitee.dbswitch.features.ProductFeatures;
 import com.gitee.dbswitch.provider.AbstractFactoryProvider;
 import com.gitee.dbswitch.provider.meta.MetadataProvider;
 import com.gitee.dbswitch.provider.operate.TableOperateProvider;
+import com.gitee.dbswitch.provider.sync.AutoCastTableDataSynchronizer;
 import com.gitee.dbswitch.provider.sync.TableDataSynchronizer;
+import com.gitee.dbswitch.provider.write.AutoCastTableDataWriteProvider;
 import com.gitee.dbswitch.provider.write.TableDataWriteProvider;
 import javax.sql.DataSource;
 
@@ -37,7 +39,7 @@ public class DB2FactoryProvider extends AbstractFactoryProvider {
 
   @Override
   public TableDataWriteProvider createTableDataWriteProvider(boolean useInsert) {
-    return new DB2TableDataWriteProvider(this);
+    return new AutoCastTableDataWriteProvider(this);
   }
 
   @Override
@@ -47,7 +49,7 @@ public class DB2FactoryProvider extends AbstractFactoryProvider {
 
   @Override
   public TableDataSynchronizer createTableDataSynchronizer() {
-    return new DB2TableSynchronizer(this);
+    return new AutoCastTableDataSynchronizer(this);
   }
 
 }

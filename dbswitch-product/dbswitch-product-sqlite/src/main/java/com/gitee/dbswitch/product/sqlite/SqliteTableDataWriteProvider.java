@@ -9,14 +9,12 @@
 /////////////////////////////////////////////////////////////
 package com.gitee.dbswitch.product.sqlite;
 
-import com.gitee.dbswitch.common.util.ObjectCastUtils;
 import com.gitee.dbswitch.provider.ProductFactoryProvider;
-import com.gitee.dbswitch.provider.write.DefaultTableDataWriteProvider;
-import java.util.List;
+import com.gitee.dbswitch.provider.write.AutoCastTableDataWriteProvider;
 import org.springframework.transaction.TransactionDefinition;
 import org.springframework.transaction.support.DefaultTransactionDefinition;
 
-public class SqliteTableDataWriteProvider extends DefaultTableDataWriteProvider {
+public class SqliteTableDataWriteProvider extends AutoCastTableDataWriteProvider {
 
   public SqliteTableDataWriteProvider(ProductFactoryProvider factoryProvider) {
     super(factoryProvider);
@@ -30,18 +28,4 @@ public class SqliteTableDataWriteProvider extends DefaultTableDataWriteProvider 
     return definition;
   }
 
-  @Override
-  public long write(List<String> fieldNames, List<Object[]> recordValues) {
-    recordValues.parallelStream().forEach((Object[] row) -> {
-      for (int i = 0; i < row.length; ++i) {
-        try {
-          row[i] = ObjectCastUtils.castByDetermine(row[i]);
-        } catch (Exception e) {
-          row[i] = null;
-        }
-      }
-    });
-
-    return super.write(fieldNames, recordValues);
-  }
 }

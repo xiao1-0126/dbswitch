@@ -13,11 +13,12 @@ import com.gitee.dbswitch.annotation.Product;
 import com.gitee.dbswitch.common.type.ProductTypeEnum;
 import com.gitee.dbswitch.features.ProductFeatures;
 import com.gitee.dbswitch.product.postgresql.PostgresTableOperateProvider;
-import com.gitee.dbswitch.product.postgresql.PostgresTableSynchronizer;
 import com.gitee.dbswitch.provider.AbstractFactoryProvider;
 import com.gitee.dbswitch.provider.meta.MetadataProvider;
 import com.gitee.dbswitch.provider.operate.TableOperateProvider;
+import com.gitee.dbswitch.provider.sync.AutoCastTableDataSynchronizer;
 import com.gitee.dbswitch.provider.sync.TableDataSynchronizer;
+import com.gitee.dbswitch.provider.write.AutoCastTableDataWriteProvider;
 import com.gitee.dbswitch.provider.write.TableDataWriteProvider;
 import javax.sql.DataSource;
 
@@ -44,11 +45,11 @@ public class KingbaseFactoryProvider extends AbstractFactoryProvider {
 
   @Override
   public TableDataWriteProvider createTableDataWriteProvider(boolean useInsert) {
-    return new KingbaseTableWriteProvider(this);
+    return new AutoCastTableDataWriteProvider(this);
   }
 
   @Override
   public TableDataSynchronizer createTableDataSynchronizer() {
-    return new PostgresTableSynchronizer(this);
+    return new AutoCastTableDataSynchronizer(this);
   }
 }

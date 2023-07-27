@@ -29,7 +29,7 @@ public class PostgresTableOperateProvider extends DefaultTableOperateProvider {
 
   @Override
   public void dropTable(String schemaName, String tableName) {
-    String sql = String.format("DROP TABLE \"%s\".\"%s\" cascade ",
+    String sql = String.format("DROP TABLE \"%s\".\"%s\" CASCADE ",
         schemaName, tableName);
     this.executeSql(sql);
   }

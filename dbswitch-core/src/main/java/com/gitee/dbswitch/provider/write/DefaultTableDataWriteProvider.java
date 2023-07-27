@@ -10,6 +10,7 @@
 package com.gitee.dbswitch.provider.write;
 
 import com.gitee.dbswitch.common.type.ProductTypeEnum;
+import com.gitee.dbswitch.common.util.ObjectCastUtils;
 import com.gitee.dbswitch.provider.AbstractCommonProvider;
 import com.gitee.dbswitch.provider.ProductFactoryProvider;
 import java.util.Collections;
@@ -93,5 +94,6 @@ public class DefaultTableDataWriteProvider
       throw e;
     }
   }
+
 
 }

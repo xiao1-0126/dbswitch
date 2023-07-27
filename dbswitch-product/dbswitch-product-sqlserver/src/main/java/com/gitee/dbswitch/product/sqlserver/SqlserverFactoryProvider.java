@@ -14,8 +14,12 @@ import com.gitee.dbswitch.common.type.ProductTypeEnum;
 import com.gitee.dbswitch.features.ProductFeatures;
 import com.gitee.dbswitch.provider.AbstractFactoryProvider;
 import com.gitee.dbswitch.provider.meta.MetadataProvider;
+import com.gitee.dbswitch.provider.operate.DefaultTableOperateProvider;
 import com.gitee.dbswitch.provider.operate.TableOperateProvider;
+import com.gitee.dbswitch.provider.sync.AutoCastTableDataSynchronizer;
 import com.gitee.dbswitch.provider.sync.TableDataSynchronizer;
+import com.gitee.dbswitch.provider.write.AutoCastTableDataWriteProvider;
+import com.gitee.dbswitch.provider.write.TableDataWriteProvider;
 import javax.sql.DataSource;
 
 @Product(ProductTypeEnum.SQLSERVER)
@@ -35,13 +39,18 @@ public class SqlserverFactoryProvider extends AbstractFactoryProvider {
   }
 
   @Override
+  public TableDataWriteProvider createTableDataWriteProvider(boolean useInsert) {
+    return new AutoCastTableDataWriteProvider(this);
+  }
+
+  @Override
   public TableOperateProvider createTableOperateProvider() {
-    return new SqlserverTableOperateProvider(this);
+    return new DefaultTableOperateProvider(this);
   }
 
   @Override
   public TableDataSynchronizer createTableDataSynchronizer() {
-    return new SqlserverTableSynchronizer(this);
+    return new AutoCastTableDataSynchronizer(this);
   }
 
 }

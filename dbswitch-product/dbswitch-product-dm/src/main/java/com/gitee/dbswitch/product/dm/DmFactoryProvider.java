@@ -12,9 +12,12 @@ package com.gitee.dbswitch.product.dm;
 import com.gitee.dbswitch.annotation.Product;
 import com.gitee.dbswitch.common.type.ProductTypeEnum;
 import com.gitee.dbswitch.features.ProductFeatures;
+import com.gitee.dbswitch.product.oracle.OracleTableDataWriteProvider;
+import com.gitee.dbswitch.product.oracle.OracleTableOperateProvider;
 import com.gitee.dbswitch.provider.AbstractFactoryProvider;
 import com.gitee.dbswitch.provider.meta.MetadataProvider;
 import com.gitee.dbswitch.provider.operate.TableOperateProvider;
+import com.gitee.dbswitch.provider.sync.DefaultTableDataSynchronizer;
 import com.gitee.dbswitch.provider.sync.TableDataSynchronizer;
 import com.gitee.dbswitch.provider.write.TableDataWriteProvider;
 import javax.sql.DataSource;
@@ -37,17 +40,17 @@ public class DmFactoryProvider extends AbstractFactoryProvider {
 
   @Override
   public TableDataWriteProvider createTableDataWriteProvider(boolean useInsert) {
-    return new DmTableDataWriteProvider(this);
+    return new OracleTableDataWriteProvider(this);
   }
 
   @Override
   public TableOperateProvider createTableOperateProvider() {
-    return new DmTableOperateProvider(this);
+    return new OracleTableOperateProvider(this);
   }
 
   @Override
   public TableDataSynchronizer createTableDataSynchronizer() {
-    return new DmTableSynchronizer(this);
+    return new DefaultTableDataSynchronizer(this);
   }
 
 }

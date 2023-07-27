@@ -14,7 +14,10 @@ import com.gitee.dbswitch.common.type.ProductTypeEnum;
 import com.gitee.dbswitch.features.ProductFeatures;
 import com.gitee.dbswitch.provider.AbstractFactoryProvider;
 import com.gitee.dbswitch.provider.meta.MetadataProvider;
+import com.gitee.dbswitch.provider.operate.TableOperateProvider;
 import com.gitee.dbswitch.provider.query.TableDataQueryProvider;
+import com.gitee.dbswitch.provider.sync.TableDataSynchronizer;
+import com.gitee.dbswitch.provider.write.TableDataWriteProvider;
 import javax.sql.DataSource;
 
 @Product(ProductTypeEnum.HIVE)
@@ -38,4 +41,18 @@ public class HiveFactoryProvider extends AbstractFactoryProvider {
     return new HiveTableDataQueryProvider(this);
   }
 
+  @Override
+  public TableOperateProvider createTableOperateProvider() {
+    throw new UnsupportedOperationException("Unsupported hive to operator tale!");
+  }
+
+  @Override
+  public TableDataWriteProvider createTableDataWriteProvider(boolean useInsert) {
+    throw new UnsupportedOperationException("Unsupported hive to write tale data!");
+  }
+
+  @Override
+  public TableDataSynchronizer createTableDataSynchronizer() {
+    throw new UnsupportedOperationException("Unsupported hive to sync tale data!");
+  }
 }

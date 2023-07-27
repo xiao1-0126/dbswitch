@@ -1,14 +1,18 @@
 package com.gitee.dbswitch.common.util;
 
-import cn.hutool.core.convert.Convert;
+import java.io.ByteArrayOutputStream;
+import java.io.ObjectOutputStream;
 import java.lang.reflect.Method;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.sql.SQLException;
+import java.sql.Types;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.ZoneId;
+import java.util.function.Function;
 import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -16,46 +20,6 @@ import org.apache.commons.lang3.StringUtils;
 @Slf4j
 @UtilityClass
 public final class ObjectCastUtils {
-
-  /**
-   * 将java.sql.Clob类型转换为java.lang.String类型
-   *
-   * @param clob java.sql.Clob类型对象
-   * @return java.lang.String类型数据
-   */
-  public static String clob2Str(java.sql.Clob clob) {
-    return TypeConvertUtils.clob2Str(clob);
-  }
-
-  /**
-   * 将java.sql.Blob类型转换为byte数组
-   *
-   * @param blob java.sql.Blob类型对象
-   * @return byte数组
-   */
-  public static byte[] blob2Bytes(java.sql.Blob blob) {
-    return TypeConvertUtils.blob2Bytes(blob);
-  }
-
-  /**
-   * 将Object对象转换为字节数组
-   *
-   * @param in 对象
-   * @return 字节数组
-   */
-  public static byte[] toByteArray(Object in) {
-    return TypeConvertUtils.castToByteArray(in);
-  }
-
-  /**
-   * 将任意类型转换为java.lang.String类型
-   *
-   * @param in 任意类型的对象实例
-   * @return java.lang.String类型
-   */
-  public static String castToString(final Object in) {
-    return TypeConvertUtils.castToString(in);
-  }
 
   /**
    * 将任意类型转换为java.lang.Byte类型
@@ -94,6 +58,31 @@ public final class ObjectCastUtils {
     }
 
     return null;
+  }
+
+
+  public static byte[] castToByteArray(final Object in) {
+    if (in instanceof byte[]) {
+      return (byte[]) in;
+    } else if (in instanceof java.util.Date) {
+      return in.toString().getBytes();
+    } else if (in instanceof java.sql.Blob) {
+      return blob2Bytes((java.sql.Blob) in);
+    } else if (in instanceof java.lang.String || in instanceof java.lang.Character) {
+      return in.toString().getBytes();
+    } else if (in instanceof java.sql.Clob) {
+      return clob2Str((java.sql.Clob) in).getBytes();
+    } else {
+      try (ByteArrayOutputStream bos = new ByteArrayOutputStream();
+          ObjectOutputStream oos = new ObjectOutputStream(bos)) {
+        oos.writeObject(in);
+        oos.flush();
+        return bos.toByteArray();
+      } catch (Exception e) {
+        log.error("Field value convert from {} to byte[] failed:", in.getClass().getName(), e);
+        throw new RuntimeException(e);
+      }
+    }
   }
 
   /**
@@ -679,28 +668,6 @@ public final class ObjectCastUtils {
   }
 
   /**
-   * 将任意类型转换为byte[]类型
-   *
-   * @param in 任意类型的对象实例
-   * @return byte[]类型
-   */
-  public static byte[] castToByteArray(final Object in) {
-    if (in instanceof byte[]) {
-      return (byte[]) in;
-    } else if (in instanceof java.util.Date) {
-      return in.toString().getBytes();
-    } else if (in instanceof java.sql.Blob) {
-      return blob2Bytes((java.sql.Blob) in);
-    } else if (in instanceof String || in instanceof Character) {
-      return in.toString().getBytes();
-    } else if (in instanceof java.sql.Clob) {
-      return clob2Str((java.sql.Clob) in).toString().getBytes();
-    } else {
-      return toByteArray(in);
-    }
-  }
-
-  /**
    * 将任意类型转换为Boolean类型
    *
    * @param in 任意类型的对象实例
@@ -728,6 +695,197 @@ public final class ObjectCastUtils {
     }
 
     return null;
+  }
+
+  public static byte[] blob2Bytes(java.sql.Blob blob) {
+    try (java.io.InputStream inputStream = blob.getBinaryStream()) {
+      try (java.io.BufferedInputStream is = new java.io.BufferedInputStream(inputStream)) {
+        byte[] bytes = new byte[(int) blob.length()];
+        int len = bytes.length;
+        int offset = 0;
+        int read = 0;
+        while (offset < len && (read = is.read(bytes, offset, len - offset)) >= 0) {
+          offset += read;
+        }
+        return bytes;
+      }
+    } catch (Exception e) {
+      throw new RuntimeException(e);
+    }
+  }
+
+  public static String clob2Str(java.sql.Clob clob) {
+    try (java.io.Reader is = clob.getCharacterStream()) {
+      java.io.BufferedReader reader = new java.io.BufferedReader(is);
+      StringBuffer sb = new StringBuffer();
+      char[] buffer = new char[4096];
+      for (int i = reader.read(buffer); i > 0; i = reader.read(buffer)) {
+        sb.append(buffer, 0, i);
+      }
+      return sb.toString();
+    } catch (SQLException | java.io.IOException e) {
+      log.warn("Field Value convert from java.sql.Clob to java.lang.String failed:", e);
+      return null;
+    }
+  }
+
+  public static String castToString(final Object in) {
+    if (in instanceof java.lang.Character) {
+      return in.toString();
+    } else if (in instanceof java.lang.String) {
+      return in.toString();
+    } else if (in instanceof java.lang.Character) {
+      return in.toString();
+    } else if (in instanceof java.sql.Clob) {
+      return clob2Str((java.sql.Clob) in);
+    } else if (in instanceof java.lang.Number) {
+      return in.toString();
+    } else if (in instanceof java.sql.RowId) {
+      return in.toString();
+    } else if (in instanceof java.lang.Boolean) {
+      return in.toString();
+    } else if (in instanceof java.util.Date) {
+      return in.toString();
+    } else if (in instanceof java.time.LocalDate) {
+      return in.toString();
+    } else if (in instanceof java.time.LocalTime) {
+      return in.toString();
+    } else if (in instanceof java.time.LocalDateTime) {
+      return in.toString();
+    } else if (in instanceof java.time.OffsetDateTime) {
+      return in.toString();
+    } else if (in instanceof java.sql.SQLXML) {
+      return in.toString();
+    } else if (in instanceof java.sql.Array) {
+      return in.toString();
+    } else if (in instanceof java.util.UUID) {
+      return in.toString();
+    } else if ("org.postgresql.util.PGobject".equals(in.getClass().getName())) {
+      return in.toString();
+    } else if ("org.postgresql.jdbc.PgSQLXML".equals(in.getClass().getName())) {
+      try {
+        Class<?> clz = in.getClass();
+        Method getString = clz.getMethod("getString");
+        return getString.invoke(in).toString();
+      } catch (Exception e) {
+        return "";
+      }
+    } else if (in.getClass().getName().equals("oracle.sql.INTERVALDS")) {
+      return in.toString();
+    } else if (in.getClass().getName().equals("oracle.sql.INTERVALYM")) {
+      return in.toString();
+    } else if (in.getClass().getName().equals("oracle.sql.TIMESTAMPLTZ")) {
+      return in.toString();
+    } else if (in.getClass().getName().equals("oracle.sql.TIMESTAMPTZ")) {
+      return in.toString();
+    } else if (in.getClass().getName().equals("oracle.sql.BFILE")) {
+      Class<?> clz = in.getClass();
+      try {
+        Method methodFileExists = clz.getMethod("fileExists");
+        boolean exists = (boolean) methodFileExists.invoke(in);
+        if (!exists) {
+          return "";
+        }
+
+        Method methodOpenFile = clz.getMethod("openFile");
+        methodOpenFile.invoke(in);
+
+        try {
+          Method methodCharacterStreamValue = clz.getMethod("getBinaryStream");
+          java.io.InputStream is = (java.io.InputStream) methodCharacterStreamValue.invoke(in);
+
+          String line;
+          StringBuilder sb = new StringBuilder();
+
+          java.io.BufferedReader br = new java.io.BufferedReader(new java.io.InputStreamReader(is));
+          while ((line = br.readLine()) != null) {
+            sb.append(line);
+          }
+
+          return sb.toString();
+        } finally {
+          Method methodCloseFile = clz.getMethod("closeFile");
+          methodCloseFile.invoke(in);
+        }
+      } catch (java.lang.reflect.InvocationTargetException ex) {
+        log.warn("Error for handle oracle.sql.BFILE: ", ex);
+        return "";
+      } catch (Exception e) {
+        throw new RuntimeException(e);
+      }
+    } else if (in.getClass().getName().equals("microsoft.sql.DateTimeOffset")) {
+      return in.toString();
+    } else if (in instanceof byte[]) {
+      return new String((byte[]) in);
+    }
+
+    return null;
+  }
+
+  public static String objectToString(final Object in) {
+    String v = in.toString();
+    String a = in.getClass().getName() + "@" + Integer.toHexString(in.hashCode());
+    if (a.length() == v.length() && StringUtils.equals(a, v)) {
+      throw new UnsupportedOperationException("Unsupported convert "
+          + in.getClass().getName() + " to java.lang.String");
+    }
+
+    return v;
+  }
+
+  public static Object castByJdbcType(int jdbcType, Object value) {
+    switch (jdbcType) {
+      case Types.TINYINT:
+        return convert(value, ObjectCastUtils::castToByte);
+      case Types.SMALLINT:
+        return convert(value, ObjectCastUtils::castToShort);
+      case Types.INTEGER:
+        return convert(value, ObjectCastUtils::castToInteger);
+      case Types.BIGINT:
+        return convert(value, ObjectCastUtils::castToLong);
+      case Types.NUMERIC:
+      case Types.DECIMAL:
+        return convert(value, ObjectCastUtils::castToNumeric);
+      case Types.FLOAT:
+      case Types.REAL:
+        return convert(value, ObjectCastUtils::castToFloat);
+      case Types.DOUBLE:
+        return convert(value, ObjectCastUtils::castToDouble);
+      case Types.BOOLEAN:
+      case Types.BIT:
+        return convert(value, ObjectCastUtils::castToBoolean);
+      case Types.TIME:
+        return convert(value, ObjectCastUtils::castToLocalTime);
+      case Types.DATE:
+        return convert(value, ObjectCastUtils::castToLocalDate);
+      case Types.TIMESTAMP:
+        return convert(value, ObjectCastUtils::castToLocalDateTime);
+      case Types.BINARY:
+      case Types.VARBINARY:
+      case Types.BLOB:
+      case Types.LONGVARBINARY:
+        return convert(value, ObjectCastUtils::castToByteArray);
+      case Types.CHAR:
+      case Types.NCHAR:
+      case Types.VARCHAR:
+      case Types.LONGVARCHAR:
+      case Types.NVARCHAR:
+      case Types.LONGNVARCHAR:
+      case Types.CLOB:
+      case Types.NCLOB:
+      case Types.NULL:
+      case Types.OTHER:
+      default:
+        return convert(value, ObjectCastUtils::castToString);
+    }
+  }
+
+  private static Object convert(Object value, Function<Object, Object> func) {
+    try {
+      return func.apply(value);
+    } catch (Exception e) {
+      return null;
+    }
   }
 
   public static Object castByDetermine(final Object in) {
@@ -766,17 +924,6 @@ public final class ObjectCastUtils {
     }
 
     return in;
-  }
-
-  public static String objectToString(final Object in) {
-    String v = in.toString();
-    String a = in.getClass().getName() + "@" + Integer.toHexString(in.hashCode());
-    if (a.length() == v.length() && StringUtils.equals(a, v)) {
-      throw new UnsupportedOperationException("Unsupported convert "
-          + in.getClass().getName() + " to java.lang.String");
-    }
-
-    return v;
   }
 
 }

@@ -20,14 +20,8 @@ public class DB2TableOperateProvider extends DefaultTableOperateProvider {
 
   @Override
   public void truncateTableData(String schemaName, String tableName) {
-    String sql = String.format("TRUNCATE TABLE \"%s\".\"%s\" immediate ", schemaName, tableName);
+    String sql = String.format("TRUNCATE TABLE \"%s\".\"%s\" IMMEDIATE ", schemaName, tableName);
     this.executeSql(sql);
   }
-
-  @Override
-  public void dropTable(String schemaName, String tableName) {
-    String sql = String.format("DROP TABLE \"%s\".\"%s\" ", schemaName, tableName);
-    this.executeSql(sql);
-  }
-
+  
 }

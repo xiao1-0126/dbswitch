@@ -13,7 +13,7 @@ import cn.hutool.core.util.HexUtil;
 import com.gitee.dbswitch.common.consts.Constants;
 import com.gitee.dbswitch.common.entity.ResultSetWrapper;
 import com.gitee.dbswitch.common.type.ProductTypeEnum;
-import com.gitee.dbswitch.common.util.TypeConvertUtils;
+import com.gitee.dbswitch.common.util.ObjectCastUtils;
 import com.gitee.dbswitch.provider.AbstractCommonProvider;
 import com.gitee.dbswitch.provider.ProductFactoryProvider;
 import com.gitee.dbswitch.schema.SchemaTableData;
@@ -119,9 +119,9 @@ public class DefaultTableDataQueryProvider
             if (value instanceof byte[]) {
               row.add(HexUtil.encodeHexStr((byte[]) value));
             } else if (value instanceof java.sql.Clob) {
-              row.add(TypeConvertUtils.castToString(value));
+              row.add(ObjectCastUtils.castToString(value));
             } else if (value instanceof java.sql.Blob) {
-              byte[] bytes = TypeConvertUtils.castToByteArray(value);
+              byte[] bytes = ObjectCastUtils.castToByteArray(value);
               row.add(HexUtil.encodeHexStr(bytes));
             } else {
               row.add(null == value ? null : value.toString());

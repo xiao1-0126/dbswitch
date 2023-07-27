@@ -15,7 +15,7 @@ package com.gitee.dbswitch.common.consts;
  * @author tang
  */
 public final class Constants {
-  
+
   /**
    * What's the file systems file separator on this operating system?
    */
@@ -82,4 +82,9 @@ public final class Constants {
    * minimum jdbc fetch-size value
    */
   public static int MINIMUM_FETCH_SIZE = 100;
+
+  /**
+   * database product module SPI file path name
+   */
+  public static final String SPI_FILE = "META-INF/services/dbswitch.providers";
 }

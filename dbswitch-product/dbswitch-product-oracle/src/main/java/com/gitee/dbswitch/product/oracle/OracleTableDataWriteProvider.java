@@ -9,7 +9,7 @@
 /////////////////////////////////////////////////////////////
 package com.gitee.dbswitch.product.oracle;
 
-import com.gitee.dbswitch.common.util.TypeConvertUtils;
+import com.gitee.dbswitch.common.util.ObjectCastUtils;
 import com.gitee.dbswitch.provider.ProductFactoryProvider;
 import com.gitee.dbswitch.provider.write.DefaultTableDataWriteProvider;
 import java.io.ByteArrayInputStream;
@@ -30,57 +30,11 @@ public class OracleTableDataWriteProvider extends DefaultTableDataWriteProvider 
 
   @Override
   public long write(List<String> fieldNames, List<Object[]> recordValues) {
-    /**
-     * 将java.sql.Array 类型转换为java.lang.String
-     * <p>
-     *  Oracle 没有数组类型，这里以文本类型进行存在
-     * <p>
-     *  Oracle的CLOB和BLOB类型写入请见：
-     *  <p>
-     *  oracle.jdbc.driver.OraclePreparedStatement.setObjectCritical
-     */
     List<InputStream> iss = new ArrayList<>();
     recordValues.parallelStream().forEach((Object[] row) -> {
       for (int i = 0; i < row.length; ++i) {
-        try {
-          int dataType = this.columnType.get(fieldNames.get(i));
-          switch (dataType) {
-            case Types.CLOB:
-            case Types.NCLOB:
-              row[i] = Objects.isNull(row[i])
-                  ? null
-                  : TypeConvertUtils.castToString(row[i]);
-              break;
-            case Types.BLOB:
-              final byte[] bytes = Objects.isNull(row[i])
-                  ? null
-                  : TypeConvertUtils.castToByteArray(row[i]);
-              row[i] = new SqlTypeValue() {
-                @Override
-                public void setTypeValue(PreparedStatement ps, int paramIndex, int sqlType,
-                    String typeName) throws SQLException {
-                  if (null != bytes) {
-                    InputStream is = new ByteArrayInputStream(bytes);
-                    ps.setBlob(paramIndex, is);
-                    iss.add(is);
-                  } else {
-                    ps.setNull(paramIndex, sqlType);
-                  }
-                }
-              };
-              break;
-            case Types.ROWID:
-            case Types.ARRAY:
-            case Types.REF:
-            case Types.SQLXML:
-              row[i] = null;
-              break;
-            default:
-              break;
-          }
-        } catch (Exception e) {
-          row[i] = null;
-        }
+        int dataType = this.columnType.get(fieldNames.get(i));
+        row[i] = OracleCastUtils.castByJdbcType(dataType, row[i], iss);
       }
     });
 

@@ -47,7 +47,7 @@ public class OracleFactoryProvider extends AbstractFactoryProvider {
 
   @Override
   public TableDataSynchronizer createTableDataSynchronizer() {
-    return new OracleTableSynchronizer(this);
+    return new OracleTableDataSynchronizer(this);
   }
 
 }

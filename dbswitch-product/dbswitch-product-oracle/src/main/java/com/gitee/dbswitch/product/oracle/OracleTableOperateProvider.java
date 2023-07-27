@@ -19,12 +19,6 @@ public class OracleTableOperateProvider extends DefaultTableOperateProvider {
   }
 
   @Override
-  public void truncateTableData(String schemaName, String tableName) {
-    String sql = String.format("TRUNCATE TABLE \"%s\".\"%s\" ", schemaName, tableName);
-    this.executeSql(sql);
-  }
-
-  @Override
   public void dropTable(String schemaName, String tableName) {
     String sql = String.format("DROP TABLE \"%s\".\"%s\" CASCADE CONSTRAINTS", schemaName, tableName);
     this.executeSql(sql);
