@@ -21,30 +21,8 @@
 ### 2、功能设计
 
  ![function](images/function.PNG)
- 
-### 3、详细功能
 
-- 源端oracle/SqlServer/Sybase/MySQL/MariaDB/PostgreSQL/DB2/DM/OSCAR/Kingbase8/GBase8a/HighGo/Hive/SQLite向目的端为Greenplum/PostgreSQL/HighGo的迁移(**支持绝大多数常规类型字段**)
- 
-- 源端oracle/SqlServer/Sybase/MySQL/MariaDB/PostgreSQL/DB2/DM/OSCAR/Kingbase8/GBase8a/HighGo/Hive/SQLite向目的端为Oracle的迁移(**支持绝大多数常规类型字段**)
-
-- 源端oracle/SqlServer/Sybase/MySQL/MariaDB/PostgreSQL/DB2/DM/OSCAR/Kingbase8/GBase8a/HighGo/Hive/SQLite向目的端为SQLServer/Sybase的迁移(**字段类型兼容测试中...**)
-
-- 源端oracle/SqlServer/Sybase/MySQL/MariaDB/PostgreSQL/DB2/DM/OSCAR/Kingbase8/GBase8a/HighGo/Hive/SQLite向目的端为MySQL/MariaDB/GBase8a的迁移(**字段类型兼容测试中...**)
-
-- 源端oracle/SqlServer/Sybase/MySQL/MariaDB/PostgreSQL/DB2/DM/OSCAR/Kingbase8/GBase8a/HighGo/Hive/SQLite向目的端为DB2的迁移(**字段类型兼容测试中...**)
-
-- 源端oracle/SqlServer/Sybase/MySQL/MariaDB/PostgreSQL/DB2/DM/OSCAR/Kingbase8/GBase8a/HighGo/Hive/SQLite向目的端为Kingbase8的迁移(**支持绝大多数常规类型字段...**)
-
-- 源端oracle/SqlServer/Sybase/MySQL/MariaDB/PostgreSQL/DB2/DM/OSCAR/Kingbase8/GBase8a/HighGo/Hive/SQLite向目的端为DM的迁移(**支持绝大多数常规类型字段**)
-
-- 源端oracle/SqlServer/Sybase/MySQL/MariaDB/PostgreSQL/DB2/DM/OSCAR/Kingbase8/GBase8a/HighGo/Hive/SQLite向目的端为OSCAR的迁移(**支持绝大多数常规类型字段**)
-
-- 源端oracle/SqlServer/Sybase/MySQL/MariaDB/PostgreSQL/DB2/DM/OSCAR/Kingbase8/GBase8a/HighGo/Hive/SQLite向目的端为SQLite的迁移(**支持部分常规类型字段...**)
-
-** 注:** 目前Hive只支持Hive version 3.x的账号密码方式认证。
-
-### 4、结构设计
+### 3、结构设计
   
 - 模块结构功能 
 
@@ -62,6 +40,7 @@
         ├── dbswitch-product-oscar    //  -> oscar方言实现类
         ├── dbswitch-product-gbase    //  -> gbase方言实现类
         ├── dbswitch-product-mariadb  //  -> mariadb方言实现类
+        ├── dbswitch-product-openguass//  -> openguass方言实现类
         ├── dbswitch-product-db2      //  -> db2方言实现类
         ├── dbswitch-product-sybase   //  -> sybase方言实现类
         ├── dbswitch-product-hive     //  -> hive方言实现类
@@ -107,11 +86,6 @@ sh ./build.sh
 git clone https://gitee.com/inrgihc/dbswitch.git
 cd dbswitch/
 sh ./docker-maven-build.sh
-```
-
-**特别注意：** 在Java9及以上版本默认情况下不允许应用程序查看来自JDK的所有类，但在dbswitch中利用反射计算对象的字节大小，所以需要在JVM启动时需要增加如下参数：
-```
---add-opens java.base/jdk.internal.loader=ALL-UNNAMED --add-opens jdk.zipfs/jdk.nio.zipfs=ALL-UNNAMED
 ```
 
 ### 2、安装部署
@@ -338,6 +312,13 @@ jdbc驱动名称：org.apache.hive.jdbc.HiveDriver
 
 注意：当前只支持hive version 3.x的账号密码认证方式。
 
+**OpenGuass数据库**
+
+```
+jdbc连接地址：dbc:opengauss://172.17.2.10:5866/test
+jdbc驱动名称：org.opengauss.Driver
+```
+
 **SQLite数据库**
  
 ```
@@ -537,8 +518,6 @@ bin/startup.sh
 **缺点：**
 
 > 当数据库内的表或字段数量较大时，WEB方式卡顿严重；
-
-> 多个任务并发执行不易于分析任务错误原因；
 
 ## 四、模块开发说明
 

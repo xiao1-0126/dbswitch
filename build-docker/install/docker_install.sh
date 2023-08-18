@@ -2,7 +2,7 @@
 
 set -e
 
-curl -sSL https://get.daocloud.io/docker | sh
+curl -sSL https://get.docker.com/ | sh
 docker --version
 mkdir -p /etc/docker/
 cat > /etc/docker/daemon.json <<EOF
@@ -25,6 +25,6 @@ cat > /etc/docker/daemon.json <<EOF
 EOF
 service docker restart
 
-curl -L https://get.daocloud.io/docker/compose/releases/download/v2.2.2/docker-compose-`uname -s`-`uname -m` > /usr/local/bin/docker-compose && chmod +x /usr/local/bin/docker-compose
+curl -L https://github.com/docker/compose/releases/download/v2.2.2/docker-compose-`uname -s`-`uname -m` > /usr/local/bin/docker-compose && chmod +x /usr/local/bin/docker-compose
 docker-compose --version
 
