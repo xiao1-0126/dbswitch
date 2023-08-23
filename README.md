@@ -347,8 +347,8 @@ jdbc驱动名称：org.sqlite.JDBC
 **MongoDB数据库**
 
 ```
-jdbc连接地址：jdbc:mongodb://172.17.2.12:27017/test?authSource=admin&authMechanism=SCRAM-SHA-1
-jdbc驱动名称：com.wisecoders.dbschema.mongodb.JdbcDriver
+jdbc连接地址：jdbc:mongodb://172.17.2.12:27017/admin?authSource=admin&authMechanism=SCRAM-SHA-1
+jdbc驱动名称：com.gitee.jdbc.mongodb.JdbcDriver
 ```
 
 #### (2)、启动方法
@@ -590,6 +590,8 @@ service.run();
 （4）https://blog.csdn.net/inrgihc/article/details/103738656
 
 （5）https://blog.csdn.net/inrgihc/article/details/121447417
+
+（6）https://blog.csdn.net/inrgihc/article/details/132241613
 
 ## 七、贡献参与
 

@@ -310,9 +310,9 @@ public final class JdbcUrlUtils {
     }
 
     // 12、mongo数据库
-    // jdbc:sqlite:/tmp/phone.db
-    final Matcher matcher11 = JdbcUrlUtils.getPattern("jdbc:mongodb://[{user}][:{password}@]{host}[:{port}]/[{database}][\\?{params}]")
-        .matcher("jdbc:mongodb://root:123456@127.0.0.1:27017/test?authSource=admin&authMechanism=SCRAM-SHA-1&expand=true");
+    // jdbc:mongodb://127.0.0.1:27017/admin?authSource=admin&authMechanism=SCRAM-SHA-1
+    final Matcher matcher11 = JdbcUrlUtils.getPattern("jdbc:mongodb://{host}[:{port}]/[{database}][\\?{params}]")
+        .matcher("jdbc:mongodb://127.0.0.1:27017/admin?authSource=admin&authMechanism=SCRAM-SHA-1");
     if (matcher11.matches()) {
       System.out.println("mongodb database:" + matcher11.group("database"));
     } else {
