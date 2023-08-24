@@ -9,6 +9,7 @@
 /////////////////////////////////////////////////////////////
 package com.gitee.dbswitch.product.mongodb;
 
+import com.gitee.dbswitch.common.consts.Constants;
 import com.gitee.dbswitch.provider.ProductFactoryProvider;
 import com.gitee.dbswitch.provider.meta.AbstractMetadataProvider;
 import com.gitee.dbswitch.schema.ColumnDescription;
@@ -20,12 +21,13 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
+import java.sql.Statement;
+import java.sql.Types;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.math.NumberUtils;
 
 @Slf4j
 public class MongodbMetadataQueryProvider extends AbstractMetadataProvider {
@@ -112,22 +114,33 @@ public class MongodbMetadataQueryProvider extends AbstractMetadataProvider {
   public List<ColumnDescription> queryTableColumnMeta(Connection connection, String schemaName,
       String tableName) {
     List<ColumnDescription> ret = new ArrayList<>();
-    try (ResultSet rs = connection.getMetaData().getColumns(schemaName, null, tableName, null)) {
-      ResultSetMetaData m = rs.getMetaData();
-      while (rs.next()) {
-        ColumnDescription cd = new ColumnDescription();
-        cd.setFieldName(rs.getString("COLUMN_NAME"));
-        cd.setLabelName(rs.getString("COLUMN_NAME"));
-        cd.setFieldType(NumberUtils.toInt(rs.getString("DATA_TYPE")));
-        cd.setFieldTypeName(rs.getString("TYPE_NAME"));
-        cd.setFiledTypeClassName(rs.getString("DATA_TYPE"));
-        cd.setDisplaySize(0);
-        cd.setPrecisionSize(0);
-        cd.setScaleSize(0);
-        cd.setAutoIncrement(false);
-        cd.setNullable(!"_id".equals(cd.getFieldName()));
-        cd.setProductType(getProductType());
-        ret.add(cd);
+    String sql = String.format("%s.%s.find().limit(1);", schemaName, tableName);
+    try (Statement stmt = connection.createStatement()) {
+      try (ResultSet rs = stmt.executeQuery(sql)) {
+        ResultSetMetaData metaData = rs.getMetaData();
+        for (int i = 1; i <= metaData.getColumnCount(); i++) {
+          String name = metaData.getColumnName(i);
+          int jdbcType = metaData.getColumnType(i);
+          int displaySize = ("_id".equals(name)) ? 128 : 0;
+          if (Types.JAVA_OBJECT == jdbcType) {
+            jdbcType = Types.LONGVARCHAR;
+            displaySize = Constants.CLOB_LENGTH;
+          }
+
+          ColumnDescription cd = new ColumnDescription();
+          cd.setFieldName(name);
+          cd.setLabelName(name);
+          cd.setFieldType(jdbcType);
+          cd.setFieldTypeName(metaData.getColumnTypeName(i));
+          cd.setFiledTypeClassName(metaData.getColumnTypeName(i));
+          cd.setDisplaySize(displaySize);
+          cd.setPrecisionSize(0);
+          cd.setScaleSize(0);
+          cd.setAutoIncrement(false);
+          cd.setNullable(!"_id".equals(cd.getFieldName()));
+          cd.setProductType(getProductType());
+          ret.add(cd);
+        }
       }
     } catch (SQLException e) {
       throw new RuntimeException(e);

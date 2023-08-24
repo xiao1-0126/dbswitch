@@ -79,12 +79,6 @@ public class AssignmentService {
             "不支持目的端数据源为远程服务器上的SQLite或内存方式下的SQLite");
       }
     }
-    Long sourceConnectionId = assignmentConfigEntity.getSourceConnectionId();
-    DatabaseConnectionEntity sourceEntity = databaseConnectionDAO.getById(sourceConnectionId);
-    if (ProductTypeEnum.MONGODB == sourceEntity.getType()) {
-      throw new DbswitchException(ResultCode.ERROR_INVALID_ASSIGNMENT_CONFIG,
-          "不支持源端数据源为MongoDB数据库");
-    }
 
     return ConverterFactory.getConverter(AssignmentInfoConverter.class)
         .convert(assignmentTaskDAO.getById(assignment.getId()));
@@ -119,12 +113,6 @@ public class AssignmentService {
         throw new DbswitchException(ResultCode.ERROR_INVALID_ASSIGNMENT_CONFIG,
             "不支持目的端数据源为远程服务器上的SQLite或内存方式下的SQLite");
       }
-    }
-    Long sourceConnectionId = assignmentConfigEntity.getSourceConnectionId();
-    DatabaseConnectionEntity sourceEntity = databaseConnectionDAO.getById(sourceConnectionId);
-    if (ProductTypeEnum.MONGODB == sourceEntity.getType()) {
-      throw new DbswitchException(ResultCode.ERROR_INVALID_ASSIGNMENT_CONFIG,
-          "不支持源端数据源为MongoDB数据库");
     }
   }
 

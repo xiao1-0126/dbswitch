@@ -36,6 +36,14 @@ public class MongodbTableDataWriteProvider extends DefaultTableDataWriteProvider
     this.columnType = Collections.emptyMap();
     this.schemaName = schemaName;
     this.tableName = tableName;
+
+    try (Connection connection = getDataSource().getConnection()) {
+      try (Statement stmt = connection.createStatement()) {
+        stmt.executeUpdate(String.format("%s.%s.drop();", schemaName, tableName));
+      }
+    } catch (SQLException e) {
+      throw new RuntimeException(e);
+    }
   }
 
   @Override

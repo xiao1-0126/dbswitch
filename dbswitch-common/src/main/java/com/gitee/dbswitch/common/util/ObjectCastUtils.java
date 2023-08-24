@@ -1,5 +1,6 @@
 package com.gitee.dbswitch.common.util;
 
+import cn.hutool.json.JSONUtil;
 import java.io.ByteArrayOutputStream;
 import java.io.ObjectOutputStream;
 import java.lang.reflect.Method;
@@ -13,6 +14,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.ZoneId;
+import java.util.Map;
 import java.util.function.Function;
 import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
@@ -905,9 +907,11 @@ public final class ObjectCastUtils {
       return in.toString();
     } else if (in instanceof byte[]) {
       return new String((byte[]) in);
+    } else if (in instanceof Map) {
+      return JSONUtil.toJsonStr(in);
     }
 
-    return null;
+    return null != in ? in.toString() : null;
   }
 
   public static String objectToString(final Object in) {

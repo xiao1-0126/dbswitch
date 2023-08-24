@@ -51,7 +51,7 @@ public class MongodbTableDataQueryProvider implements TableDataQueryProvider {
     try {
       Connection connection = this.dataSource.getConnection();
       Statement statement = connection.createStatement();
-      statement.setQueryTimeout(Constants.DEFAULT_QUERY_TIMEOUT_SECONDS);
+      //statement.setQueryTimeout(Constants.DEFAULT_QUERY_TIMEOUT_SECONDS);
       return ResultSetWrapper.builder()
           .connection(connection)
           .statement(statement)
