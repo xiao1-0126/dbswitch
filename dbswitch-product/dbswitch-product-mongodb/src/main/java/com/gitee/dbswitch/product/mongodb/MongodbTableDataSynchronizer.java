@@ -20,6 +20,10 @@ public class MongodbTableDataSynchronizer extends DefaultTableDataSynchronizer {
   }
 
   @Override
+  public void prepare(String schemaName, String tableName, List<String> fieldNames, List<String> pks) {
+  }
+
+  @Override
   public long executeInsert(List<Object[]> records) {
     return 0;
   }

@@ -14,6 +14,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.ZoneId;
+import java.util.Collection;
 import java.util.Map;
 import java.util.function.Function;
 import lombok.experimental.UtilityClass;
@@ -908,6 +909,8 @@ public final class ObjectCastUtils {
     } else if (in instanceof byte[]) {
       return new String((byte[]) in);
     } else if (in instanceof Map) {
+      return JSONUtil.toJsonStr(in);
+    } else if(in instanceof Collection){
       return JSONUtil.toJsonStr(in);
     }
 

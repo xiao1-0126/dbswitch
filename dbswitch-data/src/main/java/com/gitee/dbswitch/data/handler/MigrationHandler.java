@@ -235,7 +235,11 @@ public class MigrationHandler implements Supplier<Long> {
     TableOperateProvider targetOperator = targetFactoryProvider.createTableOperateProvider();
     TableDataSynchronizer targetSynchronizer = targetFactoryProvider.createTableDataSynchronizer();
 
-    if (sourceProductType.isMongodb() || targetProductType.isMongodb()) {
+    if (sourceProductType.isMongodb()) {
+      properties.getTarget().setTargetDrop(true);
+    }
+
+    if (targetProductType.isMongodb()) {
       try {
         targetFactoryProvider.createTableOperateProvider()
             .dropTable(targetSchemaName, targetTableName);

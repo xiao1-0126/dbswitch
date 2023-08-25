@@ -39,7 +39,7 @@ public class MongodbTableDataWriteProvider extends DefaultTableDataWriteProvider
 
     try (Connection connection = getDataSource().getConnection()) {
       try (Statement stmt = connection.createStatement()) {
-        stmt.executeUpdate(String.format("%s.%s.drop();", schemaName, tableName));
+        stmt.executeUpdate(String.format("%s.getCollection('%s').drop();", schemaName, tableName));
       }
     } catch (SQLException e) {
       throw new RuntimeException(e);
@@ -53,7 +53,7 @@ public class MongodbTableDataWriteProvider extends DefaultTableDataWriteProvider
     }
     for (List<Object[]> partRecordValues : Lists.partition(recordValues, 500)) {
       StringBuilder sb = new StringBuilder();
-      sb.append(String.format("%s.%s.insertMany", schemaName, tableName));
+      sb.append(String.format("%s.getCollection('%s').insertMany", schemaName, tableName));
       sb.append("( ").append(asString(fieldNames, partRecordValues)).append(" )");
       String sql = sb.toString();
       try (Connection connection = getDataSource().getConnection()) {

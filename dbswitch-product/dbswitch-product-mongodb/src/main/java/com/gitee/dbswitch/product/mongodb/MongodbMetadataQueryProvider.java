@@ -114,7 +114,7 @@ public class MongodbMetadataQueryProvider extends AbstractMetadataProvider {
   public List<ColumnDescription> queryTableColumnMeta(Connection connection, String schemaName,
       String tableName) {
     List<ColumnDescription> ret = new ArrayList<>();
-    String sql = String.format("%s.%s.find().limit(1);", schemaName, tableName);
+    String sql = String.format("%s.getCollection('%s').find().limit(1);", schemaName, tableName);
     try (Statement stmt = connection.createStatement()) {
       try (ResultSet rs = stmt.executeQuery(sql)) {
         ResultSetMetaData metaData = rs.getMetaData();

@@ -29,7 +29,7 @@ public class MongodbTableOperateProvider extends DefaultTableOperateProvider {
   }
 
   private void cleanup(String schemaName, String tableName) {
-    String sql = String.format("%s.%s.drop();", schemaName, tableName);
+    String sql = String.format("%s.getCollection('%s').drop();", schemaName, tableName);
     this.executeSql(sql);
   }
 }

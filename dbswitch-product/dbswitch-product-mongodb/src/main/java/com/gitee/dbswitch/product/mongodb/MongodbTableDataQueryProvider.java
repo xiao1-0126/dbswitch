@@ -1,6 +1,5 @@
 package com.gitee.dbswitch.product.mongodb;
 
-import cn.hutool.json.JSONUtil;
 import com.gitee.dbswitch.common.consts.Constants;
 import com.gitee.dbswitch.common.entity.ResultSetWrapper;
 import com.gitee.dbswitch.common.type.ProductTypeEnum;
@@ -14,7 +13,6 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 import javax.sql.DataSource;
 
@@ -45,13 +43,13 @@ public class MongodbTableDataQueryProvider implements TableDataQueryProvider {
   @Override
   public ResultSetWrapper queryTableData(String schemaName, String tableName, List<String> fields,
       List<String> orders) {
-    String sql = String.format("%s.%s.find().sort({ %s })",
+    String sql = String.format("%s.getCollection('%s').find().sort({ %s })",
         schemaName, tableName, orders.stream().map(s -> String.format("'%s' : 1", s))
             .collect(Collectors.joining(",")));
     try {
       Connection connection = this.dataSource.getConnection();
       Statement statement = connection.createStatement();
-      //statement.setQueryTimeout(Constants.DEFAULT_QUERY_TIMEOUT_SECONDS);
+      statement.setQueryTimeout(Constants.DEFAULT_QUERY_TIMEOUT_SECONDS);
       return ResultSetWrapper.builder()
           .connection(connection)
           .statement(statement)
@@ -64,7 +62,7 @@ public class MongodbTableDataQueryProvider implements TableDataQueryProvider {
 
   @Override
   public SchemaTableData queryTableData(Connection connection, String schemaName, String tableName, int rowCount) {
-    String querySQL = String.format("%s.%s.find({});", schemaName, tableName);
+    String querySQL = String.format("%s.getCollection('%s').find({}).limit(%d);", schemaName, tableName, rowCount);
     SchemaTableData data = new SchemaTableData();
     data.setSchemaName(schemaName);
     data.setTableName(tableName);
@@ -78,16 +76,11 @@ public class MongodbTableDataQueryProvider implements TableDataQueryProvider {
           data.getColumns().add(m.getColumnLabel(i));
         }
 
-        int counter = 0;
-        while (rs.next() && counter++ < rowCount) {
+        while (rs.next()) {
           List<Object> row = new ArrayList<>(count);
           for (int i = 1; i <= count; i++) {
             Object value = rs.getObject(i);
-            if (value instanceof Map || value instanceof List) {
-              row.add(JSONUtil.toJsonStr(value));
-            } else {
-              row.add(null == value ? null : value.toString());
-            }
+            row.add(value);
           }
           data.getRows().add(row);
         }

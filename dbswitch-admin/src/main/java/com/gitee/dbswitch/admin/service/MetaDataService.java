@@ -15,9 +15,10 @@ import com.gitee.dbswitch.schema.TableDescription;
 import com.gitee.dbswitch.service.MetadataService;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import javax.annotation.Resource;
 import org.apache.commons.collections4.CollectionUtils;
@@ -107,11 +108,15 @@ public class MetaDataService {
     MetadataService metaDataService = connectionService.getMetaDataCoreService(dbConn);
     try {
       SchemaTableData data = metaDataService.queryTableData(schema, table, 10);
+      // el-table问题：https://www.cnblogs.com/LanTianYou/p/9649735.html
+      List<String> headers = data.getColumns().stream()
+          .map(one -> one.replaceAll("\\.", "_"))
+          .collect(Collectors.toList());
       return Result.success(SchemaTableDataResponse.builder()
           .schemaName(data.getSchemaName())
           .tableName(data.getTableName())
-          .columns(data.getColumns())
-          .rows(convertRows(data.getColumns(), data.getRows()))
+          .columns(headers)
+          .rows(convertRows(headers, data.getRows()))
           .build()
       );
     } finally {
@@ -125,9 +130,10 @@ public class MetaDataService {
     }
     List<Map<String, Object>> result = new ArrayList<>(rows.size());
     for (List<Object> row : rows) {
-      Map<String, Object> map = new HashMap<>();
-      for (int i = 0; i < row.size(); ++i) {
-        map.put(columns.get(i), row.get(i));
+      Map<String, Object> map = new LinkedHashMap<>();
+      for (int i = 0; i < columns.size(); ++i) {
+        Object v = row.get(i);
+        map.put(columns.get(i), Objects.nonNull(v) ? v.toString() : null);
       }
       result.add(map);
     }
