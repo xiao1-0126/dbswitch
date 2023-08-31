@@ -18,6 +18,7 @@ import com.gitee.dbswitch.provider.meta.MetadataProvider;
 import com.gitee.dbswitch.schema.ColumnDescription;
 import com.gitee.dbswitch.schema.ColumnMetaData;
 import com.gitee.dbswitch.schema.TableDescription;
+import com.google.common.collect.Lists;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -25,6 +26,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import lombok.experimental.UtilityClass;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
 /**
@@ -168,7 +170,11 @@ public final class GenerateSqlUtils {
       td.setRemarks(tableRemarks);
       td.setTableType(ProductTableEnum.TABLE.name());
       List<String> results = provider.getTableColumnCommentDefinition(td, fieldNames);
-      results.add(0, createTableSql);
+      if (CollectionUtils.isEmpty(results)) {
+        results = Lists.newArrayList(createTableSql);
+      } else {
+        results.add(0, createTableSql);
+      }
       return results;
     }
   }

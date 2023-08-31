@@ -7,10 +7,11 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Types;
 import java.util.List;
-import java.util.Objects;
 import lombok.experimental.UtilityClass;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.SqlTypeValue;
 
+@Slf4j
 @UtilityClass
 public class OracleCastUtils {
 
@@ -24,40 +25,32 @@ public class OracleCastUtils {
    * oracle.jdbc.driver.OraclePreparedStatement.setObjectCritical
    */
   public static Object castByJdbcType(int jdbcType, Object value, List<InputStream> iss) {
-    try {
-      switch (jdbcType) {
-        case Types.CLOB:
-        case Types.NCLOB:
-          return Objects.isNull(value)
-              ? null
-              : ObjectCastUtils.castToString(value);
-        case Types.BLOB:
-          final byte[] bytes = Objects.isNull(value)
-              ? null
-              : ObjectCastUtils.castToByteArray(value);
-          return new SqlTypeValue() {
-            @Override
-            public void setTypeValue(PreparedStatement ps, int paramIndex, int sqlType,
-                String typeName) throws SQLException {
-              if (null != bytes) {
-                InputStream is = new ByteArrayInputStream(bytes);
-                ps.setBlob(paramIndex, is);
-                iss.add(is);
-              } else {
-                ps.setNull(paramIndex, sqlType);
-              }
-            }
-          };
-        case Types.ROWID:
-        case Types.ARRAY:
-        case Types.REF:
-        case Types.SQLXML:
-        default:
-          return null;
-      }
-    } catch (Exception e) {
+    if (null == value) {
       return null;
     }
+
+    if (jdbcType == Types.BLOB) {
+      try {
+        final byte[] bytes = ObjectCastUtils.castToByteArray(value);
+        return new SqlTypeValue() {
+          @Override
+          public void setTypeValue(PreparedStatement ps, int paramIndex, int sqlType,
+              String typeName) throws SQLException {
+            if (null != bytes) {
+              InputStream is = new ByteArrayInputStream(bytes);
+              ps.setBlob(paramIndex, is);
+              iss.add(is);
+            } else {
+              ps.setNull(paramIndex, sqlType);
+            }
+          }
+        };
+      } catch (Exception e) {
+        log.warn("Convert from {} to Oracle BLOB failed:{}", value.getClass().getName(), e.getMessage());
+        return null;
+      }
+    }
+    return ObjectCastUtils.castByJdbcType(jdbcType, value);
   }
 
 }

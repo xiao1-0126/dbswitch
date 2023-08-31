@@ -7,39 +7,26 @@
 // Date : 2020/1/2
 // Location: beijing , china
 /////////////////////////////////////////////////////////////
-package com.gitee.dbswitch.product.oracle;
+package com.gitee.dbswitch.product.dm;
 
+import com.gitee.dbswitch.common.util.ObjectCastUtils;
 import com.gitee.dbswitch.provider.ProductFactoryProvider;
 import com.gitee.dbswitch.provider.write.DefaultTableDataWriteProvider;
-import java.io.InputStream;
-import java.util.ArrayList;
 import java.util.List;
 
-public class OracleTableDataWriteProvider extends DefaultTableDataWriteProvider {
+public class DmTableDataWriteProvider extends DefaultTableDataWriteProvider {
 
-  public OracleTableDataWriteProvider(ProductFactoryProvider factoryProvider) {
+  public DmTableDataWriteProvider(ProductFactoryProvider factoryProvider) {
     super(factoryProvider);
   }
 
   @Override
   public long write(List<String> fieldNames, List<Object[]> recordValues) {
-    List<InputStream> iss = new ArrayList<>();
     recordValues.parallelStream().forEach((Object[] row) -> {
       for (int i = 0; i < row.length; ++i) {
-        int dataType = this.columnType.get(fieldNames.get(i));
-        row[i] = OracleCastUtils.castByJdbcType(dataType, row[i], iss);
+        row[i] = ObjectCastUtils.castByDetermine(row[i]);
       }
     });
-
-    try {
-      return super.write(fieldNames, recordValues);
-    } finally {
-      iss.forEach(is -> {
-        try {
-          is.close();
-        } catch (Exception ignore) {
-        }
-      });
-    }
+    return super.write(fieldNames, recordValues);
   }
 }
