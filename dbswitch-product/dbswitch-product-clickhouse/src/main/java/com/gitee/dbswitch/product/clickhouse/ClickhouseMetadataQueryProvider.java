@@ -201,49 +201,72 @@ public class ClickhouseMetadataQueryProvider extends AbstractMetadataProvider {
     int length = v.getLength();
     int precision = v.getPrecision();
     int type = v.getType();
-
+    boolean isPk = (null != pks && pks.contains(fieldname));
     String retval = " `" + fieldname + "`  ";
 
     switch (type) {
       case ColumnMetaData.TYPE_TIMESTAMP:
       case ColumnMetaData.TYPE_TIME:
-        retval += "DateTime64";
+        if (isPk) {
+          retval += "DateTime64";
+        } else {
+          retval += "Nullable(DateTime64)";
+        }
         break;
       case ColumnMetaData.TYPE_DATE:
-        retval += "Date";
+        if (isPk) {
+          retval += "Date";
+        } else {
+          retval += "Nullable(Date)";
+        }
         break;
       case ColumnMetaData.TYPE_BOOLEAN:
-        retval += "Bool";
+        retval += "Nullable(Bool)";
         break;
       case ColumnMetaData.TYPE_NUMBER:
       case ColumnMetaData.TYPE_INTEGER:
       case ColumnMetaData.TYPE_BIGNUMBER:
         // Integer values...
         if (precision == 0) {
-          retval += "UInt64";
+          if (isPk) {
+            retval += "UInt64";
+          } else {
+            retval += "Nullable(UInt64)";
+          }
         } else {
           // Floating point values...
-          retval += "Float64";
+          if (isPk) {
+            retval += "Float64";
+          } else {
+            retval += "Nullable(Float64)";
+          }
         }
         break;
       case ColumnMetaData.TYPE_STRING:
-        if (length > 0) {
-          if (length == 1) {
-            retval += "FixedString(1)";
-          } else if (length < 4096) {
-            retval += "FixedString(" + length + ")";
-          } else {
-            retval += "String";
-          }
-        } else {
+        if (isPk) {
           retval += "String";
+        } else {
+          if (length > 0) {
+            if (length == 1) {
+              retval += "Nullable(FixedString(1))";
+            } else if (length < 4096) {
+              retval += "Nullable(FixedString(" + length + "))";
+            } else {
+              retval += "Nullable(String)";
+            }
+          } else {
+            retval += "Nullable(String)";
+          }
         }
+
         break;
       case ColumnMetaData.TYPE_BINARY:
-        retval += "String";
-        break;
       default:
-        retval += " String";
+        if (isPk) {
+          retval += "String";
+        } else {
+          retval += "Nullable(String)";
+        }
         break;
     }
 

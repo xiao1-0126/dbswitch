@@ -125,8 +125,8 @@ public final class GenerateSqlUtils {
         sb.append("ORDER BY tuple()");
       }
       if (withRemarks && StringUtils.isNotBlank(tableRemarks)) {
-        sb.append(Constants.CR);
-        sb.append(String.format("COMMENT='%s' ", tableRemarks.replace("'", "\\'")));
+        //sb.append(Constants.CR);
+        //sb.append(String.format("COMMENT='%s' ", tableRemarks.replace("'", "\\'")));
       }
     }
 
