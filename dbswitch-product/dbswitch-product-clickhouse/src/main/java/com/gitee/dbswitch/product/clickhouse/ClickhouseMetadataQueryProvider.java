@@ -117,6 +117,19 @@ public class ClickhouseMetadataQueryProvider extends AbstractMetadataProvider {
   }
 
   @Override
+  public List<ColumnDescription> queryTableColumnMeta(Connection connection, String schemaName,
+      String tableName) {
+    List<ColumnDescription> results = super.queryTableColumnMeta(connection, schemaName, tableName);
+    for (ColumnDescription column : results) {
+      if (StringUtils.equals(column.getFieldTypeName(), "Nullable(String)")
+          || StringUtils.equals(column.getFieldTypeName(), "String")) {
+        column.setDisplaySize(Constants.CLOB_LENGTH);
+      }
+    }
+    return results;
+  }
+
+  @Override
   public List<String> queryTablePrimaryKeys(Connection connection, String schemaName, String tableName) {
     List<String> result = new ArrayList<>();
     try (PreparedStatement ps = connection.prepareStatement(QUERY_PRIMARY_KEY_SQL)) {
