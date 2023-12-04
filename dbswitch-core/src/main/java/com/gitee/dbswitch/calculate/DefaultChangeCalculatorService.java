@@ -53,6 +53,11 @@ public final class DefaultChangeCalculatorService implements RecordRowChangeCalc
    */
   private int queryFetchSize;
 
+  /**
+   * 中断检查函数
+   */
+  private Runnable checkInterrupt;
+
   public DefaultChangeCalculatorService() {
     this(false, true);
   }
@@ -94,6 +99,11 @@ public final class DefaultChangeCalculatorService implements RecordRowChangeCalc
         "设置的批量处理行数的大小fetchSize不得小于%d",
         Constants.MINIMUM_FETCH_SIZE);
     this.queryFetchSize = size;
+  }
+
+  @Override
+  public void setInterruptCheck(Runnable checkInterrupt) {
+    this.checkInterrupt = checkInterrupt;
   }
 
   /**
@@ -210,13 +220,21 @@ public final class DefaultChangeCalculatorService implements RecordRowChangeCalc
       if (log.isDebugEnabled()) {
         log.debug("###### Query data from two table now");
       }
-
+      if (null != checkInterrupt) {
+        checkInterrupt.run();
+      }
       rsold = oldQuery
           .queryTableData(task.getOldSchemaName(), task.getOldTableName(),
               mappedQueryFieldColumn, fieldsMappedPrimaryKeyNew);
+      if (null != checkInterrupt) {
+        checkInterrupt.run();
+      }
       rsnew = newQuery
           .queryTableData(task.getNewSchemaName(), task.getNewTableName(),
               queryFieldColumn, fieldsPrimaryKeyNew);
+      if (null != checkInterrupt) {
+        checkInterrupt.run();
+      }
       ResultSetMetaData metaData = rsnew.getResultSet().getMetaData();
 
       if (log.isDebugEnabled()) {
@@ -283,6 +301,10 @@ public final class DefaultChangeCalculatorService implements RecordRowChangeCalc
         log.debug("###### Enter CDC calculate now");
       }
 
+      if (null != checkInterrupt) {
+        checkInterrupt.run();
+      }
+
       RecordTransformProvider transformer = task.getTransformer();
 
       // 进入核心比较计算算法区域
@@ -292,6 +314,9 @@ public final class DefaultChangeCalculatorService implements RecordRowChangeCalc
       Object[] two = transformer.doTransform(task.getNewSchemaName(), task.getNewTableName(),
           queryFieldColumn, getRowData(rsnew.getResultSet()));
       while (true) {
+        if (null != checkInterrupt) {
+          checkInterrupt.run();
+        }
         if (one == null && two == null) {
           break;
         } else if (one == null && two != null) {

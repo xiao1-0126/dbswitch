@@ -15,7 +15,7 @@ public interface Robot {
 
   void init(AsyncTaskExecutor threadExecutor);
 
-  void work();
+  void startWork();
 
   void interrupt();
 }

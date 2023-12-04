@@ -26,7 +26,6 @@ import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Supplier;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.core.task.AsyncTaskExecutor;
 
 /**
@@ -39,13 +38,13 @@ public class DefaultWriterRobot extends RobotWriter<WriterTaskResult> {
 
   private final MdcKeyValue mdcKeyValue;
   private final RobotReader robotReader;
-  private final int writeThreadNum;
+  private final int writeThreadNum; // 4 <= writeThreadNum <= 8
   private AsyncTaskExecutor threadExecutor;
   private List<Supplier> writeTaskThreads;
   private List<CompletableFuture> futures;
 
   public DefaultWriterRobot(MdcKeyValue mdcKeyValue, RobotReader robotReader, int writeThreadNum) {
-    ExamineUtils.checkState(writeThreadNum > 0, "writeThreadNum(%d) must more than zero", writeThreadNum);
+    ExamineUtils.checkArgument(writeThreadNum > 0, "writeThreadNum(%s) must >0 ", writeThreadNum);
     this.mdcKeyValue = mdcKeyValue;
     this.robotReader = robotReader;
     this.writeThreadNum = writeThreadNum;
@@ -53,22 +52,7 @@ public class DefaultWriterRobot extends RobotWriter<WriterTaskResult> {
 
   @Override
   public void interrupt() {
-    super.interrupt();
-    if (CollectionUtils.isNotEmpty(writeTaskThreads)) {
-      for (Supplier supplier : writeTaskThreads) {
-        if (supplier instanceof WriterTaskThread) {
-          WriterTaskThread thread = (WriterTaskThread) supplier;
-          thread.interrupt();
-        } else if (supplier instanceof LoggingSupplier) {
-          LoggingSupplier loggingSupplier = (LoggingSupplier) supplier;
-          Supplier realSupplier = loggingSupplier.getCommand();
-          if (realSupplier instanceof WriterTaskThread) {
-            WriterTaskThread thread = (WriterTaskThread) realSupplier;
-            thread.interrupt();
-          }
-        }
-      }
-    }
+    Optional.ofNullable(futures).orElseGet(ArrayList::new).forEach(f -> f.cancel(true));
   }
 
   @Override
@@ -82,7 +66,6 @@ public class DefaultWriterRobot extends RobotWriter<WriterTaskResult> {
         .memChannel(robotReader.getChannel())
         .build();
     for (int i = 0; i < writeThreadNum; ++i) {
-      checkInterrupt();
       if (Objects.nonNull(mdcKeyValue)) {
         writeTaskThreads.add(new LoggingSupplier(new WriterTaskThread(param), mdcKeyValue));
       } else {
@@ -95,18 +78,13 @@ public class DefaultWriterRobot extends RobotWriter<WriterTaskResult> {
   public void startWrite() {
     futures = new ArrayList<>(writeTaskThreads.size());
     writeTaskThreads.forEach(
-        task -> {
-          checkInterrupt();
-          futures.add(
-              CompletableFuture.supplyAsync(task, threadExecutor)
-          );
-        }
+        task ->
+            futures.add(CompletableFuture.supplyAsync(task, threadExecutor))
     );
   }
 
   @Override
   public void waitForFinish() {
-    checkInterrupt();
     CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).join();
   }
 
@@ -115,6 +93,7 @@ public class DefaultWriterRobot extends RobotWriter<WriterTaskResult> {
     return futures.stream().map(CompletableFuture::join)
         .filter(Objects::nonNull)
         .map(f -> (WriterTaskResult) f)
+        .peek(f -> f.padding())
         .reduce(
             (r1, r2) -> {
               Map<String, Long> perf = Maps.newHashMap(r1.getPerf());
@@ -124,8 +103,13 @@ public class DefaultWriterRobot extends RobotWriter<WriterTaskResult> {
                   perf.put(k, count);
                 });
               }
+              Map<String, Throwable> except = Maps.newHashMap(r1.getExcept());
+              if (r2.getExcept().size() > 0) {
+                except.putAll(r2.getExcept());
+              }
               return WriterTaskResult.builder()
                   .perf(perf)
+                  .except(except)
                   .success(r1.isSuccess() && r2.isSuccess())
                   .duration(Math.max(r1.getDuration(), r2.getDuration()))
                   .throwable(Objects.nonNull(r1.getThrowable()) ? r1.getThrowable() : r2.getThrowable())

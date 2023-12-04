@@ -33,7 +33,7 @@ public class ComparePerfStat extends PrintablePerfStat {
   public String getPrintableString() {
     StringBuilder sb = new StringBuilder();
     if (readMap.size() > 0) {
-      sb.append("\nTable Detail Information Follows:\n");
+      sb.append("Table Detail Information Follows:\n");
       for (Map.Entry<String, Long> entry : readMap.entrySet()) {
         String tableMapName = entry.getKey();
         Long tableReadTotal = entry.getValue();

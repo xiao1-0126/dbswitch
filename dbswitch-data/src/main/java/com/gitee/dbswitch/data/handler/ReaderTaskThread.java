@@ -99,6 +99,10 @@ public class ReaderTaskThread extends TaskProcessor<ReaderTaskResult> {
   // 日志输出字符串使用
   private String tableNameMapString;
 
+  // 统计信息
+  AtomicLong totalBytes = new AtomicLong(0);
+  AtomicLong totalCount = new AtomicLong(0);
+
   private CountDownLatch robotCountDownLatch;
 
   public ReaderTaskThread(ReaderTaskParam taskParam) {
@@ -207,7 +211,7 @@ public class ReaderTaskThread extends TaskProcessor<ReaderTaskResult> {
         ));
       }
     }
-    log.info("Mapping relation : \ntable mapper :\n\t{}  \ncolumn mapper :\n\t{} ",
+    log.info("Mapping relation : \ntable mapper : {}  \ncolumn mapper :\n\t{} ",
         tableNameMapString, String.join("\n\t", columnMapperPairs));
     Set<String> valueSet = new HashSet<>(mapChecker.values());
     if (valueSet.size() <= 0) {
@@ -288,13 +292,13 @@ public class ReaderTaskThread extends TaskProcessor<ReaderTaskResult> {
           && properties.getTarget().getOnlyCreate()) {
         return ReaderTaskResult.builder()
             .tableNameMapString(tableNameMapString)
-            .successCount(1).build().paddingPerf();
+            .successCount(1).build();
       }
 
       if (targetProductType.isLikeHive()) {
         return ReaderTaskResult.builder()
             .tableNameMapString(tableNameMapString)
-            .successCount(1).build().paddingPerf();
+            .successCount(1).build();
       }
 
       checkInterrupt();
@@ -305,7 +309,7 @@ public class ReaderTaskThread extends TaskProcessor<ReaderTaskResult> {
           && properties.getTarget().getOnlyCreate()) {
         return ReaderTaskResult.builder()
             .tableNameMapString(tableNameMapString)
-            .successCount(1).build().paddingPerf();
+            .successCount(1).build();
       }
 
       checkInterrupt();
@@ -400,8 +404,6 @@ public class ReaderTaskThread extends TaskProcessor<ReaderTaskResult> {
 
     List<Object[]> cache = new LinkedList<>();
     long cacheBytes = 0;
-    long totalCount = 0;
-    long totalBytes = 0;
     try (ResultSet rs = srs.getResultSet()) {
       ResultSetMetaData metaData = rs.getMetaData();
       while (rs.next()) {
@@ -422,7 +424,7 @@ public class ReaderTaskThread extends TaskProcessor<ReaderTaskResult> {
 
         cache.add(transformer.doTransform(sourceSchemaName, sourceTableName, sourceFields, record));
         cacheBytes += bytes;
-        ++totalCount;
+        totalCount.incrementAndGet();
 
         if (cache.size() >= BATCH_SIZE || cacheBytes >= MAX_CACHE_BYTES_SIZE) {
           final long finalCacheBytes = cacheBytes;
@@ -431,7 +433,7 @@ public class ReaderTaskThread extends TaskProcessor<ReaderTaskResult> {
                   .tableNameMapString(tableNameMapString)
                   .handler((arg1, arg2) -> {
                     long ret = tableWriter.write(arg1, arg2);
-                    log.info("[FullCoverSync] handle table [{}] data count: {}, the batch bytes sie: {}",
+                    log.info("[FullCoverSync] handle write table [{}] batch record count: {}, the bytes size: {}",
                         tableNameMapString, ret, DataSizeUtil.format(finalCacheBytes));
                     return ret;
                   })
@@ -440,7 +442,7 @@ public class ReaderTaskThread extends TaskProcessor<ReaderTaskResult> {
                   .build()
           );
           cache.clear();
-          totalBytes += cacheBytes;
+          totalBytes.addAndGet(cacheBytes);
           cacheBytes = 0;
         }
       }
@@ -452,7 +454,7 @@ public class ReaderTaskThread extends TaskProcessor<ReaderTaskResult> {
                 .tableNameMapString(tableNameMapString)
                 .handler((arg1, arg2) -> {
                   long ret = tableWriter.write(arg1, arg2);
-                  log.info("[FullCoverSync] handle table [{}] data count: {}, the batch bytes sie: {}",
+                  log.info("[FullCoverSync] handle write table [{}] batch record count: {}, the bytes size: {}",
                       tableNameMapString, ret, DataSizeUtil.format(finalCacheBytes));
                   return ret;
                 })
@@ -461,17 +463,19 @@ public class ReaderTaskThread extends TaskProcessor<ReaderTaskResult> {
                 .build()
         );
         cache.clear();
-        totalBytes += cacheBytes;
+        totalBytes.addAndGet(cacheBytes);
       }
 
-      log.info("[FullCoverSync] handle table [{}] total data count:{}, total bytes={}",
-          tableNameMapString, totalCount, DataSizeUtil.format(totalBytes));
-    } catch (Exception e) {
+      log.info("[FullCoverSync] handle read table [{}] total record count: {}, total bytes = {}",
+          tableNameMapString, totalCount.get(), DataSizeUtil.format(totalBytes.get()));
+    } catch (Throwable e) {
+      log.warn("[FullCoverSync] handle read table [{}] error: {}", e.getMessage());
       if (e instanceof RuntimeException) {
         throw (RuntimeException) e;
       }
       throw new RuntimeException(e);
     } finally {
+      // 如果正在读取大表数据的话，这里的close()会很慢
       srs.close();
     }
 
@@ -480,10 +484,9 @@ public class ReaderTaskThread extends TaskProcessor<ReaderTaskResult> {
         .tableNameMapString(tableNameMapString)
         .successCount(1)
         .failureCount(0)
-        .totalBytes(totalBytes)
-        .recordCount(totalCount)
-        .build()
-        .paddingPerf();
+        .totalBytes(totalBytes.get())
+        .recordCount(totalCount.get())
+        .build();
   }
 
   /**
@@ -527,13 +530,12 @@ public class ReaderTaskThread extends TaskProcessor<ReaderTaskResult> {
 
     RecordRowChangeCalculator calculator = new DefaultChangeCalculatorService();
     calculator.setFetchSize(fetchSize);
+    calculator.setInterruptCheck(this::checkInterrupt);
     calculator.setRecordIdentical(false);
     calculator.setCheckJdbcType(false);
 
-    AtomicLong totalBytes = new AtomicLong(0);
-    AtomicLong totalCount = new AtomicLong(0);
-
     // 执行实际的变化同步过程
+    log.info("[IncreaseSync] Handle table by compare [{}] data now ... ", tableNameMapString);
     calculator.executeCalculate(param, new RecordRowHandler() {
 
       private long countInsert = 0;
@@ -591,8 +593,6 @@ public class ReaderTaskThread extends TaskProcessor<ReaderTaskResult> {
             doUpdate(fields);
           }
 
-          log.info("[IncreaseSync] Handle table [{}] data one batch size: {}",
-              tableNameMapString, DataSizeUtil.format(cacheBytes));
           cacheBytes = 0;
         }
       }
@@ -611,7 +611,7 @@ public class ReaderTaskThread extends TaskProcessor<ReaderTaskResult> {
           doUpdate(fields);
         }
 
-        log.info("[IncreaseSync] Handle table [{}] total count: {}, Insert:{},Update:{},Delete:{} ",
+        log.info("[IncreaseSync] Handle table by compare [{}] total count: {}, Insert:{},Update:{},Delete:{} ",
             tableNameMapString, countTotal, countInsert, countUpdate, countDelete);
       }
 
@@ -621,7 +621,7 @@ public class ReaderTaskThread extends TaskProcessor<ReaderTaskResult> {
                 .tableNameMapString(tableNameMapString)
                 .handler((arg1, arg2) -> {
                   long ret = synchronizer.executeInsert(arg2);
-                  log.info("[IncreaseSync] Handle table [{}] data Insert count: {}", tableNameMapString, ret);
+                  log.info("[IncreaseSync] Handle write table [{}] record Insert count: {}", tableNameMapString, ret);
                   return ret;
                 })
                 .arg1(fields)
@@ -637,7 +637,7 @@ public class ReaderTaskThread extends TaskProcessor<ReaderTaskResult> {
                 .tableNameMapString(tableNameMapString)
                 .handler((arg1, arg2) -> {
                   long ret = synchronizer.executeUpdate(arg2);
-                  log.info("[IncreaseSync] Handle table [{}] data Update count: {}", tableNameMapString, ret);
+                  log.info("[IncreaseSync] Handle write table [{}] record Update count: {}", tableNameMapString, ret);
                   return ret;
                 })
                 .arg1(fields)
@@ -653,7 +653,7 @@ public class ReaderTaskThread extends TaskProcessor<ReaderTaskResult> {
                 .tableNameMapString(tableNameMapString)
                 .handler((arg1, arg2) -> {
                   long ret = synchronizer.executeDelete(arg2);
-                  log.info("[IncreaseSync] Handle table [{}] data Delete count: {}", tableNameMapString, ret);
+                  log.info("[IncreaseSync] Handle write table [{}] record Delete count: {}", tableNameMapString, ret);
                   return ret;
                 })
                 .arg1(fields)
@@ -672,8 +672,7 @@ public class ReaderTaskThread extends TaskProcessor<ReaderTaskResult> {
         .failureCount(0)
         .recordCount(totalCount.get())
         .totalBytes(totalBytes.get())
-        .build()
-        .paddingPerf();
+        .build();
   }
 
   /**
@@ -721,15 +720,15 @@ public class ReaderTaskThread extends TaskProcessor<ReaderTaskResult> {
   @Override
   protected ReaderTaskResult exceptProcess(Throwable t) {
     log.error("Error migration for table: {}.{}, error message: {}",
-        tableDescription.getSchemaName(), tableDescription.getTableName(), t.getMessage());
+        tableDescription.getSchemaName(), tableDescription.getTableName(), t);
     return ReaderTaskResult.builder()
+        .tableNameMapString(tableNameMapString)
         .successCount(0)
         .failureCount(1)
-        .recordCount(0)
-        .totalBytes(0)
+        .recordCount(totalCount.get())
+        .totalBytes(totalBytes.get())
         .throwable(t)
-        .build()
-        .paddingPerf();
+        .build();
   }
 
   @Override

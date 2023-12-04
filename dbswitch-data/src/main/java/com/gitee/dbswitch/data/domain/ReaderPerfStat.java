@@ -9,7 +9,6 @@
 /////////////////////////////////////////////////////////////
 package com.gitee.dbswitch.data.domain;
 
-import cn.hutool.core.exceptions.ExceptionUtil;
 import cn.hutool.core.io.unit.DataSizeUtil;
 import com.gitee.dbswitch.common.entity.PrintablePerfStat;
 import lombok.AllArgsConstructor;
@@ -29,17 +28,13 @@ public class ReaderPerfStat extends PrintablePerfStat {
   private long total;
   private long failure;
   private long bytes;
-  private Throwable throwable;
 
   @Override
   public String getPrintableString() {
     StringBuilder sb = new StringBuilder();
-    sb.append("Total Tables Count: \t" + total + "\n" +
-        "Failure Tables count: \t" + failure + "\n" +
-        "Total Transfer Size: \t" + DataSizeUtil.format(bytes) + "\n");
-    if (null != throwable) {
-      sb.append("Stack:" + ExceptionUtil.stacktraceToString(throwable));
-    }
+    sb.append("Total Read Tables Count: \t" + total + "\n");
+    sb.append("Total Failure Tables Count: \t" + failure + "\n");
+    sb.append("Total Read Record Size: \t" + DataSizeUtil.format(bytes) + "\n");
     return sb.toString();
   }
 }

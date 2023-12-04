@@ -15,8 +15,7 @@ public abstract class RobotWriter<R extends TaskResult> extends AbstractRobot<R>
 
   public abstract void startWrite();
 
-  public void work() {
-    checkInterrupt();
+  public void startWork() {
     startWrite();
   }
 

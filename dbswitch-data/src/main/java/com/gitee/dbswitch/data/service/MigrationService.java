@@ -46,8 +46,8 @@ public class MigrationService {
    * 配置参数
    */
   private final DbswichPropertiesConfiguration configuration;
-  private final AsyncTaskExecutor tableReadExecutor;
-  private final AsyncTaskExecutor tableWriteExecutor;
+  private final AsyncTaskExecutor readExecutor;
+  private final AsyncTaskExecutor writeExecutor;
 
   private RobotReader robotReader;
   private RobotWriter robotWriter;
@@ -66,8 +66,8 @@ public class MigrationService {
       AsyncTaskExecutor tableReadExecutor,
       AsyncTaskExecutor tableWriteExecutor) {
     this.configuration = Objects.requireNonNull(properties, "properties is null");
-    this.tableReadExecutor = Objects.requireNonNull(tableReadExecutor, "tableReadExecutor is null");
-    this.tableWriteExecutor = Objects.requireNonNull(tableWriteExecutor, "tableWriteExecutor is null");
+    this.readExecutor = Objects.requireNonNull(tableReadExecutor, "tableReadExecutor is null");
+    this.writeExecutor = Objects.requireNonNull(tableWriteExecutor, "tableWriteExecutor is null");
   }
 
   public void setMdcKeyValue(MdcKeyValue mdcKeyValue) {
@@ -109,12 +109,13 @@ public class MigrationService {
     log.info(MachineInfoUtils.getOSInfo());
     //log.info("input configuration \n{}", JsonUtils.toJsonString(configuration));
 
-    GlobalParamConfigProperties config = configuration.getConfig();
-    AbstractBatchExchanger exchanger = new DefaultBatchExchanger(tableReadExecutor, tableWriteExecutor, perfStats);
+    GlobalParamConfigProperties globalParam = configuration.getConfig();
+    int maxQueueSize = globalParam.getChannelQueueSize();
+    AbstractBatchExchanger exchanger = new DefaultBatchExchanger(readExecutor, writeExecutor, maxQueueSize, perfStats);
     try (CloseableDataSource targetDataSource = DataSourceUtils.createTargetDataSource(configuration.getTarget())) {
       try (CloseableDataSource sourceDataSource = DataSourceUtils.createSourceDataSource(configuration.getSource())) {
         robotReader = new DefaultReaderRobot(mdcKeyValue, configuration, sourceDataSource, targetDataSource);
-        robotWriter = new DefaultWriterRobot(mdcKeyValue, robotReader, config.getWriteThreadNum());
+        robotWriter = new DefaultWriterRobot(mdcKeyValue, robotReader, globalParam.getWriteThreadNum());
         exchanger.exchange(robotReader, robotWriter);
       }
     } catch (Throwable t) {

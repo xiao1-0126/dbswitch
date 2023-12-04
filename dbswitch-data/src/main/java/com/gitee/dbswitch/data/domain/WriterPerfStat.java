@@ -9,31 +9,27 @@
 /////////////////////////////////////////////////////////////
 package com.gitee.dbswitch.data.domain;
 
-import cn.hutool.core.exceptions.ExceptionUtil;
 import com.gitee.dbswitch.common.entity.PrintablePerfStat;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 /**
  * 并发写入统计格式化信息
  *
  * @author tang
  */
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class WriterPerfStat extends PrintablePerfStat {
 
   private long duration;
-  private Throwable throwable;
-
-  public WriterPerfStat(long duration, Throwable throwable) {
-    this.duration = duration;
-    this.throwable = throwable;
-  }
 
   @Override
   public String getPrintableString() {
     StringBuilder sb = new StringBuilder();
     sb.append("Total Writer Duration: \t" + (duration / 1000.0) + " s \n");
-    if (null != throwable) {
-      sb.append("Stack:" + ExceptionUtil.stacktraceToString(throwable));
-    }
     return sb.toString();
   }
 }

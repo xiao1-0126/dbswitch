@@ -31,6 +31,9 @@ public class ReaderTaskResult implements TaskResult {
   @Builder.Default
   private Map<String, Long> perf = new HashMap<>();
 
+  @Builder.Default
+  private Map<String, Throwable> except = new HashMap<>();
+
   private String tableNameMapString;
 
   private long successCount;
@@ -43,10 +46,13 @@ public class ReaderTaskResult implements TaskResult {
 
   private Throwable throwable;
 
-  public ReaderTaskResult paddingPerf() {
+  @Override
+  public void padding() {
     if (successCount > 0 && null != tableNameMapString) {
       perf.put(tableNameMapString, recordCount);
     }
-    return this;
+    if (null != throwable && null != tableNameMapString) {
+      except.putIfAbsent(tableNameMapString, throwable);
+    }
   }
 }

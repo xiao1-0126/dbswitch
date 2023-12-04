@@ -15,7 +15,6 @@ import java.util.Optional;
 
 public abstract class AbstractRobot<R extends TaskResult> implements Robot {
 
-  private volatile boolean interrupted = false;
   private MemChannel channel;
 
   public void setChannel(MemChannel channel) {
@@ -23,17 +22,11 @@ public abstract class AbstractRobot<R extends TaskResult> implements Robot {
   }
 
   public MemChannel getChannel() {
-    return channel;
+    return this.channel;
   }
 
-  public void interrupt() {
-    interrupted = true;
-  }
-
-  protected void checkInterrupt() {
-    if (interrupted) {
-      throw new RuntimeException("task is interrupted");
-    }
+  public void clearChannel() {
+    this.channel.clear();
   }
 
   public abstract Optional<R> getWorkResult();

@@ -10,12 +10,12 @@
 package com.gitee.dbswitch.product.postgresql;
 
 import com.gitee.dbswitch.common.consts.Constants;
+import com.gitee.dbswitch.common.util.DDLFormatterUtils;
 import com.gitee.dbswitch.provider.ProductFactoryProvider;
 import com.gitee.dbswitch.provider.meta.AbstractMetadataProvider;
 import com.gitee.dbswitch.schema.ColumnDescription;
 import com.gitee.dbswitch.schema.ColumnMetaData;
 import com.gitee.dbswitch.schema.TableDescription;
-import com.gitee.dbswitch.common.util.DDLFormatterUtils;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -27,6 +27,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 
 @Slf4j
 public class PostgresMetadataQueryProvider extends AbstractMetadataProvider {
@@ -182,6 +183,9 @@ public class PostgresMetadataQueryProvider extends AbstractMetadataProvider {
               } else {
                 retval += "DOUBLE PRECISION";
               }
+              if (v.isHaveDefault()) {
+                retval += " DEFAULT " + NumberUtils.toDouble(v.getDefaultValue());
+              }
             } else {
               if (length > 9) {
                 retval += "BIGINT";
@@ -192,13 +196,16 @@ public class PostgresMetadataQueryProvider extends AbstractMetadataProvider {
                   retval += "INTEGER";
                 }
               }
+              if (v.isHaveDefault()) {
+                retval += " DEFAULT " + NumberUtils.toInt(v.getDefaultValue());
+              }
             }
 
           } else {
             retval += "DOUBLE PRECISION";
-          }
-          if (v.isHaveDefault()) {
-            retval += " DEFAULT " + Integer.valueOf(v.getDefaultValue());
+            if (v.isHaveDefault()) {
+              retval += " DEFAULT " + NumberUtils.toDouble(v.getDefaultValue());
+            }
           }
         }
         break;

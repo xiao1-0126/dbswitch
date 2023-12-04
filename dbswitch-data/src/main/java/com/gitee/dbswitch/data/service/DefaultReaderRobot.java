@@ -38,7 +38,6 @@ import java.util.function.Supplier;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.core.task.AsyncTaskExecutor;
 
 /**
@@ -70,22 +69,8 @@ public class DefaultReaderRobot extends RobotReader<ReaderTaskResult> {
 
   @Override
   public void interrupt() {
-    super.interrupt();
-    if (CollectionUtils.isNotEmpty(readTaskThreads)) {
-      for (Supplier supplier : readTaskThreads) {
-        if (supplier instanceof ReaderTaskThread) {
-          ReaderTaskThread thread = (ReaderTaskThread) supplier;
-          thread.interrupt();
-        } else if (supplier instanceof LoggingSupplier) {
-          LoggingSupplier loggingSupplier = (LoggingSupplier) supplier;
-          Supplier realSupplier = loggingSupplier.getCommand();
-          if (realSupplier instanceof ReaderTaskThread) {
-            ReaderTaskThread thread = (ReaderTaskThread) realSupplier;
-            thread.interrupt();
-          }
-        }
-      }
-    }
+    Optional.ofNullable(futures).orElseGet(ArrayList::new).forEach(f -> f.cancel(true));
+    this.clearChannel();
   }
 
   @Override
@@ -146,7 +131,6 @@ public class DefaultReaderRobot extends RobotReader<ReaderTaskResult> {
     log.info("Source schema names is :{}", JsonUtils.toJsonString(schemas));
 
     for (String schema : schemas) {
-      checkInterrupt();
       List<TableDescription> tableList = sourceMetaDataService.queryTableList(schema);
       if (tableList.isEmpty()) {
         log.warn("### Find source database table list empty for schema name is : {}", schema);
@@ -184,11 +168,8 @@ public class DefaultReaderRobot extends RobotReader<ReaderTaskResult> {
   public void startRead() {
     futures = new ArrayList<>(readTaskThreads.size());
     readTaskThreads.forEach(
-        task -> {
-          checkInterrupt();
-          futures.add(CompletableFuture.supplyAsync(task, threadExecutor)
-          );
-        }
+        task ->
+            futures.add(CompletableFuture.supplyAsync(task, threadExecutor))
     );
   }
 
@@ -202,14 +183,20 @@ public class DefaultReaderRobot extends RobotReader<ReaderTaskResult> {
     return futures.stream().map(CompletableFuture::join)
         .filter(Objects::nonNull)
         .map(f -> (ReaderTaskResult) f)
+        .peek(f -> f.padding())
         .reduce(
             (r1, r2) -> {
               Map<String, Long> perf = Maps.newHashMap(r1.getPerf());
               if (r2.getSuccessCount() > 0) {
                 perf.put(r2.getTableNameMapString(), r2.getRecordCount());
               }
+              Map<String, Throwable> except = Maps.newHashMap(r1.getExcept());
+              if (r2.getExcept().size() > 0) {
+                except.putAll(r2.getExcept());
+              }
               return ReaderTaskResult.builder()
                   .perf(perf)
+                  .except(except)
                   .successCount(r1.getSuccessCount() + r2.getSuccessCount())
                   .failureCount(r1.getFailureCount() + r2.getFailureCount())
                   .recordCount(r1.getRecordCount() + r2.getRecordCount())

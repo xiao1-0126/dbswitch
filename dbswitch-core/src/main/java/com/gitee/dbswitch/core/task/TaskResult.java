@@ -11,4 +11,5 @@ package com.gitee.dbswitch.core.task;
 
 public interface TaskResult {
 
+  void padding();
 }

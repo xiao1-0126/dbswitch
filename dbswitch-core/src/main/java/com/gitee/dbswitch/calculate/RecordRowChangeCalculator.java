@@ -59,6 +59,13 @@ public interface RecordRowChangeCalculator {
   void setFetchSize(int size);
 
   /**
+   * 设置中断检查函数
+   *
+   * @param r 函数引用
+   */
+  void setInterruptCheck(Runnable r);
+
+  /**
    * 执行变化量计算任务
    *
    * @param task    任务描述实体对象

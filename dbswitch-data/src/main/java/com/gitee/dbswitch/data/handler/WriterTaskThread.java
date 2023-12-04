@@ -44,7 +44,9 @@ public class WriterTaskThread extends TaskProcessor<WriterTaskResult> {
     try {
       BatchElement elem;
       while ((elem = memChannel.poll()) != null || robotReader.getRemainingCount() > 0) {
-        checkInterrupt();
+        if (Thread.currentThread().isInterrupted()) {
+          break;
+        }
         if (null != elem) {
           try {
             Long ret = Long.valueOf(elem.getArg2().size());
@@ -53,14 +55,11 @@ public class WriterTaskThread extends TaskProcessor<WriterTaskResult> {
             Long total = ret + Optional.ofNullable(count).orElse(0L);
             taskResult.getPerf().put(elem.getTableNameMapString(), total);
           } catch (Throwable t) {
-            log.error("Failed to write table {}", elem.getTableNameMapString(), t);
-            throw t;
+            taskResult.setSuccess(false);
+            taskResult.getExcept().putIfAbsent(elem.getTableNameMapString(), t);
           }
         }
       }
-    } catch (Throwable t) {
-      taskResult.setSuccess(false);
-      taskResult.setThrowable(t);
     } finally {
       stopWatch.stop();
       taskResult.setDuration(stopWatch.getTotalTimeMillis());
@@ -69,7 +68,6 @@ public class WriterTaskThread extends TaskProcessor<WriterTaskResult> {
   }
 
   public WriterTaskResult exceptProcess(Throwable t) {
-    // 代码不会执行到这里
     return WriterTaskResult.builder()
         .success(false)
         .duration(0)

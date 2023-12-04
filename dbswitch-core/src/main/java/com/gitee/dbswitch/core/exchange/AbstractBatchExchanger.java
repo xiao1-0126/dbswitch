@@ -20,10 +20,10 @@ public abstract class AbstractBatchExchanger {
   private AsyncTaskExecutor readThreadExecutor;
   private AsyncTaskExecutor writeThreadExecutor;
 
-  public AbstractBatchExchanger(AsyncTaskExecutor readExecutor, AsyncTaskExecutor writeExecutor) {
+  public AbstractBatchExchanger(AsyncTaskExecutor readExecutor, AsyncTaskExecutor writeExecutor, int channelMaxSize) {
     ExamineUtils.checkNotNull(readExecutor, "readExecutor");
     ExamineUtils.checkNotNull(writeExecutor, "writeExecutor");
-    this.memChannel = MemChannel.createNewChannel();
+    this.memChannel = MemChannel.createNewChannel(channelMaxSize);
     this.readThreadExecutor = readExecutor;
     this.writeThreadExecutor = writeExecutor;
   }
@@ -46,8 +46,8 @@ public abstract class AbstractBatchExchanger {
     writer.init(writeThreadExecutor);
 
     // 启动reader和writer的并行工作
-    writer.work();
-    reader.work();
+    writer.startWork();
+    reader.startWork();
 
     // writer会等待reader执行完
     writer.waitForFinish();

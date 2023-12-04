@@ -9,25 +9,17 @@
 /////////////////////////////////////////////////////////////
 package com.gitee.dbswitch.core.task;
 
+import java.util.concurrent.CancellationException;
 import java.util.function.Supplier;
 
 public abstract class TaskProcessor<R extends TaskResult> implements Supplier<R> {
 
-  private volatile boolean interrupted = false;
-
   /**
-   * 中断任务
-   */
-  public void interrupt() {
-    this.interrupted = true;
-  }
-
-  /**
-   * 任务执行期间用于检查是否接收到任务终端信号
+   * 任务执行期间用于检查是否接收到任务中断信号
    */
   protected void checkInterrupt() {
-    if (interrupted) {
-      throw new RuntimeException("task is interrupted");
+    if (Thread.currentThread().isInterrupted()) {
+      throw new CancellationException("task is interrupted");
     }
   }
 
