@@ -252,6 +252,7 @@ public class AssignmentService {
     sourceDataSourceProperties.setRegexTableMapper(assignmentConfigEntity.getTableNameMap());
     sourceDataSourceProperties.setRegexColumnMapper(assignmentConfigEntity.getColumnNameMap());
     sourceDataSourceProperties.setFetchSize(assignmentConfigEntity.getBatchSize());
+    sourceDataSourceProperties.setTableType(assignmentConfigEntity.getTableType().name());
     return sourceDataSourceProperties;
   }
 
