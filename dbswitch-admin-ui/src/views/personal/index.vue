@@ -21,9 +21,6 @@
               <el-description-item label="地址"
                                    :span='15'
                                    :value="userinfo.address"></el-description-item>
-              <el-description-item label="邮箱"
-                                   :span='15'
-                                   :value="userinfo.email"></el-description-item>
               <el-description-item label="锁定"
                                    :span='15'
                                    :value="userinfo.locked"></el-description-item>

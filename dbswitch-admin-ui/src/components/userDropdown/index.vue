@@ -17,7 +17,7 @@
         </el-dropdown-item>
         <el-dropdown-item divided>
           <a @click="hadleLogout()">
-            <i class="el-icon-switch-button"></i>推出登录
+            <i class="el-icon-switch-button"></i>退出登录
           </a>
         </el-dropdown-item>
       </el-dropdown-menu>
