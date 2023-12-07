@@ -261,7 +261,8 @@ public class AssignmentService {
     TargetDataSourceProperties targetDataSourceProperties = new TargetDataSourceProperties();
     DatabaseConnectionEntity targetDatabaseConnectionEntity = databaseConnectionDAO
         .getById(assignmentConfigEntity.getTargetConnectionId());
-    File driverVersionFile = driverLoadService.getVersionDriverFile(targetDatabaseConnectionEntity.getType(),
+    File driverVersionFile = driverLoadService.getVersionDriverFile(
+        targetDatabaseConnectionEntity.getType(),
         targetDatabaseConnectionEntity.getVersion());
     targetDataSourceProperties.setUrl(targetDatabaseConnectionEntity.getUrl());
     targetDataSourceProperties.setDriverClassName(targetDatabaseConnectionEntity.getDriver());
@@ -278,6 +279,9 @@ public class AssignmentService {
     }
     if (assignmentConfigEntity.getTargetOnlyCreate()) {
       targetDataSourceProperties.setOnlyCreate(Boolean.TRUE);
+    }
+    if (assignmentConfigEntity.getTargetAutoIncrement()) {
+      targetDataSourceProperties.setCreateTableAutoIncrement(Boolean.TRUE);
     }
     targetDataSourceProperties.setTableNameCase(assignmentConfigEntity.getTableNameCase());
     targetDataSourceProperties.setColumnNameCase(assignmentConfigEntity.getColumnNameCase());

@@ -22,8 +22,9 @@
                style="margin:10px 5px;"
                width="95%">
             <el-button type="primary"
+                       size="mini"
                        icon="el-icon-document-add"
-                       @click="dialogVisible=true">添加驱动</el-button>
+                       @click="dialogVisible=true">添加</el-button>
           </div>
           <el-table :header-cell-style="{background:'#eef1f6',color:'#606266'}"
                     :data="versionDrivers"
@@ -88,7 +89,7 @@ export default {
       }).then(res => {
         if (0 === res.data.code) {
           this.connectionTypes = res.data.data;
-          this.handleChooseClick('MYSQL',0);
+          this.handleChooseClick('MYSQL', 0);
         } else {
           if (res.data.message) {
             alert("初始化数据库类型信息失败:" + res.data.message);
@@ -173,7 +174,7 @@ export default {
 }
 
 .container .el-card {
-  width: 50%;
+  width: 30%;
   height: 100%;
   overflow: auto;
 }
@@ -209,5 +210,4 @@ export default {
   padding: 10px;
   width: calc(100% - 250px);
 }
-
 </style>

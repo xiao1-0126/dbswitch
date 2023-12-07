@@ -7,15 +7,16 @@
             <el-input placeholder="请输入连接名称关键字搜索"
                       v-model="keyword"
                       @change="searchByKeyword"
-                      clearable=true
+                      :clearable=true
                       style="width:300px">
             </el-input>
           </div>
         </div>
         <div class="right-add-button-group">
           <el-button type="primary"
+                     size="mini"
                      icon="el-icon-document-add"
-                     @click="createFormVisible=true">添加</el-button>
+                     @click="addConnection">添加</el-button>
         </div>
       </div>
 
@@ -28,62 +29,52 @@
                          min-width="5%"></el-table-column>
         <el-table-column prop="name"
                          label="连接名称"
+                         show-overflow-tooltip
                          min-width="20%"></el-table-column>
         <el-table-column prop="createTime"
                          label="创建时间"
-                         min-width="20%"></el-table-column>
+                         min-width="18%"></el-table-column>
         <el-table-column prop="type"
                          label="数据库类型"
+                         show-overflow-tooltip
                          min-width="10%"></el-table-column>
         <el-table-column prop="version"
                          label="驱动版本"
-                         min-width="15%"></el-table-column>
+                         show-overflow-tooltip
+                         min-width="12%"></el-table-column>
         <el-table-column prop="url"
                          label="JDBC连接串"
                          show-overflow-tooltip
-                         min-width="30%"></el-table-column>
+                         min-width="15%"></el-table-column>
         <el-table-column prop="username"
                          label="账号"
+                         show-overflow-tooltip
                          min-width="10%"></el-table-column>
         <el-table-column label="操作"
-                         min-width="30%">
+                         min-width="35%">
           <template slot-scope="scope">
-            <el-tooltip content="测试"
-                        placement="top"
-                        effect="dark">
+            <el-button-group>
               <el-button size="small"
                          type="danger"
-                         icon="el-icon-document-checked"
+                         icon="el-icon-video-play"
                          @click="handleTest(scope.$index, scope.row)"
-                         circle></el-button>
-            </el-tooltip>
-            <el-tooltip content="详情"
-                        placement="top"
-                        effect="dark">
+                         round>测试</el-button>
               <el-button size="small"
                          type="primary"
                          icon="el-icon-document"
                          @click="handleMore(scope.$index, scope.row)"
-                         circle></el-button>
-            </el-tooltip>
-            <el-tooltip content="编辑"
-                        placement="top"
-                        effect="dark">
+                         round>详情</el-button>
               <el-button size="small"
                          type="warning"
                          icon="el-icon-edit"
                          @click="handleUpdate(scope.$index, scope.row)"
-                         circle></el-button>
-            </el-tooltip>
-            <el-tooltip content="删除"
-                        placement="top"
-                        effect="dark">
+                         round>编辑</el-button>
               <el-button size="small"
                          type="success"
                          icon="el-icon-delete"
                          @click="handleDelete(scope.$index, scope.row)"
-                         circle></el-button>
-            </el-tooltip>
+                         round>删除</el-button>
+            </el-button-group>
           </template>
         </el-table-column>
       </el-table>
@@ -137,6 +128,7 @@
                         style="width:85%">
             <el-input type="textarea"
                       :rows="6"
+                      :spellcheck="false"
                       v-model="queryForm.url"
                       auto-complete="off"
                       :readonly=true></el-input>
@@ -210,12 +202,21 @@
           <el-form-item label="JDBC连接串"
                         label-width="120px"
                         :required=true
-                        prop=""
+                        prop="url"
                         style="width:85%">
+            <el-tooltip placement="top">
+              <i class="el-icon-question">样例:</i>
+              <div slot="content">
+                {{createform.sample}}
+              </div>
+            </el-tooltip>
             <el-input type="textarea"
                       :rows="6"
+                      :spellcheck="false"
+                      placeholder="请输入"
                       v-model="createform.url"
-                      auto-complete="off"></el-input>
+                      auto-complete="off">
+            </el-input>
           </el-form-item>
           <el-form-item label="账号名称"
                         label-width="120px"
@@ -292,6 +293,7 @@
                         style="width:85%">
             <el-input type="textarea"
                       :rows="6"
+                      :spellcheck="false"
                       v-model="updateform.url"
                       auto-complete="off"></el-input>
           </el-form-item>
@@ -350,6 +352,8 @@ export default {
         title: "",
         type: "",
         diver: "",
+        sample: "",
+        url: "",
         version: "",
         username: "",
         password: ""
@@ -375,6 +379,13 @@ export default {
           {
             required: true,
             message: "数据库类型必须选择",
+            trigger: "change"
+          }
+        ],
+        version: [
+          {
+            required: true,
+            message: "驱动版本必须选择",
             trigger: "change"
           }
         ],
@@ -434,6 +445,7 @@ export default {
       );
     },
     searchByKeyword: function () {
+      this.currentPage = 1;
       this.loadData();
     },
     loadDatabaseTypes: function () {
@@ -494,6 +506,10 @@ export default {
         }
       });
     },
+    addConnection: function () {
+      this.createFormVisible = true;
+      this.createform = {};
+    },
     handleCreate: function () {
       let driverClass = "";
       if (this.databaseType.length > 0) {
@@ -545,6 +561,13 @@ export default {
       ).then(res => {
         if (0 === res.data.code) {
           this.connectionDriver = res.data.data;
+          let varDatabaseType = this.databaseType.find(
+            (item) => {
+              return item.type === value;
+            });
+          if (varDatabaseType) {
+            this.createform.sample = varDatabaseType.sample;
+          }
         } else {
           this.$message.error("查询数据库可用的驱动版本失败," + res.data.message);
           this.connectionDriver = [];

@@ -138,9 +138,13 @@ public class SqliteMetadataQueryProvider extends AbstractMetadataProvider {
         break;
       case ColumnMetaData.TYPE_STRING:
         if (length < 1 || length >= Constants.CLOB_LENGTH) {
-          retval += "BLOB";
-        } else {
           retval += "TEXT";
+        } else {
+          if (length <= 2000) {
+            retval += "VARCHAR(" + length + ")";
+          } else {
+            retval += "TEXT";
+          }
         }
         break;
       case ColumnMetaData.TYPE_BINARY:

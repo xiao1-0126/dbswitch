@@ -122,6 +122,7 @@ CREATE TABLE IF NOT EXISTS DBSWITCH_ASSIGNMENT_CONFIG (
   "column_name_map"             text                  ,
   "target_drop_table"           boolean               not null default false,
   "target_only_create"          boolean               not null default false,
+  "target_auto_increment"       boolean               not null default false,
   "batch_size"                  int8                  not null default 10000,
   "first_flag"                  boolean               not null default false,
   "create_time"                 timestamp(6) not null default (CURRENT_TIMESTAMP(0))::timestamp(0) without time zone,

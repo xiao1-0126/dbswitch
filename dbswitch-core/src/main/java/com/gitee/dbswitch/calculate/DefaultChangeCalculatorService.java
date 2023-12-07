@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
@@ -220,21 +221,18 @@ public final class DefaultChangeCalculatorService implements RecordRowChangeCalc
       if (log.isDebugEnabled()) {
         log.debug("###### Query data from two table now");
       }
-      if (null != checkInterrupt) {
-        checkInterrupt.run();
-      }
+      Optional.ofNullable(checkInterrupt).ifPresent(Runnable::run);
+
       rsold = oldQuery
           .queryTableData(task.getOldSchemaName(), task.getOldTableName(),
               mappedQueryFieldColumn, fieldsMappedPrimaryKeyNew);
-      if (null != checkInterrupt) {
-        checkInterrupt.run();
-      }
+      Optional.ofNullable(checkInterrupt).ifPresent(Runnable::run);
+
       rsnew = newQuery
           .queryTableData(task.getNewSchemaName(), task.getNewTableName(),
               queryFieldColumn, fieldsPrimaryKeyNew);
-      if (null != checkInterrupt) {
-        checkInterrupt.run();
-      }
+      Optional.ofNullable(checkInterrupt).ifPresent(Runnable::run);
+
       ResultSetMetaData metaData = rsnew.getResultSet().getMetaData();
 
       if (log.isDebugEnabled()) {
@@ -301,9 +299,7 @@ public final class DefaultChangeCalculatorService implements RecordRowChangeCalc
         log.debug("###### Enter CDC calculate now");
       }
 
-      if (null != checkInterrupt) {
-        checkInterrupt.run();
-      }
+      Optional.ofNullable(checkInterrupt).ifPresent(Runnable::run);
 
       RecordTransformProvider transformer = task.getTransformer();
 
@@ -314,9 +310,7 @@ public final class DefaultChangeCalculatorService implements RecordRowChangeCalc
       Object[] two = transformer.doTransform(task.getNewSchemaName(), task.getNewTableName(),
           queryFieldColumn, getRowData(rsnew.getResultSet()));
       while (true) {
-        if (null != checkInterrupt) {
-          checkInterrupt.run();
-        }
+        Optional.ofNullable(checkInterrupt).ifPresent(Runnable::run);
         if (one == null && two == null) {
           break;
         } else if (one == null && two != null) {

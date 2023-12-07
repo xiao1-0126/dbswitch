@@ -47,6 +47,7 @@ public class AssignmentDetailConverter extends
     config.setTargetSchema(taskConfig.getTargetSchema());
     config.setTargetOnlyCreate(taskConfig.getTargetOnlyCreate());
     config.setTargetDropTable(taskConfig.getTargetDropTable());
+    config.setTargetAutoIncrement(taskConfig.getTargetAutoIncrement());
     config.setTableNameCase(taskConfig.getTableNameCase());
     config.setColumnNameCase(taskConfig.getColumnNameCase());
     config.setTableNameMapper(taskConfig.getTableNameMap());

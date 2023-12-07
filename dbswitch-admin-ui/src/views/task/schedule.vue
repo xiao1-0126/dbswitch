@@ -8,7 +8,7 @@
             <span>任务安排列表</span>
             <el-input placeholder="请输入关键字搜索"
                       v-model="keyword"
-                      clearable=true
+                      :clearable=true
                       @change="changeSearchKeyword"
                       style="width:200px">
             </el-input>
@@ -33,6 +33,14 @@
         </el-card>
 
         <div class="contentBox">
+          <div class="right-refresh-button">
+            <el-button type="primary"
+                       plain
+                       size="mini"
+                       icon="el-icon-refresh"
+                       @click="handleClickRefresh"
+                       round>刷新</el-button>
+          </div>
           <el-table :header-cell-style="{background:'#eef1f6',color:'#606266'}"
                     :data="jobTableData"
                     size="small"
@@ -61,10 +69,11 @@
             <el-table-column label="日志"
                              min-width="15%">
               <template slot-scope="props">
-                <el-button size="small"
-                           type="danger"
-                           @click="handleShowJobLogs(props.row.jobId)">
-                  查看
+                <el-button size="mini"
+                           type="success"
+                           @click="handleShowJobLogs(props.row.jobId)"
+                           round>
+                  <i class="el-icon-view el-icon--right">查看</i>
                 </el-button>
               </template>
             </el-table-column>
@@ -155,7 +164,7 @@ export default {
       keyword: null,
       pageTaskAssignments: [],
       pageTaskAssignmentsTotalCount: 0,
-      taskId: '请选择一个任务安排',
+      taskId: 0,
       jobTableData: [],
       jobScheduleTime: '',
       isActive: -1,
@@ -194,6 +203,7 @@ export default {
       );
     },
     changeSearchKeyword: function () {
+      this.currentTaskAssignmentPage = 1;
       this.loadPageTaskAssignments();
     },
     handleLoadPageTaskAssignments: function (currentPage) {
@@ -234,6 +244,13 @@ export default {
     handleChooseClick: function (taskId, index) {
       this.isActive = index;
       this.taskId = taskId;
+      this.loadJobsData();
+    },
+    handleClickRefresh () {
+      if (!this.taskId || this.taskId < 0) {
+        alert("请先在左侧选择一个任务来");
+        return;
+      }
       this.loadJobsData();
     },
     handleCancelJob: function (jobId) {
@@ -400,5 +417,11 @@ export default {
 .container .contentBox {
   padding: 10px;
   width: calc(100% - 250px);
+}
+
+.right-refresh-button {
+  float: right;
+  margin-right: 2px;
+  margin: 10px 2px;
 }
 </style>

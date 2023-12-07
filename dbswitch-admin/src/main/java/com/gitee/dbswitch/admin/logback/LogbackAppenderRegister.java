@@ -62,11 +62,11 @@ public final class LogbackAppenderRegister {
             Logger jobLogger = loggerContext.getLogger(name);
             jobLogger.addAppender(sa);
             jobLogger.setLevel(Level.INFO);
-            log.info("Success add and initialize appender of logback for class：{}", name);
+            log.info("Success add and initialize appender of logback for class: {}", name);
           }
       );
     } catch (Exception e) {
-      log.error("Failed add and initialize appender of logback ,message:", e);
+      log.error("Failed add and initialize appender of logback, message: ", e);
     }
   }
 }

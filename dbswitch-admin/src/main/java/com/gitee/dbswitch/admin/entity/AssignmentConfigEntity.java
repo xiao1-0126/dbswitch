@@ -79,6 +79,9 @@ public class AssignmentConfigEntity {
   @TableField("target_only_create")
   private Boolean targetOnlyCreate;
 
+  @TableField("target_auto_increment")
+  private Boolean targetAutoIncrement;
+
   @TableField("batch_size")
   private Integer batchSize;
 

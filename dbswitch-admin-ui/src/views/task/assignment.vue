@@ -6,7 +6,7 @@
           <div class="left-search-input">
             <el-input placeholder="请输入任务名称关键字搜索"
                       v-model="keyword"
-                      clearable=true
+                      :clearable=true
                       @change="searchByKeyword"
                       style="width:300px">
             </el-input>
@@ -14,6 +14,7 @@
         </div>
         <div class="right-add-button-group">
           <el-button type="primary"
+                     size="mini"
                      icon="el-icon-document-add"
                      @click="handleCreate">添加</el-button>
         </div>
@@ -45,42 +46,44 @@
         <el-table-column label="操作"
                          min-width="30%">
           <template slot-scope="scope">
-            <el-button size="small"
-                       type="primary"
-                       icon="el-icon-timer"
-                       v-if="scope.row.isPublished===false"
-                       @click="handlePublish(scope.$index, scope.row)"
-                       circle>发布</el-button>
-            <el-button size="small"
-                       type="info"
-                       icon="el-icon-delete-location"
-                       v-if="scope.row.isPublished===true"
-                       @click="handleRetireTask(scope.$index, scope.row)"
-                       circle>下线</el-button>
-            <el-button size="small"
-                       type="danger"
-                       icon="el-icon-video-play"
-                       v-if="scope.row.isPublished===true"
-                       @click="handleRunTask(scope.$index, scope.row)"
-                       circle>执行</el-button>
-            <el-button size="small"
-                       type="success"
-                       icon="el-icon-document"
-                       v-if="scope.row.isPublished===true"
-                       @click="handleDetail(scope.$index, scope.row)"
-                       circle>详情</el-button>
-            <el-button size="small"
-                       type="warning"
-                       icon="el-icon-edit"
-                       v-if="scope.row.isPublished===false"
-                       @click="handleUpdate(scope.$index, scope.row)"
-                       circle>修改</el-button>
-            <el-button size="small"
-                       type="danger"
-                       icon="el-icon-delete"
-                       v-if="scope.row.isPublished===false"
-                       @click="handleDelete(scope.$index, scope.row)"
-                       circle>删除</el-button>
+            <el-button-group>
+              <el-button size="small"
+                         type="primary"
+                         icon="el-icon-timer"
+                         v-if="scope.row.isPublished===false"
+                         @click="handlePublish(scope.$index, scope.row)"
+                         round>发布</el-button>
+              <el-button size="small"
+                         type="info"
+                         icon="el-icon-delete-location"
+                         v-if="scope.row.isPublished===true"
+                         @click="handleRetireTask(scope.$index, scope.row)"
+                         round>下线</el-button>
+              <el-button size="small"
+                         type="danger"
+                         icon="el-icon-video-play"
+                         v-if="scope.row.isPublished===true"
+                         @click="handleRunTask(scope.$index, scope.row)"
+                         round>执行</el-button>
+              <el-button size="small"
+                         type="success"
+                         icon="el-icon-document"
+                         v-if="scope.row.isPublished===true"
+                         @click="handleDetail(scope.$index, scope.row)"
+                         round>详情</el-button>
+              <el-button size="small"
+                         type="warning"
+                         icon="el-icon-edit"
+                         v-if="scope.row.isPublished===false"
+                         @click="handleUpdate(scope.$index, scope.row)"
+                         round>修改</el-button>
+              <el-button size="small"
+                         type="danger"
+                         icon="el-icon-delete"
+                         v-if="scope.row.isPublished===false"
+                         @click="handleDelete(scope.$index, scope.row)"
+                         round>删除</el-button>
+            </el-button-group>
           </template>
         </el-table-column>
       </el-table>
@@ -140,6 +143,7 @@ export default {
       );
     },
     searchByKeyword: function () {
+      this.currentPage = 1;
       this.loadData();
     },
     boolFormatPublish (row, column) {

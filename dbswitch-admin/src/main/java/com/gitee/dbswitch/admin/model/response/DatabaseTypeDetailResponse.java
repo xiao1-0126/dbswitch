@@ -28,6 +28,6 @@ public class DatabaseTypeDetailResponse {
   @ApiModelProperty("驱动类")
   private String driver;
 
-  @ApiModelProperty("连接串模板")
-  private String template;
+  @ApiModelProperty("连接串样例")
+  private String sample;
 }

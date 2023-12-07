@@ -2,7 +2,6 @@
   <el-card>
     <el-form :model="updateform"
              status-icon
-             :rules="rules"
              ref="updateform">
       <el-descriptions size="small"
                        :column="1"
@@ -20,7 +19,7 @@
         </el-descriptions-item>
         <el-descriptions-item v-if="updateform.scheduleMode == 'SYSTEM_SCHEDULED'"
                               label="CRON表达式">{{updateform.cronExpression}}</el-descriptions-item>
-        <el-descriptions-item label="源端数据源">[{{updateform.sourceConnectionId}}]{{sourceConnection.name}}</el-descriptions-item>
+        <el-descriptions-item label="源端数据源">[{{updateform.sourceConnectionId}}]{{updateform.sourceConnectionName}}</el-descriptions-item>
         <el-descriptions-item label="源端schema">{{updateform.sourceSchema}}</el-descriptions-item>
         <el-descriptions-item label="源端表类型">{{updateform.tableType}}</el-descriptions-item>
         <el-descriptions-item label="源端表选择方式">
@@ -36,12 +35,25 @@
           <p v-for="item in updateform.sourceTables"
              v-bind:key="item">{{item}}</p>
         </el-descriptions-item>
-        <el-descriptions-item label="目地端数据源">[{{updateform.targetConnectionId}}]{{targetConnection.name}}</el-descriptions-item>
+        <el-descriptions-item label="目地端数据源">[{{updateform.targetConnectionId}}]{{updateform.targetConnectionName}}</el-descriptions-item>
         <el-descriptions-item label="目地端schema">{{updateform.targetSchema}}</el-descriptions-item>
-        <el-descriptions-item label="只创建表">{{updateform.targetOnlyCreate}}</el-descriptions-item>
-        <el-descriptions-item label="删除同名表">{{updateform.targetDropTable}}</el-descriptions-item>
-        <el-descriptions-item label="数据处理批次量">{{updateform.batchSize}}</el-descriptions-item>
-        <el-descriptions-item label="表名大小写转换">
+        <el-descriptions-item label="自动同步模式">
+          <span v-if="updateform.autoSyncMode == 2">
+            目标端建表并同步数据
+          </span>
+          <span v-if="updateform.autoSyncMode == 1">
+            目标端只创建物理表
+          </span>
+          <span v-if="updateform.autoSyncMode == 0">
+            目标端只同步表里数据
+          </span>
+        </el-descriptions-item>
+        <el-descriptions-item label="建表字段自增"
+                              v-if=" updateform.autoSyncMode!==0 ">{{updateform.targetAutoIncrement}}</el-descriptions-item>
+        <el-descriptions-item label="数据批次大小"
+                              v-if=" updateform.autoSyncMode!==1 ">{{updateform.batchSize}}</el-descriptions-item>
+        <el-descriptions-item label="表名大小写转换"
+                              v-if=" updateform.autoSyncMode!==0 ">
           <span v-if="updateform.tableNameCase == 'NONE'">
             无转换
           </span>
@@ -52,7 +64,8 @@
             转小写
           </span>
         </el-descriptions-item>
-        <el-descriptions-item label="列名大小写转换">
+        <el-descriptions-item label="列名大小写转换"
+                              v-if=" updateform.autoSyncMode!==0 ">
           <span v-if="updateform.columnNameCase == 'NONE'">
             无转换
           </span>
@@ -97,6 +110,7 @@
 
     </el-form>
     <el-button type="primary"
+               size="mini"
                icon="el-icon-arrow-left"
                @click="handleGoBack">
       返回
@@ -127,6 +141,7 @@ export default {
         targetConnectionId: '请选择',
         targetDropTable: true,
         targetOnlyCreate: false,
+        autoSyncMode: 2,
         targetSchema: "",
         batchSize: 5000
       },
@@ -144,6 +159,14 @@ export default {
       ).then(res => {
         if (0 === res.data.code) {
           let detail = res.data.data;
+          let varAutoSyncMode = 2;
+          if (detail.configuration.targetDropTable && detail.configuration.targetOnlyCreate) {
+            varAutoSyncMode = 1;
+          } else if (!detail.configuration.targetDropTable && !detail.configuration.targetOnlyCreate) {
+            varAutoSyncMode = 0;
+          } else {
+            varAutoSyncMode = 2;
+          }
           this.updateform = {
             id: detail.id,
             name: detail.name,
@@ -151,6 +174,7 @@ export default {
             scheduleMode: detail.scheduleMode,
             cronExpression: detail.cronExpression,
             sourceConnectionId: detail.configuration.sourceConnectionId,
+            sourceConnectionName: detail.configuration.sourceConnectionName,
             sourceSchema: detail.configuration.sourceSchema,
             tableType: detail.configuration.tableType,
             includeOrExclude: detail.configuration.includeOrExclude,
@@ -160,8 +184,11 @@ export default {
             tableNameCase: detail.configuration.tableNameCase,
             columnNameCase: detail.configuration.columnNameCase,
             targetConnectionId: detail.configuration.targetConnectionId,
+            targetConnectionName: detail.configuration.targetConnectionName,
             targetDropTable: detail.configuration.targetDropTable,
             targetOnlyCreate: detail.configuration.targetOnlyCreate,
+            targetAutoIncrement: detail.configuration.targetAutoIncrement,
+            autoSyncMode: varAutoSyncMode,
             targetSchema: detail.configuration.targetSchema,
             batchSize: detail.configuration.batchSize
           }

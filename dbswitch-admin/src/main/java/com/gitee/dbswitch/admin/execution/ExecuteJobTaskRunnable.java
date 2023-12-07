@@ -118,15 +118,38 @@ public class ExecuteJobTaskRunnable implements Runnable {
         try {
           DbswichPropertiesConfiguration properties = JsonUtils.toBeanObject(
               task.getContent(), DbswichPropertiesConfiguration.class);
-          if (!assignmentConfigEntity.getFirstFlag()) {
-            if (!assignmentConfigEntity.getTargetOnlyCreate()) {
-              properties.getTarget().setTargetDrop(false);
-              properties.getTarget().setOnlyCreate(false);
-              properties.getTarget().setChangeDataSync(true);
+
+          /**
+           * 下面通过一个三元组来控制同步的方式
+           * <targetDrop,onlyCreate,changeDataSync>
+           *   <ul>
+           *     <li>目标端建表并同步数据：false,false,true</li>
+           *     <li>目标端只创建物理表：true,true,false</li>
+           *     <li>目标端只同步表里数据：false,false,true</li>
+           *   </ul>
+           */
+          if (!assignmentConfigEntity.getTargetDropTable() && !assignmentConfigEntity.getTargetOnlyCreate()) {
+            properties.getTarget().setTargetDrop(false);
+            properties.getTarget().setOnlyCreate(false);
+            properties.getTarget().setChangeDataSync(true);
+          } else {
+            if (assignmentConfigEntity.getTargetDropTable() && assignmentConfigEntity.getTargetOnlyCreate()) {
+              properties.getTarget().setTargetDrop(true);
+              properties.getTarget().setOnlyCreate(true);
+              properties.getTarget().setChangeDataSync(false);
+            } else {
+              if (assignmentConfigEntity.getFirstFlag()) {
+                // 首次同步，需要自动建表，然后全量加载数据同步
+                properties.getTarget().setTargetDrop(true);
+                properties.getTarget().setOnlyCreate(false);
+                properties.getTarget().setChangeDataSync(false);
+              } else {
+                // 非首次，可能无需建表了，后续执行变化数据同步
+                properties.getTarget().setTargetDrop(false);
+                properties.getTarget().setOnlyCreate(false);
+                properties.getTarget().setChangeDataSync(true);
+              }
             }
-          }
-          if (assignmentConfigEntity.getTargetOnlyCreate()) {
-            properties.getTarget().setTargetDrop(true);
           }
 
           migrationService = new MigrationService(properties, readerTaskExecutor, writerTaskExecutor);
@@ -142,7 +165,6 @@ public class ExecuteJobTaskRunnable implements Runnable {
           if (assignmentConfigEntity.getFirstFlag()) {
             AssignmentConfigEntity config = new AssignmentConfigEntity();
             config.setId(assignmentConfigEntity.getId());
-            config.setTargetDropTable(assignmentConfigEntity.getTargetOnlyCreate());
             config.setFirstFlag(Boolean.FALSE);
             assignmentConfigDAO.updateSelective(config);
           }

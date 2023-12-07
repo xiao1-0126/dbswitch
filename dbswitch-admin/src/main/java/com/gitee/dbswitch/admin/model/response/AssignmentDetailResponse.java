@@ -94,6 +94,9 @@ public class AssignmentDetailResponse {
     @ApiModelProperty("是否删除同名表")
     private Boolean targetDropTable;
 
+    @ApiModelProperty("是否建表允许自增字段")
+    private Boolean targetAutoIncrement;
+
     @ApiModelProperty("表名大小写配置")
     private CaseConvertEnum tableNameCase;
 

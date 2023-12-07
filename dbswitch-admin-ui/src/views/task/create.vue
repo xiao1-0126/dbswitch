@@ -182,27 +182,52 @@
                        :value="item"></el-option>
           </el-select>
         </el-form-item>
-        <el-form-item label="只创建表"
+        <el-form-item label="自动同步模式"
                       label-width="240px"
                       :required=true
-                      prop="targetOnlyCreate"
+                      prop="autoSyncMode"
                       style="width:65%">
+          <span slot="label">
+            <span style="color: red"><strong>自动同步模式</strong> </span>
+          </span>
           <el-tooltip placement="top">
             <div slot="content">
-              只再目标端创建表，不同步数据内容；如果配置为“是”，则下面的“数据处理批次大小"将无效。
+              <p>如果只同步数据内容，则需要目标端需要存在符合映射规则的物理表，可在执行任务前手动建好；</p>
             </div>
             <i class="el-icon-question"></i>
           </el-tooltip>
-          <el-select v-model="createform.targetOnlyCreate">
+          <el-select v-model="createform.autoSyncMode">
+            <el-option label='目标端建表并同步数据'
+                       :value=2></el-option>
+            <el-option label='目标端只创建物理表'
+                       :value=1></el-option>
+            <el-option label='目标端只同步表里数据'
+                       :value=0></el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item label="建表字段自增"
+                      label-width="240px"
+                      :required=true
+                      v-if=" createform.autoSyncMode!==0 "
+                      prop="targetAutoIncrement"
+                      style="width:65%">
+          <el-tooltip placement="top">
+            <div slot="content">
+              创建表时是否自动支持字段的自增；只有使用自动建表才会生效，不过前提需要两端的数据库表支持自增字段，默认为false。
+            </div>
+            <i class="el-icon-question"></i>
+          </el-tooltip>
+          <el-select v-model="createform.targetAutoIncrement">
             <el-option label='是'
                        :value=true></el-option>
             <el-option label='否'
                        :value=false></el-option>
           </el-select>
         </el-form-item>
-        <el-form-item label="数据处理批次大小"
+        <el-form-item label="数据批次大小"
                       label-width="240px"
                       :required=true
+                      v-if=" createform.autoSyncMode!==1 "
                       prop="batchSize"
                       style="width:65%">
           <el-tooltip placement="top">
@@ -225,6 +250,7 @@
         <el-form-item label="表名大小写转换"
                       label-width="240px"
                       :required=true
+                      v-if=" createform.autoSyncMode!==0 "
                       prop="tableNameCase"
                       style="width:45%">
           <el-tooltip placement="top">
@@ -245,6 +271,7 @@
         <el-form-item label="列名大小写转换"
                       label-width="240px"
                       :required=true
+                      v-if=" createform.autoSyncMode!==0 "
                       prop="columnNameCase"
                       style="width:45%">
           <el-tooltip placement="top">
@@ -381,9 +408,23 @@
           </el-descriptions-item>
           <el-descriptions-item label="目地端数据源">[{{createform.targetConnectionId}}]{{targetConnection.name}}</el-descriptions-item>
           <el-descriptions-item label="目地端schema">{{createform.targetSchema}}</el-descriptions-item>
-          <el-descriptions-item label="只创建表">{{createform.targetOnlyCreate}}</el-descriptions-item>
-          <el-descriptions-item label="数据处理批次量">{{createform.batchSize}}</el-descriptions-item>
-          <el-descriptions-item label="表名大小写转换">
+          <el-descriptions-item label="自动同步模式">
+            <span v-if="createform.autoSyncMode == 2">
+              目标端建表并同步数据
+            </span>
+            <span v-if="createform.autoSyncMode == 1">
+              目标端只创建物理表
+            </span>
+            <span v-if="createform.autoSyncMode == 0">
+              目标端只同步表里数据
+            </span>
+          </el-descriptions-item>
+          <el-descriptions-item label="建表字段自增"
+                                v-if=" createform.autoSyncMode!==0 ">{{createform.targetAutoIncrement}}</el-descriptions-item>
+          <el-descriptions-item label="数据批次大小"
+                                v-if=" createform.autoSyncMode!==1 ">{{createform.batchSize}}</el-descriptions-item>
+          <el-descriptions-item label="表名大小写转换"
+                                v-if=" createform.autoSyncMode!==0 ">
             <span v-if="createform.tableNameCase == 'NONE'">
               无转换
             </span>
@@ -394,7 +435,8 @@
               转小写
             </span>
           </el-descriptions-item>
-          <el-descriptions-item label="列名大小写转换">
+          <el-descriptions-item label="列名大小写转换"
+                                v-if=" createform.autoSyncMode!==0 ">
             <span v-if="createform.columnNameCase == 'NONE'">
               无转换
             </span>
@@ -535,6 +577,8 @@ export default {
         targetConnectionId: '请选择',
         targetDropTable: true,
         targetOnlyCreate: false,
+        targetAutoIncrement: false,
+        autoSyncMode: 2,
         targetSchema: "",
         batchSize: 5000
       },
@@ -879,6 +923,16 @@ export default {
 
     },
     handleSave: function () {
+      if (0 === this.createform.autoSyncMode) {
+        this.createform.targetDropTable = false;
+        this.createform.targetOnlyCreate = false;
+      } else if (1 === this.createform.autoSyncMode) {
+        this.createform.targetDropTable = true;
+        this.createform.targetOnlyCreate = true;
+      } else {
+        this.createform.targetDropTable = true;
+        this.createform.targetOnlyCreate = false;
+      }
       this.$refs['createform'].validate(valid => {
         if (valid) {
           this.$http({
@@ -904,8 +958,9 @@ export default {
                 columnNameMapper: this.createform.columnNameMapper,
                 tableNameCase: this.createform.tableNameCase,
                 columnNameCase: this.createform.columnNameCase,
-                targetDropTable: true,
+                targetDropTable: this.createform.targetDropTable,
                 targetOnlyCreate: this.createform.targetOnlyCreate,
+                targetAutoIncrement: this.createform.targetAutoIncrement,
                 batchSize: this.createform.batchSize
               }
             })

@@ -319,7 +319,7 @@ jdbc驱动名称：org.apache.hive.jdbc.HiveDriver
 **OpenGauss数据库**
 
 ```
-jdbc连接地址：dbc:opengauss://172.17.2.10:5866/test
+jdbc连接地址：jdbc:opengauss://172.17.2.10:5866/test
 jdbc驱动名称：org.opengauss.Driver
 ```
 

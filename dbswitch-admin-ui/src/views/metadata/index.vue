@@ -66,7 +66,7 @@
                 </el-table-column>
                 <el-table-column prop="fieldType"
                                  min-width="7%"
-                                 label="枚举值">
+                                 label="jdbcType">
                 </el-table-column>
                 <el-table-column prop="displaySize"
                                  min-width="7%"
@@ -74,7 +74,7 @@
                 </el-table-column>
                 <el-table-column prop="precision"
                                  min-width="5%"
-                                 label="精确">
+                                 label="精度">
                 </el-table-column>
                 <el-table-column prop="scale"
                                  min-width="5%"
@@ -90,7 +90,7 @@
                 </el-table-column>
                 <el-table-column prop="isNullable"
                                  min-width="5%"
-                                 label="空">
+                                 label="可空">
                 </el-table-column>
                 <el-table-column prop="remarks"
                                  min-width="20%"
