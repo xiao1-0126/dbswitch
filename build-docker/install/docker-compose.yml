@@ -1,4 +1,3 @@
-version: '3.3'
 services:
   mysqldb:
     container_name: dbswitch_mysqldb
@@ -25,6 +24,7 @@ services:
       MYSQLDB_PORT: 3306
       MYSQLDB_USERNAME: tangyibo
       MYSQLDB_PASSWORD: 123456
+      MYSQLDB_NAME: dbswitch
     volumes:
       - /tmp:/tmp   
     ports:
@@ -32,4 +32,3 @@ services:
     depends_on:
       mysqldb:
         condition: service_healthy
-
