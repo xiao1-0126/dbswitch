@@ -9,12 +9,14 @@
 /////////////////////////////////////////////////////////////
 package com.gitee.dbswitch.admin.util;
 
-import com.gitee.dbswitch.admin.common.exception.DbswitchException;
-import com.gitee.dbswitch.admin.common.response.ResultCode;
 import java.text.ParseException;
 import java.util.Date;
+
 import org.apache.commons.lang3.StringUtils;
 import org.quartz.CronExpression;
+
+import com.gitee.dbswitch.admin.common.exception.DbswitchException;
+import com.gitee.dbswitch.admin.common.response.ResultCode;
 
 /**
  * CRON表达式工具类
@@ -35,7 +37,7 @@ public final class CronExprUtils {
       try {
         expression = new CronExpression(cronExpression);
       } catch (ParseException e) {
-        throw new DbswitchException(ResultCode.ERROR_INVALID_ARGUMENT, String.format("cron表达式%s无效"));
+        throw new DbswitchException(ResultCode.ERROR_INVALID_ARGUMENT, String.format("cron表达式%s无效", cronExpression));
       }
       Date nextDate = expression.getNextValidTimeAfter(new Date(System.currentTimeMillis()));
       if (null == nextDate) {
