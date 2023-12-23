@@ -4,8 +4,9 @@
       <div class="container">
         <el-card class="box-card">
           <div slot="header"
+               align="center"
                class="clearfix">
-            <span>数据库类型列表</span>
+            <span><b>数据库产品类型列表</b></span>
           </div>
           <div class="navsBox">
             <ul>
@@ -174,7 +175,7 @@ export default {
 }
 
 .container .el-card {
-  width: 30%;
+  width: 20%;
   height: 100%;
   overflow: auto;
 }

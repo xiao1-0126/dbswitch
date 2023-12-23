@@ -107,29 +107,30 @@
                 dbswitch基于Springboot脚手架进行的后端模块开发，模块组成结构如下：
               <pre>
             └── dbswitch
-                ├── dbswitch-common                   // dbswitch通用定义模块
-                ├── dbswitch-core                     // dbswitch迁移同步实现类
-                ├── dbswitch-product                  // dbswitch数据库方言
-                    ├── dbswitch-product-mysql        //  -> mysql方言实现类
-                    ├── dbswitch-product-oracle       //  -> oracle方言实现类
-                    ├── dbswitch-product-sqlserver    //  -> sqlserver方言实现类
-                    ├── dbswitch-product-postgres     //  -> postgres方言实现类
-                    ├── dbswitch-product-dm           //  -> dm方言实现类
-                    ├── dbswitch-product-kingbase     //  -> kingbase方言实现类
-                    ├── dbswitch-product-oscar        //  -> oscar方言实现类
-                    ├── dbswitch-product-gbase        //  -> gbase方言实现类
-                    ├── dbswitch-product-mariadb      //  -> mariadb方言实现类
-                    ├── dbswitch-product-openguass    //  -> openguass方言实现类
-                    ├── dbswitch-product-db2          //  -> db2方言实现类
-                    ├── dbswitch-product-sybase       //  -> sybase方言实现类
-                    ├── dbswitch-product-hive         //  -> hive方言实现类
-                    ├── dbswitch-product-sqlite       //  -> sqlite方言实现类
-                    ├── dbswitch-product-clickhouse   //  -> clickhouse方言实现类
-                    ├── dbswitch-product-mongodb      //  -> mongodb方言实现类
-                ├── dbswitch-data                     // 工具入口模块，读取配置文件中的参数执行异构迁移同步
-                ├── dbswitch-admin                    // 在以上模块的基础上引入Quartz的调度服务与接口
-                ├── dbswitch-admin-ui                 // 基于Vue2的前段WEB交互页面
-                ├── dbswitch-dist                     // 基于maven-assembly-plugin插件的项目打包模块
+                ├── dbswitch-common                     // dbswitch通用定义模块
+                ├── dbswitch-core                       // dbswitch迁移同步实现类
+                ├── dbswitch-product                    // dbswitch数据库方言
+                    ├── dbswitch-product-mysql          //  -> mysql方言实现类
+                    ├── dbswitch-product-oracle         //  -> oracle方言实现类
+                    ├── dbswitch-product-sqlserver      //  -> sqlserver方言实现类
+                    ├── dbswitch-product-postgres       //  -> postgres方言实现类
+                    ├── dbswitch-product-dm             //  -> dm方言实现类
+                    ├── dbswitch-product-kingbase       //  -> kingbase方言实现类
+                    ├── dbswitch-product-oscar          //  -> oscar方言实现类
+                    ├── dbswitch-product-gbase          //  -> gbase方言实现类
+                    ├── dbswitch-product-mariadb        //  -> mariadb方言实现类
+                    ├── dbswitch-product-openguass      //  -> openguass方言实现类
+                    ├── dbswitch-product-db2            //  -> db2方言实现类
+                    ├── dbswitch-product-sybase         //  -> sybase方言实现类
+                    ├── dbswitch-product-hive           //  -> hive方言实现类
+                    ├── dbswitch-product-sqlite         //  -> sqlite方言实现类
+                    ├── dbswitch-product-clickhouse     //  -> clickhouse方言实现类
+                    ├── dbswitch-product-mongodb        //  -> mongodb方言实现类
+                    ├── dbswitch-product-elasticsearch  //  -> elasticsearch方言实现类
+                ├── dbswitch-data                       // 工具入口模块，读取配置文件中的参数执行异构迁移同步
+                ├── dbswitch-admin                      // 在以上模块的基础上引入Quartz的调度服务与接口
+                ├── dbswitch-admin-ui                   // 基于Vue2的前段WEB交互页面
+                ├── dbswitch-dist                       // 基于maven-assembly-plugin插件的项目打包模块
                 </pre>
               </p>
               <ul>
@@ -138,7 +139,7 @@
                   dbwitch基于SpringBoot作为项目的基础框架，利用JdbcTemplate提供常规的动态SQL读写操作，实现异构数据库数据的导出与导入功能。
                 </p>
                 <p>
-                  dbwitch-admin模块为用户交互提供了服务接口，基于Mybatis提供配置数据的持久化。
+                  dbwitch-admin模块为用户交互提供了服务接口，基于Mybatis/Mybatis-plus提供配置数据的持久化。
                 </p>
                 <li>Quartz</li>
                 <p>

@@ -191,7 +191,10 @@
           </span>
           <el-tooltip placement="top">
             <div slot="content">
-             <p>如果只同步数据内容，则需要目标端需要存在符合映射规则的物理表，可在执行任务前手动建好；</p>
+              <p>目标端建表并同步数据：首次在目标的自动建表(存在重命表时会删除重建)，然后执行数据同步(支持有主键表的变化量同步)操作；</p>
+              <p>目标端只创建物理表: 只在目标端自动建表，存在重名表时会删除后重建；</p>
+              <p>目标端只同步表里数据：如果只同步数据内容，则需要目标端需要存在符合映射规则的物理表，可在执行任务前手动建好；该选项通<br />
+                常适用于两端表结构相同时(目标端字段包含源端所有的字段且字段数据类型相似)的数据同步场景</p>
             </div>
             <i class="el-icon-question"></i>
           </el-tooltip>
@@ -212,7 +215,7 @@
                       style="width:65%">
           <el-tooltip placement="top">
             <div slot="content">
-              创建表时是否自动支持字段的自增；只有使用自动建表才会生效，不过前提需要两端的数据库表支持自增字段，默认为false。
+              创建表时是否自动支持字段的自增；只有使用自动建表才会生效，不过前提需要两端的数据库表建表时支持指定自增字段，默认为false。
             </div>
             <i class="el-icon-question"></i>
           </el-tooltip>
@@ -290,14 +293,13 @@
         </el-form-item>
       </div>
       <div v-show="active == 4">
-        <div class="tip-content">
-          <p>说明：(1) 当表名映射规则记录为空时，代表目标表名与源表名的名称相同;</p>
-          <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-            (2) 当字段名映射规则记录为空时，代表目标表的字段名与源表名的字段名相同</p>
-          <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-            (3) 在字段名映射规则中，如果目标字段名为空（未填写），则代表剔除该字段（不能是主键）的同步</p>
-        </div>
-        <el-button type="success"
+        <el-alert title="说明信息"
+                  type="success">
+          <p>(1) 当表名映射规则记录为空时，代表目标表名与源表名的名称相同;</p>
+          <p>(2) 当字段名映射规则记录为空时，代表目标表的字段名与源表名的字段名相同</p>
+          <p>(3) 在字段名映射规则中，如果目标字段名为空（未填写），则代表剔除该字段（不能是主键）的同步</p>
+        </el-alert>
+        <el-button type="primary"
                    @click="addTableNameMapperListRow()"
                    round>添加表名映射</el-button>
         <el-button type="warning"
@@ -334,7 +336,7 @@
             </template>
           </el-table-column>
         </el-table>
-        <el-button type="success"
+        <el-button type="primary"
                    @click="addColumnNameMapperListRow()"
                    round>添加字段名映射</el-button>
         <el-button type="warning"
@@ -418,9 +420,12 @@
               目标端只同步表里数据
             </span>
           </el-descriptions-item>
-          <el-descriptions-item label="建表字段自增" v-if=" updateform.autoSyncMode!==0 ">{{updateform.targetAutoIncrement}}</el-descriptions-item>
-          <el-descriptions-item label="数据批次大小" v-if=" updateform.autoSyncMode!==1 ">{{updateform.batchSize}}</el-descriptions-item>
-          <el-descriptions-item label="表名大小写转换" v-if=" updateform.autoSyncMode!==0 ">
+          <el-descriptions-item label="建表字段自增"
+                                v-if=" updateform.autoSyncMode!==0 ">{{updateform.targetAutoIncrement}}</el-descriptions-item>
+          <el-descriptions-item label="数据批次大小"
+                                v-if=" updateform.autoSyncMode!==1 ">{{updateform.batchSize}}</el-descriptions-item>
+          <el-descriptions-item label="表名大小写转换"
+                                v-if=" updateform.autoSyncMode!==0 ">
             <span v-if="updateform.tableNameCase == 'NONE'">
               无转换
             </span>
@@ -431,7 +436,8 @@
               转小写
             </span>
           </el-descriptions-item>
-          <el-descriptions-item label="列名大小写转换" v-if=" updateform.autoSyncMode!==0 ">
+          <el-descriptions-item label="列名大小写转换"
+                                v-if=" updateform.autoSyncMode!==0 ">
             <span v-if="updateform.columnNameCase == 'NONE'">
               无转换
             </span>

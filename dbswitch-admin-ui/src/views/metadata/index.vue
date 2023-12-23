@@ -426,6 +426,7 @@ export default {
 .el-card {
   width: 100%;
   height: 100%;
+  min-height: 200px;
 }
 
 .el-message {
@@ -443,14 +444,13 @@ export default {
   min-width: 350px;
   position: relative;
   cursor: default;
-  background: #f3f1f1;
 }
 .scroller {
-  min-width: 100%;
+  min-width: 200px;
+  max-height: calc(90vh);
 }
 .tree-container .tree {
   overflow: auto;
-  max-height: 200px;
 }
 .table-container {
   width: 80%;
