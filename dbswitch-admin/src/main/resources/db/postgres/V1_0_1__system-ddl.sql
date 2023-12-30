@@ -123,6 +123,9 @@ CREATE TABLE IF NOT EXISTS DBSWITCH_ASSIGNMENT_CONFIG (
   "target_drop_table"           boolean               not null default false,
   "target_only_create"          boolean               not null default false,
   "target_auto_increment"       boolean               not null default false,
+  "target_sync_option"          varchar(32)           not null default 'INSERT_UPDATE_DELETE',
+  "before_sql_scripts"          text                  ,
+  "after_sql_scripts"           text                  ,
   "batch_size"                  int8                  not null default 10000,
   "first_flag"                  boolean               not null default false,
   "create_time"                 timestamp(6) not null default (CURRENT_TIMESTAMP(0))::timestamp(0) without time zone,
@@ -148,6 +151,10 @@ COMMENT ON COLUMN DBSWITCH_ASSIGNMENT_CONFIG."table_name_map" IS '表名映射�
 COMMENT ON COLUMN DBSWITCH_ASSIGNMENT_CONFIG."column_name_map" IS '字段名映射关系';
 COMMENT ON COLUMN DBSWITCH_ASSIGNMENT_CONFIG."target_drop_table" IS '同步前是否先删除目的表(0:否 1:是)';
 COMMENT ON COLUMN DBSWITCH_ASSIGNMENT_CONFIG."target_only_create" IS '是否只建表';
+COMMENT ON COLUMN DBSWITCH_ASSIGNMENT_CONFIG."target_auto_increment" IS '是否支持自增';
+COMMENT ON COLUMN DBSWITCH_ASSIGNMENT_CONFIG."target_sync_option" IS '同步增删改选项';
+COMMENT ON COLUMN DBSWITCH_ASSIGNMENT_CONFIG."before_sql_scripts" IS '目标端写入的前置执行SQL脚本';
+COMMENT ON COLUMN DBSWITCH_ASSIGNMENT_CONFIG."after_sql_scripts" IS '目标端写入的后置执行SQL脚本';
 COMMENT ON COLUMN DBSWITCH_ASSIGNMENT_CONFIG."batch_size" IS '处理批次大小';
 COMMENT ON COLUMN DBSWITCH_ASSIGNMENT_CONFIG."first_flag" IS '首次加载数据';
 COMMENT ON COLUMN DBSWITCH_ASSIGNMENT_CONFIG."create_time" IS '创建时间';

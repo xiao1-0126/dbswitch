@@ -192,10 +192,10 @@
           </span>
           <el-tooltip placement="top">
             <div slot="content">
-              <p>目标端建表并同步数据：首次在目标的自动建表(存在重命表时会删除重建)，然后执行数据同步(支持有主键表的变化量同步)操作；</p>
-              <p>目标端只创建物理表: 只在目标端自动建表，存在重名表时会删除后重建；</p>
-              <p>目标端只同步表里数据：如果只同步数据内容，则需要目标端需要存在符合映射规则的物理表，可在执行任务前手动建好；该选项通<br />
-                常适用于两端表结构相同时(目标端字段包含源端所有的字段且字段数据类型相似)的数据同步场景</p>
+              <p>目标端建表并同步数据：首次在目标的自动建表(存在重命表时会删除重建)并执行数据加载同步操作，再次执行时会根据是否有主键进行变化量同步；</p>
+              <p>目标端只创建物理表: 每次执行时，只在目标端自动建表，存在重名表时会删除后重建；</p>
+              <p>目标端只同步表里数据：每次执行时，目标端需要存在符合映射规则的物理表，最迟需要在执行任务前已经存在目标表；该选项通<br />
+                常适用于两端表结构一致时(或目标端字段包含源端所有的字段且字段数据类型一致)的数据同步场景</p>
             </div>
             <i class="el-icon-question"></i>
           </el-tooltip>
@@ -225,29 +225,6 @@
                        :value=true></el-option>
             <el-option label='否'
                        :value=false></el-option>
-          </el-select>
-        </el-form-item>
-        <el-form-item label="数据批次大小"
-                      label-width="240px"
-                      :required=true
-                      v-if=" createform.autoSyncMode!==1 "
-                      prop="batchSize"
-                      style="width:65%">
-          <el-tooltip placement="top">
-            <div slot="content">
-              数据同步时单个批次处理的行记录总数，该值越到越占用内存空间。建议：小字段表设置为10000或20000，大字段表设置为1000
-            </div>
-            <i class="el-icon-question"></i>
-          </el-tooltip>
-          <el-select v-model="createform.batchSize">
-            <el-option label=1000
-                       :value=1000></el-option>
-            <el-option label=5000
-                       :value=5000></el-option>
-            <el-option label=10000
-                       :value=10000></el-option>
-            <el-option label=20000
-                       :value=20000></el-option>
           </el-select>
         </el-form-item>
         <el-form-item label="表名大小写转换"
@@ -291,6 +268,90 @@
             <el-option label='转小写'
                        value='LOWER'></el-option>
           </el-select>
+        </el-form-item>
+        <el-form-item label="数据批次大小"
+                      label-width="240px"
+                      :required=true
+                      v-if=" createform.autoSyncMode!==1 "
+                      prop="batchSize"
+                      style="width:65%">
+          <el-tooltip placement="top">
+            <div slot="content">
+              数据同步时单个批次处理的行记录总数，该值越到越占用内存空间。建议：小字段表设置为10000或20000，大字段表设置为1000
+            </div>
+            <i class="el-icon-question"></i>
+          </el-tooltip>
+          <el-select v-model="createform.batchSize">
+            <el-option label=1000
+                       :value=1000></el-option>
+            <el-option label=5000
+                       :value=5000></el-option>
+            <el-option label=10000
+                       :value=10000></el-option>
+            <el-option label=20000
+                       :value=20000></el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item label="同步操作方法"
+                      label-width="240px"
+                      :required=true
+                      v-if=" createform.autoSyncMode!==1 "
+                      prop="targetSyncOption"
+                      style="width:65%">
+          <el-tooltip placement="top">
+            <div slot="content">
+              数据同步时包括增删改操作，这里选择配置执行INSERT、UPDATE、DELETE操作类型的方法，对首次数据加载无效，只对数据同步有效。
+            </div>
+            <i class="el-icon-question"></i>
+          </el-tooltip>
+          <el-select v-model="createform.targetSyncOption">
+            <el-option label='只同步INSERT操作'
+                       value='ONLY_INSERT'></el-option>
+            <el-option label='只同步UPDATE操作'
+                       value='ONLY_UPDATE'></el-option>
+            <el-option label='只同步INSERT和UPDATE'
+                       value='INSERT_UPDATE'></el-option>
+            <el-option label='只同步DELETE操作'
+                       value='INSERT_DELETE'></el-option>
+            <el-option label='只同步INSERT和DELETE'
+                       value='UPDATE_DELETE'></el-option>
+            <el-option label='只同步UPDATE和DELETE'
+                       value='ONLY_DELETE'></el-option>
+            <el-option label='执行所有的同步操作'
+                       value='INSERT_UPDATE_DELETE'></el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item label="同步前置执行SQL脚本"
+                      label-width="240px"
+                      v-if=" createform.autoSyncMode!==1 "
+                      prop="beforeSqlScripts"
+                      style="width:65%">
+          <el-tooltip placement="top">
+            <div slot="content">
+              数据同步写入目标断数据库前执行的SQL，多个SQL间以英文逗号分隔。使用场景如：MySQL数据库关闭外键约束 SET FOREIGN_KEY_CHECKS = 0
+            </div>
+            <i class="el-icon-question"></i>
+          </el-tooltip>
+          <el-input v-model="createform.beforeSqlScripts"
+                    type="textarea"
+                    :rows="3"
+                    auto-complete="off"></el-input>
+        </el-form-item>
+        <el-form-item label="同步后置执行SQL脚本"
+                      label-width="240px"
+                      v-if=" createform.autoSyncMode!==1 "
+                      prop="afterSqlScripts"
+                      style="width:65%">
+          <el-tooltip placement="top">
+            <div slot="content">
+              数据同步写入目标断数据库后执行的SQL，多个SQL间以英文逗号分隔。使用场景如：MySQL数据库恢复外键约束 SET FOREIGN_KEY_CHECKS = 1
+            </div>
+            <i class="el-icon-question"></i>
+          </el-tooltip>
+          <el-input v-model="createform.afterSqlScripts"
+                    type="textarea"
+                    :rows="3"
+                    auto-complete="off"></el-input>
         </el-form-item>
       </div>
       <div v-show="active == 4">
@@ -423,8 +484,6 @@
           </el-descriptions-item>
           <el-descriptions-item label="建表字段自增"
                                 v-if=" createform.autoSyncMode!==0 ">{{createform.targetAutoIncrement}}</el-descriptions-item>
-          <el-descriptions-item label="数据批次大小"
-                                v-if=" createform.autoSyncMode!==1 ">{{createform.batchSize}}</el-descriptions-item>
           <el-descriptions-item label="表名大小写转换"
                                 v-if=" createform.autoSyncMode!==0 ">
             <span v-if="createform.tableNameCase == 'NONE'">
@@ -448,6 +507,20 @@
             <span v-if="createform.columnNameCase == 'LOWER'">
               转小写
             </span>
+          </el-descriptions-item>
+          <el-descriptions-item label="数据批次大小"
+                                v-if=" createform.autoSyncMode!==1 ">{{createform.batchSize}}</el-descriptions-item>
+          <el-descriptions-item label="同步操作方法"
+                                v-if=" createform.autoSyncMode!==1 ">{{createform.targetSyncOption}}</el-descriptions-item>
+          <el-descriptions-item label="同步前置执行SQL脚本"
+                                v-if=" createform.autoSyncMode!==1 ">
+            <span v-show="!createform.beforeSqlScripts || createform.beforeSqlScripts.length==0">[SQL脚本内容为空]</span>
+            <span v-show="createform.beforeSqlScripts.length>0">{{createform.beforeSqlScripts}}</span>
+          </el-descriptions-item>
+          <el-descriptions-item label="同步后置执行SQL脚本"
+                                v-if=" createform.autoSyncMode!==1 ">
+            <span v-show="!createform.afterSqlScripts || createform.afterSqlScripts.length==0">[SQL脚本内容为空]</span>
+            <span v-show="createform.afterSqlScripts.length>0">{{createform.afterSqlScripts}}</span>
           </el-descriptions-item>
           <el-descriptions-item label="表名映射规则">
             <span v-show="createform.tableNameMapper.length==0">[映射关系为空]</span>
@@ -582,7 +655,10 @@ export default {
         targetAutoIncrement: false,
         autoSyncMode: 2,
         targetSchema: "",
-        batchSize: 5000
+        batchSize: 5000,
+        targetSyncOption: 'INSERT_UPDATE_DELETE',
+        beforeSqlScripts: '',
+        afterSqlScripts: '',
       },
       rules: {
         name: [
@@ -661,6 +737,14 @@ export default {
             required: true,
             type: 'integer',
             message: "必选选择一个批大小",
+            trigger: "change"
+          }
+        ],
+        targetSyncOption: [
+          {
+            required: true,
+            type: 'string',
+            message: "必选选择一个同步方法来 ",
             trigger: "change"
           }
         ]
@@ -963,7 +1047,10 @@ export default {
                 targetDropTable: this.createform.targetDropTable,
                 targetOnlyCreate: this.createform.targetOnlyCreate,
                 targetAutoIncrement: this.createform.targetAutoIncrement,
-                batchSize: this.createform.batchSize
+                batchSize: this.createform.batchSize,
+                targetSyncOption: this.createform.targetSyncOption,
+                beforeSqlScripts: this.createform.beforeSqlScripts,
+                afterSqlScripts: this.createform.afterSqlScripts,
               }
             })
           }).then(res => {

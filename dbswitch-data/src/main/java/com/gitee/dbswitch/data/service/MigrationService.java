@@ -9,22 +9,26 @@
 /////////////////////////////////////////////////////////////
 package com.gitee.dbswitch.data.service;
 
+import cn.hutool.system.SystemUtil;
 import com.gitee.dbswitch.common.entity.CloseableDataSource;
 import com.gitee.dbswitch.common.entity.LoggingRunnable;
 import com.gitee.dbswitch.common.entity.MdcKeyValue;
 import com.gitee.dbswitch.common.entity.PrintablePerfStat;
-import com.gitee.dbswitch.common.util.MachineInfoUtils;
 import com.gitee.dbswitch.core.exchange.AbstractBatchExchanger;
 import com.gitee.dbswitch.core.robot.RobotReader;
 import com.gitee.dbswitch.core.robot.RobotWriter;
 import com.gitee.dbswitch.data.config.DbswichPropertiesConfiguration;
 import com.gitee.dbswitch.data.entity.GlobalParamConfigProperties;
 import com.gitee.dbswitch.data.util.DataSourceUtils;
+import java.sql.Connection;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.task.AsyncTaskExecutor;
+import org.springframework.jdbc.datasource.init.ScriptUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StopWatch;
 
@@ -106,7 +110,9 @@ public class MigrationService {
     watch.start();
 
     log.info("dbswitch data service is started....");
-    log.info(MachineInfoUtils.getOSInfo());
+    log.info(SystemUtil.getOsInfo().toString());
+    log.info(SystemUtil.getJvmInfo().toString());
+    log.info(SystemUtil.getRuntimeInfo().toString());
     //log.info("input configuration \n{}", JsonUtils.toJsonString(configuration));
 
     GlobalParamConfigProperties globalParam = configuration.getConfig();
@@ -116,7 +122,14 @@ public class MigrationService {
       try (CloseableDataSource sourceDataSource = DataSourceUtils.createSourceDataSource(configuration.getSource())) {
         robotReader = new DefaultReaderRobot(mdcKeyValue, configuration, sourceDataSource, targetDataSource);
         robotWriter = new DefaultWriterRobot(mdcKeyValue, robotReader, globalParam.getWriteThreadNum());
-        exchanger.exchange(robotReader, robotWriter);
+        boolean success = executeSqlScripts(targetDataSource, configuration.getTarget().getBeforeSqlScripts());
+        try {
+          exchanger.exchange(robotReader, robotWriter);
+        } finally {
+          if (success) {
+            executeSqlScripts(targetDataSource, configuration.getTarget().getAfterSqlScripts());
+          }
+        }
       }
     } catch (Throwable t) {
       if (t instanceof RuntimeException) {
@@ -137,4 +150,29 @@ public class MigrationService {
     }
   }
 
+  private boolean executeSqlScripts(CloseableDataSource targetDataSource, String sqlScripts) {
+    if (StringUtils.isBlank(sqlScripts) || StringUtils.isBlank(sqlScripts.trim())) {
+      return true;
+    }
+    List<String> sqlList = new ArrayList<>();
+    ScriptUtils.splitSqlScript(null, sqlScripts,
+        ScriptUtils.DEFAULT_STATEMENT_SEPARATOR, ScriptUtils.DEFAULT_COMMENT_PREFIX,
+        ScriptUtils.DEFAULT_BLOCK_COMMENT_START_DELIMITER, ScriptUtils.DEFAULT_BLOCK_COMMENT_END_DELIMITER,
+        sqlList);
+    if (!sqlList.isEmpty()) {
+      try {
+        try (Connection connection = targetDataSource.getConnection();
+            Statement statement = connection.createStatement()) {
+          for (String sql : sqlList) {
+            log.info("Execute sql : {}", sql);
+            statement.execute(sql);
+          }
+        }
+        return true;
+      } catch (Throwable t) {
+        log.error("Failed to execute sql script: {}", t.getMessage(), t);
+      }
+    }
+    return false;
+  }
 }

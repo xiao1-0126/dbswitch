@@ -152,4 +152,13 @@ public final class JdbcTypesUtils {
     }
   }
 
+  public static long getRecordSize(Object[] record, int[] jdbcTypes) {
+    long bytes = 0;
+    if (record.length == jdbcTypes.length) {
+      for (int i = 0; i < record.length; ++i) {
+        bytes += getObjectSize(jdbcTypes[i], record[i]);
+      }
+    }
+    return bytes;
+  }
 }

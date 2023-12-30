@@ -19,6 +19,7 @@ import com.gitee.dbswitch.admin.util.CronExprUtils;
 import com.gitee.dbswitch.common.entity.PatternMapper;
 import com.gitee.dbswitch.common.type.CaseConvertEnum;
 import com.gitee.dbswitch.common.type.ProductTableEnum;
+import com.gitee.dbswitch.common.type.SyncOptionEnum;
 import com.gitee.dbswitch.common.util.PatterNameUtils;
 import java.util.List;
 import java.util.Objects;
@@ -55,6 +56,9 @@ public class AssigmentCreateRequest {
     private Boolean targetDropTable;
     private Boolean targetOnlyCreate;
     private Boolean targetAutoIncrement;
+    private SyncOptionEnum targetSyncOption;
+    private String beforeSqlScripts;
+    private String afterSqlScripts;
     private Integer batchSize;
   }
 
@@ -79,26 +83,31 @@ public class AssigmentCreateRequest {
 
     AssignmentConfigEntity assignmentConfigEntity = new AssignmentConfigEntity();
     assignmentConfigEntity.setAssignmentId(assignmentId);
-    assignmentConfigEntity.setSourceConnectionId(this.getConfig().getSourceConnectionId());
-    assignmentConfigEntity.setSourceSchema(this.getConfig().getSourceSchema());
-    assignmentConfigEntity.setTableType(this.getConfig().getTableType());
-    assignmentConfigEntity.setSourceTables(this.getConfig().getSourceTables());
+    assignmentConfigEntity.setSourceConnectionId(config.getSourceConnectionId());
+    assignmentConfigEntity.setSourceSchema(config.getSourceSchema());
+    assignmentConfigEntity.setTableType(config.getTableType());
+    assignmentConfigEntity.setSourceTables(config.getSourceTables());
     assignmentConfigEntity.setExcluded(
-        this.getConfig().getIncludeOrExclude() == IncludeExcludeEnum.EXCLUDE
+        config.getIncludeOrExclude() == IncludeExcludeEnum.EXCLUDE
     );
-    assignmentConfigEntity.setTargetConnectionId(this.getConfig().getTargetConnectionId());
-    assignmentConfigEntity.setTargetSchema(this.getConfig().getTargetSchema());
-    assignmentConfigEntity.setTableNameCase(this.getConfig().getTableNameCase());
-    assignmentConfigEntity.setColumnNameCase(this.getConfig().getColumnNameCase());
-    assignmentConfigEntity.setTableNameMap(this.getConfig().getTableNameMapper());
-    assignmentConfigEntity.setColumnNameMap(this.getConfig().getColumnNameMapper());
-    assignmentConfigEntity.setTargetDropTable(this.getConfig().getTargetDropTable());
-    assignmentConfigEntity.setTargetOnlyCreate(this.getConfig().getTargetOnlyCreate());
-    assignmentConfigEntity.setTargetAutoIncrement(this.getConfig().getTargetAutoIncrement());
+    assignmentConfigEntity.setTargetConnectionId(config.getTargetConnectionId());
+    assignmentConfigEntity.setTargetSchema(config.getTargetSchema());
+    assignmentConfigEntity.setTableNameCase(config.getTableNameCase());
+    assignmentConfigEntity.setColumnNameCase(config.getColumnNameCase());
+    assignmentConfigEntity.setTableNameMap(config.getTableNameMapper());
+    assignmentConfigEntity.setColumnNameMap(config.getColumnNameMapper());
+    assignmentConfigEntity.setTargetDropTable(config.getTargetDropTable());
+    assignmentConfigEntity.setTargetOnlyCreate(config.getTargetOnlyCreate());
+    assignmentConfigEntity.setTargetAutoIncrement(config.getTargetAutoIncrement());
+    assignmentConfigEntity.setBeforeSqlScripts(
+        Objects.nonNull(config.getBeforeSqlScripts()) ? config.getBeforeSqlScripts().trim() : null);
+    assignmentConfigEntity.setAfterSqlScripts(
+        Objects.nonNull(config.getAfterSqlScripts()) ? config.getAfterSqlScripts().trim() : null);
+    assignmentConfigEntity.setTargetSyncOption(config.getTargetSyncOption());
     assignmentConfigEntity.setBatchSize(
-        Objects.isNull(this.config.getBatchSize())
+        Objects.isNull(config.getBatchSize())
             ? 10000
-            : this.config.getBatchSize()
+            : config.getBatchSize()
     );
     assignmentConfigEntity.setFirstFlag(Boolean.TRUE);
 

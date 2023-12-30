@@ -19,6 +19,7 @@ import com.gitee.dbswitch.admin.handler.ListTypeHandler;
 import com.gitee.dbswitch.common.entity.PatternMapper;
 import com.gitee.dbswitch.common.type.CaseConvertEnum;
 import com.gitee.dbswitch.common.type.ProductTableEnum;
+import com.gitee.dbswitch.common.type.SyncOptionEnum;
 import java.sql.Timestamp;
 import java.util.List;
 import lombok.AllArgsConstructor;
@@ -81,6 +82,15 @@ public class AssignmentConfigEntity {
 
   @TableField("target_auto_increment")
   private Boolean targetAutoIncrement;
+
+  @TableField(value = "target_sync_option", typeHandler = EnumTypeHandler.class)
+  private SyncOptionEnum targetSyncOption;
+
+  @TableField("before_sql_scripts")
+  private String beforeSqlScripts;
+
+  @TableField("after_sql_scripts")
+  private String afterSqlScripts;
 
   @TableField("batch_size")
   private Integer batchSize;

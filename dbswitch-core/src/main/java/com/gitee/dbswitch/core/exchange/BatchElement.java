@@ -9,8 +9,8 @@
 /////////////////////////////////////////////////////////////
 package com.gitee.dbswitch.core.exchange;
 
+import com.gitee.dbswitch.common.entity.ThreeArgsFunction;
 import java.util.List;
-import java.util.function.BiFunction;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -33,7 +33,7 @@ public class BatchElement {
   /**
    * 数据写入回调函数
    */
-  private BiFunction<List<String>, List<Object[]>, Long> handler;
+  private ThreeArgsFunction<List<String>, List<Object[]>, org.slf4j.Logger, Long> handler;
 
   /**
    * 写入回调函数的第1个参数

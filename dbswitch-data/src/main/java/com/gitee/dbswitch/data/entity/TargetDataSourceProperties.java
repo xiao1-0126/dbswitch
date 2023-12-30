@@ -10,6 +10,7 @@
 package com.gitee.dbswitch.data.entity;
 
 import com.gitee.dbswitch.common.type.CaseConvertEnum;
+import com.gitee.dbswitch.common.type.SyncOptionEnum;
 import java.util.concurrent.TimeUnit;
 import lombok.Data;
 
@@ -35,7 +36,11 @@ public class TargetDataSourceProperties {
   private CaseConvertEnum columnNameCase = CaseConvertEnum.NONE;
   private Boolean targetDrop = Boolean.TRUE;
   private Boolean onlyCreate = Boolean.FALSE;
+  private Boolean changeDataSync = Boolean.FALSE;
   private Boolean createTableAutoIncrement = Boolean.FALSE;
   private Boolean writerEngineInsert = Boolean.FALSE;
-  private Boolean changeDataSync = Boolean.FALSE;
+
+  private String beforeSqlScripts;
+  private String afterSqlScripts;
+  private SyncOptionEnum targetSyncOption = SyncOptionEnum.INSERT_UPDATE_DELETE;
 }

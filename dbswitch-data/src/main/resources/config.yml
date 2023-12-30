@@ -48,3 +48,5 @@ dbswitch:
     writer-engine-insert: false
     ## whether use change data synchronize to target database table
     change-data-sync: true
+    ## data sync option for increment synchronize, see: com.gitee.dbswitch.common.type.SyncOptionEnum
+    target-sync-option: INSERT_UPDATE_DELETE

@@ -18,7 +18,7 @@ services:
       start_period: 30s
   dbswitch:
     container_name: dbswitch_webui
-    image: inrgihc/dbswitch:1.9.2
+    image: inrgihc/dbswitch:1.9.3
     environment:
       MYSQLDB_HOST: dbswitch_mysqldb
       MYSQLDB_PORT: 3306

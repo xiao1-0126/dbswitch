@@ -50,7 +50,7 @@ public class WriterTaskThread extends TaskProcessor<WriterTaskResult> {
         if (null != elem) {
           try {
             Long ret = Long.valueOf(elem.getArg2().size());
-            elem.getHandler().apply(elem.getArg1(), elem.getArg2());
+            elem.getHandler().apply(elem.getArg1(), elem.getArg2(), log);
             Long count = taskResult.getPerf().get(elem.getTableNameMapString());
             Long total = ret + Optional.ofNullable(count).orElse(0L);
             taskResult.getPerf().put(elem.getTableNameMapString(), total);

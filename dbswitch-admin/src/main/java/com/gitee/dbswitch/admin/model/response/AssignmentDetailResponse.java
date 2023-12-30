@@ -15,6 +15,7 @@ import com.gitee.dbswitch.admin.type.ScheduleModeEnum;
 import com.gitee.dbswitch.common.entity.PatternMapper;
 import com.gitee.dbswitch.common.type.CaseConvertEnum;
 import com.gitee.dbswitch.common.type.ProductTableEnum;
+import com.gitee.dbswitch.common.type.SyncOptionEnum;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import java.sql.Timestamp;
@@ -111,5 +112,14 @@ public class AssignmentDetailResponse {
 
     @ApiModelProperty("数据批次大小")
     private Integer batchSize;
+
+    @ApiModelProperty("同步操作方法")
+    private SyncOptionEnum targetSyncOption;
+
+    @ApiModelProperty("同步前置执行SQL脚本")
+    private String beforeSqlScripts;
+
+    @ApiModelProperty("同步后置执行SQL脚本")
+    private String afterSqlScripts;
   }
 }

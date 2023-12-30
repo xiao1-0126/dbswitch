@@ -50,8 +50,6 @@
         </el-descriptions-item>
         <el-descriptions-item label="建表字段自增"
                               v-if=" updateform.autoSyncMode!==0 ">{{updateform.targetAutoIncrement}}</el-descriptions-item>
-        <el-descriptions-item label="数据批次大小"
-                              v-if=" updateform.autoSyncMode!==1 ">{{updateform.batchSize}}</el-descriptions-item>
         <el-descriptions-item label="表名大小写转换"
                               v-if=" updateform.autoSyncMode!==0 ">
           <span v-if="updateform.tableNameCase == 'NONE'">
@@ -75,6 +73,20 @@
           <span v-if="updateform.columnNameCase == 'LOWER'">
             转小写
           </span>
+        </el-descriptions-item>
+        <el-descriptions-item label="数据批次大小"
+                              v-if=" updateform.autoSyncMode!==1 ">{{updateform.batchSize}}</el-descriptions-item>
+        <el-descriptions-item label="同步操作方法"
+                              v-if=" updateform.autoSyncMode!==1 ">{{updateform.targetSyncOption}}</el-descriptions-item>
+        <el-descriptions-item label="同步前置执行SQL脚本"
+                              v-if=" updateform.autoSyncMode!==1 ">
+          <span v-show="!updateform.beforeSqlScripts || updateform.beforeSqlScripts.length==0">[SQL脚本内容为空]</span>
+          <span v-show="updateform.beforeSqlScripts && updateform.beforeSqlScripts.length>0">{{updateform.beforeSqlScripts}}</span>
+        </el-descriptions-item>
+        <el-descriptions-item label="同步后置执行SQL脚本"
+                              v-if=" updateform.autoSyncMode!==1 ">
+          <span v-show="!updateform.afterSqlScripts || updateform.afterSqlScripts.length==0">[SQL脚本内容为空]</span>
+          <span v-show="updateform.afterSqlScripts && updateform.afterSqlScripts.length>0">{{updateform.afterSqlScripts}}</span>
         </el-descriptions-item>
         <el-descriptions-item label="表名映射规则">
           <span v-show="!updateform.tableNameMapper || updateform.tableNameMapper.length==0">[映射关系为空]</span>
@@ -143,7 +155,10 @@ export default {
         targetOnlyCreate: false,
         autoSyncMode: 2,
         targetSchema: "",
-        batchSize: 5000
+        batchSize: 5000,
+        targetSyncOption: 'INSERT_UPDATE_DELETE',
+        beforeSqlScripts: '',
+        afterSqlScripts: '',
       },
       sourceConnection: {},
       targetConnection: {},
@@ -190,7 +205,10 @@ export default {
             targetAutoIncrement: detail.configuration.targetAutoIncrement,
             autoSyncMode: varAutoSyncMode,
             targetSchema: detail.configuration.targetSchema,
-            batchSize: detail.configuration.batchSize
+            batchSize: detail.configuration.batchSize,
+            targetSyncOption: detail.configuration.targetSyncOption,
+            beforeSqlScripts: detail.configuration.beforeSqlScripts,
+            afterSqlScripts: detail.configuration.afterSqlScripts,
           }
           this.selectChangedSourceConnection(this.updateform.sourceConnectionId)
           this.selectUpdateChangedSourceSchema(this.updateform.sourceSchema)

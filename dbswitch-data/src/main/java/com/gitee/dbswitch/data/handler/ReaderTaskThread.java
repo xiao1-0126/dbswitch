@@ -31,6 +31,7 @@ import com.gitee.dbswitch.data.config.DbswichPropertiesConfiguration;
 import com.gitee.dbswitch.data.domain.ReaderTaskParam;
 import com.gitee.dbswitch.data.domain.ReaderTaskResult;
 import com.gitee.dbswitch.data.entity.SourceDataSourceProperties;
+import com.gitee.dbswitch.data.entity.TargetDataSourceProperties;
 import com.gitee.dbswitch.provider.ProductFactoryProvider;
 import com.gitee.dbswitch.provider.ProductProviderFactory;
 import com.gitee.dbswitch.provider.manage.TableManageProvider;
@@ -73,6 +74,7 @@ public class ReaderTaskThread extends TaskProcessor<ReaderTaskResult> {
 
   private final DbswichPropertiesConfiguration properties;
   private final SourceDataSourceProperties sourceProperties;
+  private final TargetDataSourceProperties targetProperties;
   private int fetchSize = Constants.MINIMUM_FETCH_SIZE;
   private TableDescription tableDescription;
   private MemChannel memChannel;
@@ -112,6 +114,7 @@ public class ReaderTaskThread extends TaskProcessor<ReaderTaskResult> {
     this.memChannel = taskParam.getMemChannel();
     this.properties = taskParam.getConfiguration();
     this.sourceProperties = this.properties.getSource();
+    this.targetProperties = this.properties.getTarget();
     this.sourceSchemaName = this.sourceProperties.getSourceSchema();
     this.sourceTableName = this.tableDescription.getTableName();
     this.targetExistTables = taskParam.getTargetExistTables();
@@ -431,9 +434,9 @@ public class ReaderTaskThread extends TaskProcessor<ReaderTaskResult> {
           this.memChannel.add(
               BatchElement.builder()
                   .tableNameMapString(tableNameMapString)
-                  .handler((arg1, arg2) -> {
+                  .handler((arg1, arg2, logger) -> {
                     long ret = tableWriter.write(arg1, arg2);
-                    log.info("[FullCoverSync] handle write table [{}] batch record count: {}, the bytes size: {}",
+                    logger.info("[FullCoverSync] handle write table [{}] batch record count: {}, the bytes size: {}",
                         tableNameMapString, ret, DataSizeUtil.format(finalCacheBytes));
                     return ret;
                   })
@@ -452,9 +455,9 @@ public class ReaderTaskThread extends TaskProcessor<ReaderTaskResult> {
         this.memChannel.add(
             BatchElement.builder()
                 .tableNameMapString(tableNameMapString)
-                .handler((arg1, arg2) -> {
+                .handler((arg1, arg2, logger) -> {
                   long ret = tableWriter.write(arg1, arg2);
-                  log.info("[FullCoverSync] handle write table [{}] batch record count: {}, the bytes size: {}",
+                  logger.info("[FullCoverSync] handle write table [{}] batch record count: {}, the bytes size: {}",
                       tableNameMapString, ret, DataSizeUtil.format(finalCacheBytes));
                   return ret;
                 })
@@ -549,22 +552,34 @@ public class ReaderTaskThread extends TaskProcessor<ReaderTaskResult> {
 
       @Override
       public void handle(List<String> fields, Object[] record, int[] jdbcTypes, RowChangeTypeEnum flag) {
-        if (flag == RowChangeTypeEnum.VALUE_INSERT) {
-          cacheInsert.add(record);
-          countInsert++;
-        } else if (flag == RowChangeTypeEnum.VALUE_CHANGED) {
-          cacheUpdate.add(record);
-          countUpdate++;
-        } else {
-          cacheDelete.add(record);
-          countDelete++;
+        switch (flag) {
+          case VALUE_INSERT:
+            if (!targetProperties.getTargetSyncOption().callInsert()) {
+              return;
+            }
+            cacheInsert.add(record);
+            countInsert++;
+            break;
+          case VALUE_CHANGED:
+            if (!targetProperties.getTargetSyncOption().callUpdate()) {
+              return;
+            }
+            cacheUpdate.add(record);
+            countUpdate++;
+            break;
+          case VALUE_DELETED:
+            if (!targetProperties.getTargetSyncOption().callDelete()) {
+              return;
+            } else {
+              cacheDelete.add(record);
+              countDelete++;
+            }
+            break;
+          default:
+            return;
         }
 
-        long bytes = 0;
-        for (int i = 0; i < record.length; ++i) {
-          Object value = record[i];
-          bytes += JdbcTypesUtils.getObjectSize(jdbcTypes[i], value);
-        }
+        long bytes = JdbcTypesUtils.getRecordSize(record, jdbcTypes);
         cacheBytes += bytes;
         totalBytes.addAndGet(bytes);
         totalCount.addAndGet(1);
@@ -619,9 +634,10 @@ public class ReaderTaskThread extends TaskProcessor<ReaderTaskResult> {
         ReaderTaskThread.this.memChannel.add(
             BatchElement.builder()
                 .tableNameMapString(tableNameMapString)
-                .handler((arg1, arg2) -> {
+                .handler((arg1, arg2, logger) -> {
                   long ret = synchronizer.executeInsert(arg2);
-                  log.info("[IncreaseSync] Handle write table [{}] record Insert count: {}", tableNameMapString, ret);
+                  logger.info("[IncreaseSync] Handle write table [{}] record Insert count: {}",
+                      tableNameMapString, ret);
                   return ret;
                 })
                 .arg1(fields)
@@ -635,9 +651,10 @@ public class ReaderTaskThread extends TaskProcessor<ReaderTaskResult> {
         ReaderTaskThread.this.memChannel.add(
             BatchElement.builder()
                 .tableNameMapString(tableNameMapString)
-                .handler((arg1, arg2) -> {
+                .handler((arg1, arg2, logger) -> {
                   long ret = synchronizer.executeUpdate(arg2);
-                  log.info("[IncreaseSync] Handle write table [{}] record Update count: {}", tableNameMapString, ret);
+                  logger.info("[IncreaseSync] Handle write table [{}] record Update count: {}",
+                      tableNameMapString, ret);
                   return ret;
                 })
                 .arg1(fields)
@@ -651,9 +668,10 @@ public class ReaderTaskThread extends TaskProcessor<ReaderTaskResult> {
         ReaderTaskThread.this.memChannel.add(
             BatchElement.builder()
                 .tableNameMapString(tableNameMapString)
-                .handler((arg1, arg2) -> {
+                .handler((arg1, arg2, logger) -> {
                   long ret = synchronizer.executeDelete(arg2);
-                  log.info("[IncreaseSync] Handle write table [{}] record Delete count: {}", tableNameMapString, ret);
+                  logger.info("[IncreaseSync] Handle write table [{}] record Delete count: {}",
+                      tableNameMapString, ret);
                   return ret;
                 })
                 .arg1(fields)
