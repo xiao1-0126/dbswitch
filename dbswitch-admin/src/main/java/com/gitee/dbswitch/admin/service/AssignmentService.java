@@ -292,6 +292,9 @@ public class AssignmentService {
     }
     targetDataSourceProperties.setTableNameCase(assignmentConfigEntity.getTableNameCase());
     targetDataSourceProperties.setColumnNameCase(assignmentConfigEntity.getColumnNameCase());
+    targetDataSourceProperties.setTargetSyncOption(assignmentConfigEntity.getTargetSyncOption());
+    targetDataSourceProperties.setBeforeSqlScripts(assignmentConfigEntity.getBeforeSqlScripts());
+    targetDataSourceProperties.setAfterSqlScripts(assignmentConfigEntity.getAfterSqlScripts());
 
     return targetDataSourceProperties;
   }
