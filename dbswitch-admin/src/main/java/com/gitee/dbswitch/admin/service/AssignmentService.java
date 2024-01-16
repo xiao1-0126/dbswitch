@@ -31,6 +31,7 @@ import com.gitee.dbswitch.admin.util.PageUtils;
 import com.gitee.dbswitch.common.converter.ConverterFactory;
 import com.gitee.dbswitch.common.type.ProductTypeEnum;
 import com.gitee.dbswitch.data.config.DbswichPropertiesConfiguration;
+import com.gitee.dbswitch.data.entity.GlobalParamConfigProperties;
 import com.gitee.dbswitch.data.entity.SourceDataSourceProperties;
 import com.gitee.dbswitch.data.entity.TargetDataSourceProperties;
 import com.gitee.dbswitch.data.util.JsonUtils;
@@ -163,6 +164,7 @@ public class AssignmentService {
       DbswichPropertiesConfiguration properties = new DbswichPropertiesConfiguration();
       properties.setSource(this.getSourceDataSourceProperties(assignmentConfigEntity));
       properties.setTarget(this.getTargetDataSourceProperties(assignmentConfigEntity));
+      properties.setConfig(this.getGlobalParamConfigProperties(assignmentConfigEntity));
 
       assignmentTaskEntity.setPublished(Boolean.TRUE);
       assignmentTaskEntity.setContent(JsonUtils.toJsonString(properties));
@@ -227,7 +229,8 @@ public class AssignmentService {
     DatabaseConnectionEntity sourceDatabaseConnectionEntity = databaseConnectionDAO.getById(
         assignmentConfigEntity.getSourceConnectionId()
     );
-    File driverVersionFile = driverLoadService.getVersionDriverFile(sourceDatabaseConnectionEntity.getType(),
+    File driverVersionFile = driverLoadService.getVersionDriverFile(
+        sourceDatabaseConnectionEntity.getType(),
         sourceDatabaseConnectionEntity.getVersion());
     sourceDataSourceProperties.setUrl(sourceDatabaseConnectionEntity.getUrl());
     sourceDataSourceProperties.setDriverClassName(sourceDatabaseConnectionEntity.getDriver());
@@ -297,6 +300,13 @@ public class AssignmentService {
     targetDataSourceProperties.setAfterSqlScripts(assignmentConfigEntity.getAfterSqlScripts());
 
     return targetDataSourceProperties;
+  }
+
+  private GlobalParamConfigProperties getGlobalParamConfigProperties(
+      AssignmentConfigEntity assignmentConfigEntity) {
+    GlobalParamConfigProperties configProperties = new GlobalParamConfigProperties();
+    configProperties.setChannelQueueSize(assignmentConfigEntity.getChannelSize());
+    return configProperties;
   }
 
 }

@@ -13,7 +13,7 @@
           <el-card class="box-card">
             <div class="text item">
               <p>
-                一句话，dbswitch工具提供源端数据库向目的端数据的<B>迁移同步</B>功能，包括全量和增量方式。迁移包括：
+                一句话，dbswitch工具提供源端数据库向目的端数据的<B>迁移同步</B>功能，包括全量和变化量方式。迁移包括：
               </p>
               <ul>
                 <li>项目托管</li>
@@ -86,7 +86,9 @@
                 </li>
                 <li>ClickHouse
                 </li>
-                <li>MongoDB
+                <li>MongoDB(只支持数据加载写入，不支持变化量同步)
+                </li>
+                <li>ElasticSearch(只支持数据加载写入，不支持变化量同步)
                 </li>
               </ul>
             </div>

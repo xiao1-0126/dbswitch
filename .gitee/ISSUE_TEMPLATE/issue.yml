@@ -6,20 +6,29 @@ body:
     attributes:
       label: dbswitch版本
       options:
+        - "1.9.5"
+        - "1.9.4"
         - "1.9.3"
         - "1.9.2"
         - "1.9.1"
         - "1.9.0"
-        - "1.8.2"
-        - "1.8.1"
-        - "1.8.0"
         - "其他版本已不维护，勿提issue"
     validations:
       required: true
   - type: dropdown
     id: modify
     attributes:
-      label: 是否进行了二次开发
+      label: ISSUE类型
+      options:
+        - "BUG反馈"
+        - "需求"
+        - "咨询"
+    validations:
+      required: true
+  - type: dropdown
+    id: modify
+    attributes:
+      label: 是否有二次开发
       options:
         - "是"
         - "否"
@@ -29,6 +38,6 @@ body:
     id: desired-solution
     attributes:
       label: 问题描述
-      description: 详细描述问题，提供相应截图和日志，对于有堆栈报错信息，请提供完整的堆栈信息，对于一句话反馈的BUG将会被无视而关闭。
+      description: 详细描述问题:(1)对于BUG反馈，请提供相应截图和日志，对于有堆栈报错信息，请提供完整的堆栈信息，对于一句话反馈的BUG将会被无视而关闭;(2)对于需求，请尽量详细描述您的需求功能;
     validations:
       required: true

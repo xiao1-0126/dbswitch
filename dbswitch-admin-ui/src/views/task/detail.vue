@@ -76,6 +76,8 @@
         </el-descriptions-item>
         <el-descriptions-item label="数据批次大小"
                               v-if=" updateform.autoSyncMode!==1 ">{{updateform.batchSize}}</el-descriptions-item>
+        <el-descriptions-item label="通道队列大小"
+                              v-if=" updateform.autoSyncMode!==1 ">{{updateform.channelSize}}</el-descriptions-item>
         <el-descriptions-item label="同步操作方法"
                               v-if=" updateform.autoSyncMode!==1 ">{{updateform.targetSyncOption}}</el-descriptions-item>
         <el-descriptions-item label="同步前置执行SQL脚本"
@@ -156,6 +158,7 @@ export default {
         autoSyncMode: 2,
         targetSchema: "",
         batchSize: 5000,
+        channelSize: 100,
         targetSyncOption: 'INSERT_UPDATE_DELETE',
         beforeSqlScripts: '',
         afterSqlScripts: '',
@@ -206,6 +209,7 @@ export default {
             autoSyncMode: varAutoSyncMode,
             targetSchema: detail.configuration.targetSchema,
             batchSize: detail.configuration.batchSize,
+            channelSize: detail.configuration.channelSize,
             targetSyncOption: detail.configuration.targetSyncOption,
             beforeSqlScripts: detail.configuration.beforeSqlScripts,
             afterSqlScripts: detail.configuration.afterSqlScripts,

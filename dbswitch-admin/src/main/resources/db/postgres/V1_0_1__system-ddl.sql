@@ -127,6 +127,7 @@ CREATE TABLE IF NOT EXISTS DBSWITCH_ASSIGNMENT_CONFIG (
   "before_sql_scripts"          text                  ,
   "after_sql_scripts"           text                  ,
   "batch_size"                  int8                  not null default 10000,
+  "channel_size"                int8                  not null default 100,
   "first_flag"                  boolean               not null default false,
   "create_time"                 timestamp(6) not null default (CURRENT_TIMESTAMP(0))::timestamp(0) without time zone,
   primary key ("id"),
@@ -156,6 +157,7 @@ COMMENT ON COLUMN DBSWITCH_ASSIGNMENT_CONFIG."target_sync_option" IS '同步增�
 COMMENT ON COLUMN DBSWITCH_ASSIGNMENT_CONFIG."before_sql_scripts" IS '目标端写入的前置执行SQL脚本';
 COMMENT ON COLUMN DBSWITCH_ASSIGNMENT_CONFIG."after_sql_scripts" IS '目标端写入的后置执行SQL脚本';
 COMMENT ON COLUMN DBSWITCH_ASSIGNMENT_CONFIG."batch_size" IS '处理批次大小';
+COMMENT ON COLUMN DBSWITCH_ASSIGNMENT_CONFIG."channel_size" IS '通道队列大小';
 COMMENT ON COLUMN DBSWITCH_ASSIGNMENT_CONFIG."first_flag" IS '首次加载数据';
 COMMENT ON COLUMN DBSWITCH_ASSIGNMENT_CONFIG."create_time" IS '创建时间';
 

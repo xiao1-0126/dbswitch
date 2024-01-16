@@ -114,7 +114,7 @@ public class MigrationService {
     int maxQueueSize = globalParam.getChannelQueueSize();
     int writeThreadNum = globalParam.getWriteThreadNum();
     boolean concurrentWrite = DataSourceUtils.supportConcurrentWrite(configuration.getTarget());
-
+    Throwable globalThrowable = null;
     StopWatch watch = new StopWatch();
     watch.start();
 
@@ -133,6 +133,7 @@ public class MigrationService {
         }
       }
     } catch (Throwable t) {
+      globalThrowable = t;
       if (t instanceof RuntimeException) {
         throw (RuntimeException) t;
       }
@@ -141,13 +142,20 @@ public class MigrationService {
       watch.stop();
       log.info("total ellipse = {} s", watch.getTotalTimeSeconds());
 
-      StringBuilder sb = new StringBuilder();
-      sb.append("=====================================\n");
-      sb.append(String.format("total ellipse time:\t %f s\n", watch.getTotalTimeSeconds()));
-      sb.append("-------------------------------------\n");
-      perfStats.forEach(st -> sb.append(st.getPrintableString()));
-      sb.append("=====================================\n");
-      log.info("\n\n" + sb.toString());
+      if (!perfStats.isEmpty()) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("=====================================\n");
+        sb.append(String.format("total ellipse time:\t %f s\n", watch.getTotalTimeSeconds()));
+        sb.append("-------------------------------------\n");
+        perfStats.forEach(st -> sb.append(st.getPrintableString()));
+        sb.append("=====================================\n");
+        log.info("\n\n" + sb.toString());
+      } else if (null != globalThrowable) {
+        log.error("error:", globalThrowable);
+      } else {
+        log.error("!!!!!!!!!!Internal Error!!!!!!!");
+      }
+
     }
   }
 

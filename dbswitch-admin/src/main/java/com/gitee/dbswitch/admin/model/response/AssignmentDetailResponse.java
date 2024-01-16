@@ -113,6 +113,9 @@ public class AssignmentDetailResponse {
     @ApiModelProperty("数据批次大小")
     private Integer batchSize;
 
+    @ApiModelProperty("通道队列大小")
+    private Integer channelSize;
+
     @ApiModelProperty("同步操作方法")
     private SyncOptionEnum targetSyncOption;
 

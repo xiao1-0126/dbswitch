@@ -276,11 +276,15 @@
                       style="width:65%">
           <el-tooltip placement="top">
             <div slot="content">
-              数据同步时单个批次处理的行记录总数，该值越到越占用内存空间。建议：小字段表设置为10000或20000，大字段表设置为1000
+              数据同步时单个批次处理的行记录总数，该值越大越占用内存空间。建议：小字段表设置为10000或20000，大字段表设置为100或500
             </div>
             <i class="el-icon-question"></i>
           </el-tooltip>
           <el-select v-model="updateform.batchSize">
+            <el-option label=100
+                       :value=100></el-option>
+            <el-option label=500
+                       :value=500></el-option>
             <el-option label=1000
                        :value=1000></el-option>
             <el-option label=5000
@@ -289,6 +293,36 @@
                        :value=10000></el-option>
             <el-option label=20000
                        :value=20000></el-option>
+          </el-select>
+        </el-form-item>
+        </el-form-item>
+        <el-form-item label="通道队列大小"
+                      label-width="240px"
+                      :required=true
+                      v-if=" updateform.autoSyncMode!==1 "
+                      prop="channelSize"
+                      style="width:65%">
+          <el-tooltip placement="top">
+            <div slot="content">
+              数据同步时缓存数据的通道队列大小，该值越大越占用内存空间。当源库读取快目标库写入慢时，缓存在内存中的数据最大占用空间 = 行记录大小 × 数据批次大小 × 通道队列大小 。
+            </div>
+            <i class="el-icon-question"></i>
+          </el-tooltip>
+          <el-select v-model="updateform.channelSize">
+            <el-option label=10
+                       :value=10></el-option>
+            <el-option label=20
+                       :value=20></el-option>
+            <el-option label=40
+                       :value=40></el-option>
+            <el-option label=60
+                       :value=60></el-option>
+            <el-option label=80
+                       :value=80></el-option>
+            <el-option label=100
+                       :value=100></el-option>
+            <el-option label=500
+                       :value=500></el-option>
           </el-select>
         </el-form-item>
         <el-form-item label="同步操作方法"
@@ -509,6 +543,8 @@
           </el-descriptions-item>
           <el-descriptions-item label="数据批次大小"
                                 v-if=" updateform.autoSyncMode!==1 ">{{updateform.batchSize}}</el-descriptions-item>
+          <el-descriptions-item label="通道队列大小"
+                                v-if=" updateform.autoSyncMode!==1 ">{{updateform.channelSize}}</el-descriptions-item>
           <el-descriptions-item label="同步操作方法"
                                 v-if=" updateform.autoSyncMode!==1 ">{{updateform.targetSyncOption}}</el-descriptions-item>
           <el-descriptions-item label="同步前置执行SQL脚本"
@@ -661,6 +697,7 @@ export default {
         autoSyncMode: 2,
         targetSchema: "",
         batchSize: 5000,
+        channelSize: 100,
         targetSyncOption: 'INSERT_UPDATE_DELETE',
         beforeSqlScripts: '',
         afterSqlScripts: '',
@@ -741,7 +778,15 @@ export default {
           {
             required: true,
             type: 'integer',
-            message: "必选选择一个批大小",
+            message: "必选选择一个数据批次大小",
+            trigger: "change"
+          }
+        ],
+        channelSize: [
+          {
+            required: true,
+            type: 'integer',
+            message: "必选选择一个通道队列大小",
             trigger: "change"
           }
         ],
@@ -844,6 +889,7 @@ export default {
             autoSyncMode: varAutoSyncMode,
             targetSchema: detail.configuration.targetSchema,
             batchSize: detail.configuration.batchSize,
+            channelSize: detail.configuration.channelSize,
             targetSyncOption: detail.configuration.targetSyncOption,
             beforeSqlScripts: detail.configuration.beforeSqlScripts,
             afterSqlScripts: detail.configuration.afterSqlScripts,
@@ -1123,6 +1169,7 @@ export default {
                 targetOnlyCreate: this.updateform.targetOnlyCreate,
                 targetAutoIncrement: this.updateform.targetAutoIncrement,
                 batchSize: this.updateform.batchSize,
+                channelSize: this.updateform.channelSize,
                 targetSyncOption: this.updateform.targetSyncOption,
                 beforeSqlScripts: this.updateform.beforeSqlScripts,
                 afterSqlScripts: this.updateform.afterSqlScripts,

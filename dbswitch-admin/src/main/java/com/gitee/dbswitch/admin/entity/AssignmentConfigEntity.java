@@ -95,6 +95,9 @@ public class AssignmentConfigEntity {
   @TableField("batch_size")
   private Integer batchSize;
 
+  @TableField("channel_size")
+  private Integer channelSize;
+
   @TableField("first_flag")
   private Boolean firstFlag;
 

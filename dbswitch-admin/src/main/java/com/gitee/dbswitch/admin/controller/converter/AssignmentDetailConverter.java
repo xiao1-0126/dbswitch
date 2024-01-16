@@ -53,6 +53,7 @@ public class AssignmentDetailConverter extends
     config.setTableNameMapper(taskConfig.getTableNameMap());
     config.setColumnNameMapper(taskConfig.getColumnNameMap());
     config.setBatchSize(taskConfig.getBatchSize());
+    config.setChannelSize(taskConfig.getChannelSize());
     config.setTargetSyncOption(taskConfig.getTargetSyncOption());
     config.setBeforeSqlScripts(taskConfig.getBeforeSqlScripts());
     config.setAfterSqlScripts(taskConfig.getAfterSqlScripts());
