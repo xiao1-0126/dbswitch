@@ -5,7 +5,7 @@
   <parent>
     <artifactId>dbswitch-product</artifactId>
     <groupId>com.gitee.dbswitch</groupId>
-    <version>1.9.5</version>
+    <version>1.9.6</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
 
@@ -29,12 +29,6 @@
       <groupId>com.gitee.dbswitch</groupId>
       <artifactId>dbswitch-product-postgresql</artifactId>
       <version>${project.version}</version>
-    </dependency>
-
-    <dependency>
-      <groupId>org.postgresql</groupId>
-      <artifactId>postgresql</artifactId>
-      <scope>compile</scope>
     </dependency>
 
   </dependencies>

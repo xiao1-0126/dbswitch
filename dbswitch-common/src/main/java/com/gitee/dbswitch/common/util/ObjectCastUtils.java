@@ -995,9 +995,6 @@ public final class ObjectCastUtils {
       return ((BigInteger) in).longValue();
     } else if (in instanceof BigDecimal) {
       BigDecimal decimal = (BigDecimal) in;
-      if (decimal.doubleValue() > 2.147483647E9D || decimal.doubleValue() < -2.147483648E9D) {
-        return 0D;
-      }
       return decimal.doubleValue();
     } else if (in instanceof java.sql.Clob) {
       return clob2Str((java.sql.Clob) in);

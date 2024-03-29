@@ -43,6 +43,7 @@ public final class DatabaseAwareUtils {
     productNameMap.put("MariaDB", ProductTypeEnum.MARIADB);
     productNameMap.put("Oracle", ProductTypeEnum.ORACLE);
     productNameMap.put("PostgreSQL", ProductTypeEnum.POSTGRESQL);
+    productNameMap.put("Highgo", ProductTypeEnum.HIGHGO);
     productNameMap.put("DB2 for Unix/Windows", ProductTypeEnum.DB2);
     productNameMap.put("Hive", ProductTypeEnum.HIVE);
     productNameMap.put("SQLite", ProductTypeEnum.SQLITE3);
@@ -80,8 +81,11 @@ public final class DatabaseAwareUtils {
         ProductTypeEnum productType = driverNameMap.get(driverName);
         if (productType == ProductTypeEnum.POSTGRESQL) {
           String url = connection.getMetaData().getURL();
-          if (null != url && url.contains("opengauss")) {
+          if (null != url && url.contains("jdbc:opengauss:")) {
             return ProductTypeEnum.OPENGAUSS;
+          }
+          if (null != url && url.contains("jdbc:highgo:")) {
+            return ProductTypeEnum.HIGHGO;
           }
         }
         return productType;

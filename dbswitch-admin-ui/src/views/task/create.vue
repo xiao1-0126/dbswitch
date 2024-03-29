@@ -230,7 +230,6 @@
         <el-form-item label="表名大小写转换"
                       label-width="240px"
                       :required=true
-                      v-if=" createform.autoSyncMode!==0 "
                       prop="tableNameCase"
                       style="width:45%">
           <el-tooltip placement="top">
@@ -251,7 +250,6 @@
         <el-form-item label="列名大小写转换"
                       label-width="240px"
                       :required=true
-                      v-if=" createform.autoSyncMode!==0 "
                       prop="columnNameCase"
                       style="width:45%">
           <el-tooltip placement="top">
@@ -517,8 +515,7 @@
           </el-descriptions-item>
           <el-descriptions-item label="建表字段自增"
                                 v-if=" createform.autoSyncMode!==0 ">{{createform.targetAutoIncrement}}</el-descriptions-item>
-          <el-descriptions-item label="表名大小写转换"
-                                v-if=" createform.autoSyncMode!==0 ">
+          <el-descriptions-item label="表名大小写转换">
             <span v-if="createform.tableNameCase == 'NONE'">
               无转换
             </span>
@@ -529,8 +526,7 @@
               转小写
             </span>
           </el-descriptions-item>
-          <el-descriptions-item label="列名大小写转换"
-                                v-if=" createform.autoSyncMode!==0 ">
+          <el-descriptions-item label="列名大小写转换">
             <span v-if="createform.columnNameCase == 'NONE'">
               无转换
             </span>

@@ -21,6 +21,8 @@ ln -s /usr/local/nodejs/bin/node /usr/local/bin
 ln -s /usr/local/nodejs/bin/npm /usr/local/bin
 # 设置国内淘宝镜像源
 npm config set registry https://registry.npm.taobao.org
+# 禁用ssl验证
+npm config set strict-ssl false
 # 查看设置信息
 npm config list
 # 验证是否安装成功

@@ -42,6 +42,7 @@
         ├── dbswitch-product-postgres   	//  -> postgres方言实现类
         ├── dbswitch-product-dm         	//  -> dm方言实现类
         ├── dbswitch-product-kingbase   	//  -> kingbase方言实现类
+        ├── dbswitch-product-highgo    		//  -> highgo方言实现类
         ├── dbswitch-product-oscar      	//  -> oscar方言实现类
         ├── dbswitch-product-gbase      	//  -> gbase方言实现类
         ├── dbswitch-product-mariadb    	//  -> mariadb方言实现类
@@ -305,8 +306,8 @@ jdbc驱动名称：com.gbase.jdbc.Driver
 **翰高HighGo数据库(可按PostgreSQL使用)**
  
 ```
-jdbc连接地址：jdbc:postgresql://172.17.2.10:5866/highgo
-jdbc驱动名称：org.postgresql.Driver
+jdbc连接地址：jdbc:highgo://172.17.2.10:5866/highgo
+jdbc驱动名称：com.highgo.jdbc.Driver
 ```
 
 **Apache Hive数据库**
@@ -617,7 +618,15 @@ service.run();
 
 为了能让项目得到更好的可持续的发展，dbswitch期望获得更多的代码开发爱好者参与代码贡献，具体可参见文档说明：[贡献说明指南](/CONTRIBUTE.md)
 
-## 八、问题反馈
+## 八、项目推荐
+
+<div>
+	<a href="https://dromara.org/zh/projects/" target="_blank">
+        <img src="https://dromara.org/logo.svg" alt="dromara" title="让每一位开源爱好者，体会到开源的快乐。">
+    </a>
+</div>
+
+## 九、问题反馈
 
 如果您看到并使用了本工具，或您觉得本工具对您有价值，请为此项目**点个赞**，以表示对本项目的支持，多谢！如果您在使用时遇到了bug，欢迎在issue中反馈。也可扫描下方二维码入群讨论：（加好友请注明："程序交流"）
 

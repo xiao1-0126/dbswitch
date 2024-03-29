@@ -8,6 +8,16 @@
 
 	<includeBaseDirectory>true</includeBaseDirectory>
 
+	<dependencySets>
+		<dependencySet>
+			<useProjectArtifact>true</useProjectArtifact>
+			<outputDirectory>lib</outputDirectory>
+			<excludes>
+				<exclude>com.gitee.dbswitch:dbswitch-dist</exclude>
+			</excludes>
+		</dependencySet>
+	</dependencySets>
+
 	<fileSets>
 
 		<!-- 打包assembly中的bin目录到 打包目录/sbin 下 -->

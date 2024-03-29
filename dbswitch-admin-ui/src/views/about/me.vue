@@ -118,6 +118,7 @@
                     ├── dbswitch-product-postgres       //  -> postgres方言实现类
                     ├── dbswitch-product-dm             //  -> dm方言实现类
                     ├── dbswitch-product-kingbase       //  -> kingbase方言实现类
+                    ├── dbswitch-product-highgo         //  -> highgo方言实现类
                     ├── dbswitch-product-oscar          //  -> oscar方言实现类
                     ├── dbswitch-product-gbase          //  -> gbase方言实现类
                     ├── dbswitch-product-mariadb        //  -> mariadb方言实现类

@@ -15,7 +15,7 @@ import java.util.Map;
 import java.util.Objects;
 
 /**
- * 支持制定转换字典的转换器
+ * 支持指定转换字典的转换器
  */
 public class MappedTransformProvider extends DefaultTransformProvider {
 

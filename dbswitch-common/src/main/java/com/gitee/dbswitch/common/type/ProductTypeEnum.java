@@ -115,9 +115,18 @@ public enum ProductTypeEnum {
       "jdbc:gbase://172.17.2.10:5258/test"),
 
   /**
+   * Highgo数据库类型:https://blog.csdn.net/weixin_39676699/article/details/134338598
+   */
+  HIGHGO(11, "\"", "highgo", "com.highgo.jdbc.Driver", 5866,
+      "SELECT 1",
+      "jdbc:highgo://",
+      new String[]{"jdbc:highgo://{host}[:{port}]/[{database}][\\?{params}]"},
+      "jdbc:highgo://172.17.2.10:5866/highgo"),
+
+  /**
    * Sybase 数据库类型
    */
-  SYBASE(11, "\"", "sybase", "com.sybase.jdbc4.jdbc.SybDriver", 5000,
+  SYBASE(12, "\"", "sybase", "com.sybase.jdbc4.jdbc.SybDriver", 5000,
       "SELECT 1+2 as a",
       "jdbc:sybase:Tds:",
       new String[]{"jdbc:sybase:Tds:{host}[:{port}][/{database}][\\?{params}]"},
@@ -126,7 +135,7 @@ public enum ProductTypeEnum {
   /**
    * Hive 数据库类型
    */
-  HIVE(12, "`", "hive", "org.apache.hive.jdbc.HiveDriver", 10000,
+  HIVE(13, "`", "hive", "org.apache.hive.jdbc.HiveDriver", 10000,
       "SELECT 1",
       "jdbc:hive2://",
       new String[]{"jdbc:hive2://{host}[:{port}]/[{database}][\\?{params}]"},
@@ -136,7 +145,7 @@ public enum ProductTypeEnum {
    * Sqlite v3数据库类型
    */
   // 参考文章：https://blog.csdn.net/wank1259162/article/details/104946744
-  SQLITE3(13, "\"", "sqlite3", "org.sqlite.JDBC", 0,
+  SQLITE3(14, "\"", "sqlite3", "org.sqlite.JDBC", 0,
       "SELECT 1",
       "jdbc:sqlite:",
       new String[]{"jdbc:sqlite:{file}", "jdbc:sqlite::resource:{file}"},
@@ -145,7 +154,7 @@ public enum ProductTypeEnum {
   /**
    * OpenGauss数据库类型
    */
-  OPENGAUSS(14, "\"", "opengauss", "org.opengauss.Driver", 15432,
+  OPENGAUSS(15, "\"", "opengauss", "org.opengauss.Driver", 15432,
       "SELECT 1",
       "jdbc:opengauss://",
       new String[]{"jdbc:opengauss://{host}[:{port}]/[{database}][\\?{params}]"},
@@ -154,7 +163,7 @@ public enum ProductTypeEnum {
   /**
    * ClickHouse数据库类型
    */
-  CLICKHOUSE(15, "`", "clickhouse", "com.clickhouse.jdbc.ClickHouseDriver", 8123,
+  CLICKHOUSE(16, "`", "clickhouse", "com.clickhouse.jdbc.ClickHouseDriver", 8123,
       "SELECT 1",
       "jdbc:clickhouse://",
       new String[]{"jdbc:clickhouse://{host}[:{port}]/[{database}][\\?{params}]"},
@@ -163,7 +172,7 @@ public enum ProductTypeEnum {
   /**
    * MongoDB数据库类型
    */
-  MONGODB(16, "\"", "mongoDB", "com.gitee.jdbc.mongodb.JdbcDriver", 27017,
+  MONGODB(17, "\"", "mongoDB", "com.gitee.jdbc.mongodb.JdbcDriver", 27017,
       "use admin;",
       "jdbc:mongodb://",
       new String[]{"jdbc:mongodb://{host}[:{port}]/[{database}][\\?{params}]"},
@@ -172,7 +181,7 @@ public enum ProductTypeEnum {
   /**
    * ElasticSearch数据库类型
    */
-  ELASTICSEARCH(17, "\"", "ElasticSearch", "com.gitee.jdbc.elasticsearch.JdbcDriver", 9200,
+  ELASTICSEARCH(18, "\"", "ElasticSearch", "com.gitee.jdbc.elasticsearch.JdbcDriver", 9200,
       "",
       "jdbc:jest://",
       new String[]{"jdbc:jest://{host}[:{port}][\\?{params}]"},
@@ -235,7 +244,16 @@ public enum ProductTypeEnum {
    * @return boolean
    */
   public boolean isLikeMysql() {
-    return this == MYSQL || this == MARIADB || this == GBASE8A;
+    return this == MYSQL || this == MARIADB;
+  }
+
+  /**
+   * 类似于MySQL系列的数据库类型
+   *
+   * @return boolean
+   */
+  public boolean isLikeGbase8a() {
+    return this == GBASE8A;
   }
 
   /**
