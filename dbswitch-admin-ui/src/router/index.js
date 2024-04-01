@@ -33,14 +33,6 @@ const constantRouter = new Router({
                             name: '数据源',
                             icon: "el-icon-bank-card",
                             component: () => import('@/views/connection/list')
-                            // children: [
-                            //     {
-                            //         path: '/dataSourceCreateStep1',
-                            //         name: '选择数据源',
-                            //         icon: "el-icon-menu",
-                            //         component: () => import('@/views/connection/dataSourceCreateStep1')
-                            //     }
-                            // ]
                         },
                         {
                             path: '/connection/driver',
@@ -126,6 +118,13 @@ const constantRouter = new Router({
                     name: '查看任务',
                     hidden: true,
                     component: () => import('@/views/task/detail')
+                },
+                {
+                    path: '/connection/list/addDataSource1',
+                    name: '接入数据源',
+                    icon: "el-icon-menu",
+                    hidden: true,
+                    component: () => import('@/views/connection/addDataSource1.vue')
                 }
             ],
         },

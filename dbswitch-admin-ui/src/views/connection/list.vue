@@ -4,7 +4,7 @@
       <div class="connection-list-top">
         <div class="left-search-input-group">
           <div class="left-search-input">
-            <el-input placeholder="请输入连接名称关键字搜索"
+            <el-input placeholder="默认按照数据源名称搜索"
                       v-model="keyword"
                       @change="searchByKeyword"
                       :clearable=true
@@ -16,10 +16,8 @@
           <el-button type="primary"
                      size="mini"
                      icon="el-icon-document-add"
-                     @click="addConnection">接入数据源</el-button>
-<!--                     @click="selectDataSource">接入数据源-->
-<!--          </el-button>-->
-
+                     @click="selectDataSource">接入数据源</el-button>
+<!--                     @click="addConnection">接入数据源</el-button>-->
         </div>
       </div>
 
@@ -34,9 +32,7 @@
                          label="数据源名称"
                          show-overflow-tooltip
                          min-width="20%"></el-table-column>
-        <el-table-column prop="createTime"
-                         label="创建时间"
-                         min-width="18%"></el-table-column>
+
         <el-table-column prop="type"
                          label="数据库类型"
                          show-overflow-tooltip
@@ -45,12 +41,15 @@
                          label="驱动版本"
                          show-overflow-tooltip
                          min-width="12%"></el-table-column>
-        <el-table-column prop="url"
-                         label="JDBC连接串"
-                         show-overflow-tooltip
-                         min-width="15%"></el-table-column>
+<!--        <el-table-column prop="url"-->
+<!--                         label="JDBC连接串"-->
+<!--                         show-overflow-tooltip-->
+<!--                         min-width="15%"></el-table-column>-->
+        <el-table-column prop="createTime"
+                         label="创建时间"
+                         min-width="18%"></el-table-column>
         <el-table-column prop="username"
-                         label="账号"
+                         label="创建账号"
                          show-overflow-tooltip
                          min-width="10%"></el-table-column>
         <el-table-column label="操作"
@@ -545,7 +544,8 @@ export default {
       this.createform = {};
     },
     selectDataSource: function () {
-      this.dataSourceCreateStep1 = true;
+      // this.dataSourceCreateStep1 = true;
+      this.$router.push('/connection/list/addDataSource1');
 
     },
     handleCreate: function () {
@@ -728,5 +728,3 @@ export default {
   margin: 10px 5px;
 }
 </style>
-
-
