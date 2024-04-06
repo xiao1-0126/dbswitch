@@ -94,6 +94,7 @@ public class ConnectionService {
       detail.setDriver(type.getDriver());
       detail.setSample(type.getSample());
       detail.setName(type.getName());
+      detail.setUrl(type.getUrl()[0]);
       lists.add(detail);
     }
 
@@ -281,4 +282,21 @@ public class ConnectionService {
     }
   }
 
+  public Result preTest(DbConnectionCreateRequest request) {
+    DatabaseConnectionEntity dbConn = new DatabaseConnectionEntity();
+    dbConn.setType(request.getType());
+    dbConn.setUsername(request.getUsername());
+    dbConn.setPassword(request.getPassword());
+    dbConn.setName(request.getName());
+    dbConn.setVersion(request.getVersion());
+    dbConn.setUrl(request.getUrl());
+    dbConn.setDriver(request.getDriver());
+    MetadataService metaDataService = getMetaDataCoreService(dbConn);
+    try {
+      metaDataService.testQuerySQL(dbConn.getType().getSql());
+    } finally {
+      metaDataService.close();
+    }
+    return Result.success();
+  }
 }

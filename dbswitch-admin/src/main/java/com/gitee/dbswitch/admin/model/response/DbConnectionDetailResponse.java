@@ -37,6 +37,21 @@ public class DbConnectionDetailResponse {
   @ApiModelProperty("驱动类")
   private String driver;
 
+  @ApiModelProperty("连接模式：0默认 1专业")
+  private Integer mode;
+
+  @ApiModelProperty("连接地址")
+  private String address;
+
+  @ApiModelProperty("连接端口号")
+  private String port;
+
+  @ApiModelProperty("数据库名")
+  private String databaseName;
+
+  @ApiModelProperty("编码格式")
+  private String characterEncoding;
+
   @ApiModelProperty("URL连接串")
   private String url;
 

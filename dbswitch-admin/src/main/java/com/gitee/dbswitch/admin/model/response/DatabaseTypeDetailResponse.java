@@ -34,4 +34,7 @@ public class DatabaseTypeDetailResponse {
   @ApiModelProperty("数据库名称")
   private String name;
 
+  @ApiModelProperty("数据库链接模板")
+  private String url;
+
 }

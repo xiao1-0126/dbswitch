@@ -17,8 +17,14 @@
                      size="mini"
                      icon="el-icon-document-add"
                      @click="selectDataSource">接入数据源</el-button>
-<!--                     @click="addConnection">接入数据源</el-button>-->
         </div>
+
+<!--        <div class="right-add-button-group">-->
+<!--          <el-button type="primary"-->
+<!--                     size="mini"-->
+<!--                     icon="el-icon-document-add"-->
+<!--                     @click="addConnection">旧接入数据源</el-button>-->
+<!--        </div>-->
       </div>
 
       <el-table :header-cell-style="{background:'#eef1f6',color:'#606266'}"
@@ -161,30 +167,30 @@
         </div>
       </el-dialog>
 
-      <el-dialog title="接入数据源"
-                 :visible.sync="dataSourceCreateStep1"
-                 :showClose="false"
-                 :before-close="handleClose">
+<!--      <el-dialog title="接入数据源"-->
+<!--                 :visible.sync="dataSourceCreateStep1"-->
+<!--                 :showClose="false"-->
+<!--                 :before-close="handleClose">-->
 
 
-        <el-form :model="createform"
-                 size="mini"
-                 status-icon
-                 :rules="rules"
-                 ref="createform">
-          <el-form-item label="数据库类型"
-                        label-width="120px"
-                        :required=true
-                        prop="type">
-            <el-radio-group v-model="createform.type" @change="selectChangedDriverVersion">
-              <el-radio :label="item.type" :key="index" v-for="(item,index) in databaseType">{{ item.type }}</el-radio>
-            </el-radio-group>
-          </el-form-item>
+<!--        <el-form :model="createform"-->
+<!--                 size="mini"-->
+<!--                 status-icon-->
+<!--                 :rules="rules"-->
+<!--                 ref="createform">-->
+<!--          <el-form-item label="数据库类型"-->
+<!--                        label-width="120px"-->
+<!--                        :required=true-->
+<!--                        prop="type">-->
+<!--            <el-radio-group v-model="createform.type" @change="selectChangedDriverVersion">-->
+<!--              <el-radio :label="item.type" :key="index" v-for="(item,index) in databaseType">{{ item.type }}</el-radio>-->
+<!--            </el-radio-group>-->
+<!--          </el-form-item>-->
 
-        </el-form>
+<!--        </el-form>-->
 
 
-      </el-dialog>
+<!--      </el-dialog>-->
 
       <el-dialog title="添加数据源连接信息"
                  :visible.sync="createFormVisible"
@@ -533,9 +539,12 @@ export default {
       ).then(res => {
         //console.log(res);
         if (0 === res.data.code) {
-          alert("测试连接成功!");
+          this.$message({
+            message: '测试连接成功!',
+            type: 'success'
+          });
         } else {
-          alert("测试连接失败," + res.data.message);
+          this.$message.error("测试连接失败," + res.data.message);
         }
       });
     },

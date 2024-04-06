@@ -30,7 +30,7 @@ public enum ProductTypeEnum {
       "/* ping */ SELECT 1",
       "jdbc:mysql://",
       new String[]{"jdbc:mysql://{host}[:{port}]/[{database}][\\?{params}]"},
-      "jdbc:mysql://172.17.2.10:3306/test?useUnicode=true&characterEncoding=utf-8&useSSL=false&zeroDateTimeBehavior=convertToNull&serverTimezone=Asia/Shanghai&tinyInt1isBit=false&rewriteBatchedStatements=true&useCompression=true"),
+      "jdbc:mysql://127.0.0.1:3306/test?useUnicode=true&characterEncoding=utf-8&useSSL=false&zeroDateTimeBehavior=convertToNull&serverTimezone=Asia/Shanghai&tinyInt1isBit=false&rewriteBatchedStatements=true&useCompression=true"),
 
   /**
    * MariaDB数据库类型
@@ -39,7 +39,7 @@ public enum ProductTypeEnum {
       "SELECT 1",
       "jdbc:mariadb://",
       new String[]{"jdbc:mariadb://{host}[:{port}]/[{database}][\\?{params}]"},
-      "jdbc:mariadb://172.17.2.10:3306/test?useUnicode=true&characterEncoding=utf-8&useSSL=false&zeroDateTimeBehavior=convertToNull&serverTimezone=Asia/Shanghai&tinyInt1isBit=false&rewriteBatchedStatements=true&useCompression=true"),
+      "jdbc:mariadb://127.0.0.1:3306/test?useUnicode=true&characterEncoding=utf-8&useSSL=false&zeroDateTimeBehavior=convertToNull&serverTimezone=Asia/Shanghai&tinyInt1isBit=false&rewriteBatchedStatements=true&useCompression=true"),
 
   /**
    * Oracle数据库类型
@@ -49,7 +49,7 @@ public enum ProductTypeEnum {
       "jdbc:oracle:thin:@",
       new String[]{"jdbc:oracle:thin:@{host}:{port}:{database}",
           "jdbc:oracle:thin:@//{host}[:{port}]/{database}"},
-      "jdbc:oracle:thin:@172.17.2.10:1521:ORCL"),
+      "jdbc:oracle:thin:@127.0.0.1:1521:ORCL"),
 
   /**
    * Microsoft SQL Server数据库类型(>=2005)
@@ -58,7 +58,7 @@ public enum ProductTypeEnum {
       "SELECT 1+2 as a",
       "jdbc:sqlserver://",
       new String[]{"jdbc:sqlserver://{host}[:{port}][;DatabaseName={database}][;{params}]"},
-      "jdbc:sqlserver://172.17.2.10:1433;DatabaseName=test"),
+      "jdbc:sqlserver://127.0.0.1:1433;DatabaseName=test"),
 
   /**
    * PostgreSQL数据库类型
@@ -67,7 +67,7 @@ public enum ProductTypeEnum {
       "SELECT 1",
       "jdbc:postgresql://",
       new String[]{"jdbc:postgresql://{host}[:{port}]/[{database}][\\?{params}]"},
-      "jdbc:postgresql://172.17.2.10:5432/test"),
+      "jdbc:postgresql://127.0.0.1:5432/test"),
 
   /**
    * DB2数据库类型
@@ -76,7 +76,7 @@ public enum ProductTypeEnum {
       "SELECT 1 FROM SYSIBM.SYSDUMMY1",
       "jdbc:db2://",
       new String[]{"jdbc:db2://{host}:{port}/{database}[:{params}]"},
-      "jdbc:db2://172.17.2.10:50000/testdb:driverType=4;fullyMaterializeLobData=true;fullyMaterializeInputStreams=true;progressiveStreaming=2;progresssiveLocators=2;"),
+      "jdbc:db2://127.0.0.1:50000/testdb:driverType=4;fullyMaterializeLobData=true;fullyMaterializeInputStreams=true;progressiveStreaming=2;progresssiveLocators=2;"),
 
   /**
    * [国产] 达梦(DM)数据库类型
@@ -85,7 +85,7 @@ public enum ProductTypeEnum {
       "SELECT 'Hello' from DUAL",
       "jdbc:dm://",
       new String[]{"jdbc:dm://{host}:{port}[/{database}][\\?{params}]"},
-      "jdbc:dm://172.17.2.10:5236"),
+      "jdbc:dm://127.0.0.1:5236"),
 
   /**
    * [国产] 金仓(Kingbase)数据库类型
@@ -94,7 +94,7 @@ public enum ProductTypeEnum {
       "SELECT 1",
       "jdbc:kingbase8://",
       new String[]{"jdbc:kingbase8://{host}[:{port}]/[{database}][\\?{params}]"},
-      "jdbc:kingbase8://172.17.2.10:54321/test"),
+      "jdbc:kingbase8://127.0.0.1:54321/test"),
 
   /**
    * [国产] 神通(Oscar)数据库类型
@@ -103,7 +103,7 @@ public enum ProductTypeEnum {
       "SELECT 1",
       "jdbc:oscar://",
       new String[]{"jdbc:oscar://{host}[:{port}]/[{database}][\\?{params}]"},
-      "jdbc:oscar://172.17.2.10:2003/OSCRDB"),
+      "jdbc:oscar://127.0.0.1:2003/OSCRDB"),
 
   /**
    * [国产] 南大通用(GBase8A)数据库类型
@@ -112,7 +112,7 @@ public enum ProductTypeEnum {
       "/* ping */ SELECT 1",
       "jdbc:gbase://",
       new String[]{"jdbc:gbase://{host}[:{port}]/[{database}][\\?{params}]"},
-      "jdbc:gbase://172.17.2.10:5258/test"),
+      "jdbc:gbase://127.0.0.1:5258/test"),
 
   /**
    * Highgo数据库类型:https://blog.csdn.net/weixin_39676699/article/details/134338598
@@ -121,7 +121,7 @@ public enum ProductTypeEnum {
       "SELECT 1",
       "jdbc:highgo://",
       new String[]{"jdbc:highgo://{host}[:{port}]/[{database}][\\?{params}]"},
-      "jdbc:highgo://172.17.2.10:5866/highgo"),
+      "jdbc:highgo://127.0.0.1:5866/highgo"),
 
   /**
    * Sybase 数据库类型
@@ -130,7 +130,7 @@ public enum ProductTypeEnum {
       "SELECT 1+2 as a",
       "jdbc:sybase:Tds:",
       new String[]{"jdbc:sybase:Tds:{host}[:{port}][/{database}][\\?{params}]"},
-      "jdbc:sybase:Tds:172.17.2.10:5000/test?charset=cp936"),
+      "jdbc:sybase:Tds:127.0.0.1:5000/test?charset=cp936"),
 
   /**
    * Hive 数据库类型
@@ -158,7 +158,7 @@ public enum ProductTypeEnum {
       "SELECT 1",
       "jdbc:opengauss://",
       new String[]{"jdbc:opengauss://{host}[:{port}]/[{database}][\\?{params}]"},
-      "jdbc:opengauss://172.17.2.10:5866/test"),
+      "jdbc:opengauss://127.0.0.1:5866/test"),
 
   /**
    * ClickHouse数据库类型
@@ -167,7 +167,7 @@ public enum ProductTypeEnum {
       "SELECT 1",
       "jdbc:clickhouse://",
       new String[]{"jdbc:clickhouse://{host}[:{port}]/[{database}][\\?{params}]"},
-      "jdbc:clickhouse://172.17.2.10:8123/default"),
+      "jdbc:clickhouse://127.0.0.1:8123/default"),
 
   /**
    * MongoDB数据库类型

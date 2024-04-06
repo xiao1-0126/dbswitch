@@ -78,6 +78,13 @@ public class ConnectionController {
   }
 
   @TokenCheck
+  @ApiOperation(value = "预测试连接")
+  @PostMapping(value = "/preTest", produces = MediaType.APPLICATION_JSON_VALUE)
+  public Result preTest(@RequestBody DbConnectionCreateRequest request) {
+    return connectionService.preTest(request);
+  }
+
+  @TokenCheck
   @ApiOperation(value = "查询连接的Schema列表")
   @GetMapping(value = "/schemas/get/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
   public Result getSchemas(@PathVariable("id") Long id) {

@@ -38,7 +38,10 @@
           </el-collapse>
         </el-main>
         <el-footer>
-          <button style="float: right">下一步</button>
+          <el-row>
+            <el-button type="primary" class="next" @click="next">下一步</el-button>
+            <el-button class="cancel" @click="cancel">取消</el-button>
+          </el-row>
         </el-footer>
       </el-container>
     </el-container>
@@ -53,6 +56,7 @@ export default {
       currentDate: new Date(),
       databaseType: [],
       selectedIndex: -1,
+      selectedDataSource: {},
     };
   },
 
@@ -97,7 +101,20 @@ export default {
     },
     selectDbDriver: function (value) {
       this.selectedIndex = value.id - 1;
-      console.log(JSON.stringify(value))
+      this.selectedDataSource = value;
+    },
+    next: function () {
+      if (Object.keys(this.selectedDataSource).length === 0) {
+        this.$message.error('请选择数据库！');
+      } else {
+        this.$router.push({
+          path: "/connection/list/addDataSource2", query:
+          this.selectedDataSource
+        });
+      }
+    },
+    cancel: function () {
+      this.$router.push("/connection/list");
     },
   },
   created() {
@@ -185,6 +202,24 @@ export default {
   color: #a2cdb1;
   padding: 1.5px;
   background-color: #eefff9;
+}
+
+.cancel {
+  float: right;
+  padding: 6px 14px;
+  border: 1px solid #dcdcdd;
+  cursor: pointer;
+  background-color: white;
+}
+
+.next {
+  float: right;
+  margin-left: 20px;
+  padding: 6px 14px;
+  border: none;
+  color: white;
+  background-color: #409EFF;
+  cursor: pointer;
 }
 
 </style>

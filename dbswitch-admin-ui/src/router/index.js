@@ -125,6 +125,13 @@ const constantRouter = new Router({
                     icon: "el-icon-menu",
                     hidden: true,
                     component: () => import('@/views/connection/addDataSource1.vue')
+                },
+                {
+                    path: '/connection/list/addDataSource2',
+                    name: '接入数据源',
+                    icon: "el-icon-menu",
+                    hidden: true,
+                    component: () => import('@/views/connection/addDataSource2.vue')
                 }
             ],
         },

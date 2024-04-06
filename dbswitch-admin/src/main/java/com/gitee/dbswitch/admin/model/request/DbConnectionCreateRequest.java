@@ -22,6 +22,11 @@ public class DbConnectionCreateRequest {
   private ProductTypeEnum type;
   private String version;
   private String driver;
+  private Integer mode;
+  private String address;
+  private String port;
+  private String databaseName;
+  private String characterEncoding;
   private String url;
   private String username;
   private String password;
@@ -33,6 +38,11 @@ public class DbConnectionCreateRequest {
     databaseConnectionEntity.setType(type);
     databaseConnectionEntity.setVersion(version.trim());
     databaseConnectionEntity.setDriver(driver.trim());
+    databaseConnectionEntity.setMode(0);
+    databaseConnectionEntity.setAddress(address.trim());
+    databaseConnectionEntity.setPort(port.trim());
+    databaseConnectionEntity.setDatabaseName(databaseName.trim());
+    databaseConnectionEntity.setCharacterEncoding(characterEncoding.trim());
     databaseConnectionEntity.setUrl(url.trim());
     databaseConnectionEntity.setUsername(username);
     databaseConnectionEntity.setPassword(password);

@@ -44,6 +44,21 @@ public class DatabaseConnectionEntity {
   @TableField("driver")
   private String driver;
 
+  @TableField("mode")
+  private Integer mode;
+
+  @TableField("address")
+  private String address;
+
+  @TableField("port")
+  private String port;
+
+  @TableField("database_name")
+  private String databaseName;
+
+  @TableField("character_encoding")
+  private String characterEncoding;
+
   @TableField("url")
   private String url;
 
