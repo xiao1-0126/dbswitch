@@ -74,16 +74,16 @@ export default {
 
 .el-aside {
   float: left;
-  background: #002140;
+  background: #fdfdfd;
   color: #333;
   text-align: left;
 }
 
 .el-aside .title {
   height: 60px;
-  background: #001529;
+  background: #454c5a;
   line-height: 64px;
-  background: #002140;
+  background: #454c5a;
   text-align: center;
 }
 

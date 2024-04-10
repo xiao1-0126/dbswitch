@@ -12,6 +12,7 @@ package com.gitee.dbswitch.admin.controller.converter;
 import com.gitee.dbswitch.admin.entity.DatabaseConnectionEntity;
 import com.gitee.dbswitch.admin.model.response.DbConnectionDetailResponse;
 import com.gitee.dbswitch.common.converter.AbstractConverter;
+import com.gitee.dbswitch.common.type.ProductTypeEnum;
 
 public class DbConnectionDetailConverter extends
     AbstractConverter<DatabaseConnectionEntity, DbConnectionDetailResponse> {
@@ -21,6 +22,7 @@ public class DbConnectionDetailConverter extends
     DbConnectionDetailResponse response = new DbConnectionDetailResponse();
     response.setId(databaseConnectionEntity.getId());
     response.setName(databaseConnectionEntity.getName());
+    response.setTypeName(databaseConnectionEntity.getType().getName());
     response.setType(databaseConnectionEntity.getType());
     response.setVersion(databaseConnectionEntity.getVersion());
     response.setDriver(databaseConnectionEntity.getDriver());

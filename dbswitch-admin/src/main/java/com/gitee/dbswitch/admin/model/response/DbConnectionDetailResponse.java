@@ -31,6 +31,9 @@ public class DbConnectionDetailResponse {
   @ApiModelProperty("数据库类型")
   private ProductTypeEnum type;
 
+  @ApiModelProperty("数据库类型名称")
+  private String typeName;
+
   @ApiModelProperty("驱动版本")
   private String version;
 

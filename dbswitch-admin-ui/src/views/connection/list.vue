@@ -101,71 +101,71 @@
                        :total="totalCount"></el-pagination>
       </div>
 
-      <el-dialog title="查看数据库连接信息"
-                 :visible.sync="dialogFormVisible"
-                 :showClose="false"
-                 :before-close="handleClose">
-        <el-form :model="queryForm"
-                 size="mini">
-          <el-form-item label="连接名称"
-                        label-width="120px"
-                        style="width:85%">
-            <el-input v-model="queryForm.name"
-                      auto-complete="off"
-                      :readonly=true></el-input>
-          </el-form-item>
-          <el-form-item label="数据库类型"
-                        label-width="120px"
-                        style="width:85%">
-            <el-input v-model="queryForm.type"
-                      auto-complete="off"
-                      :readonly=true></el-input>
-          </el-form-item>
-          <el-form-item label="数据库驱动"
-                        label-width="120px"
-                        style="width:85%">
-            <el-input v-model="queryForm.driver"
-                      auto-complete="off"
-                      :readonly=true></el-input>
-          </el-form-item>
-          <el-form-item label="驱动版本号"
-                        label-width="120px"
-                        style="width:85%">
-            <el-input v-model="queryForm.version"
-                      auto-complete="off"
-                      :readonly=true></el-input>
-          </el-form-item>
-          <el-form-item label="JDBC连接串"
-                        label-width="120px"
-                        style="width:85%">
-            <el-input type="textarea"
-                      :rows="6"
-                      :spellcheck="false"
-                      v-model="queryForm.url"
-                      auto-complete="off"
-                      :readonly=true></el-input>
-          </el-form-item>
-          <el-form-item label="账号名称"
-                        label-width="120px"
-                        style="width:85%">
-            <el-input v-model="queryForm.username"
-                      auto-complete="off"
-                      :readonly=true></el-input>
-          </el-form-item>
-          <el-form-item label="连接密码"
-                        label-width="120px"
-                        style="width:85%">
-            <el-input type="password"
-                      v-model="queryForm.password"
-                      auto-complete="off"
-                      :readonly=true></el-input>
-          </el-form-item>
-        </el-form>
-        <div slot="footer"
-             class="dialog-footer">
-          <el-button @click="dialogFormVisible = false">关闭</el-button>
-        </div>
-      </el-dialog>
+<!--      <el-dialog title="查看数据库连接信息"-->
+<!--                 :visible.sync="dialogFormVisible"-->
+<!--                 :showClose="false"-->
+<!--                 :before-close="handleClose">-->
+<!--        <el-form :model="queryForm"-->
+<!--                 size="mini">-->
+<!--          <el-form-item label="连接名称"-->
+<!--                        label-width="120px"-->
+<!--                        style="width:85%">-->
+<!--            <el-input v-model="queryForm.name"-->
+<!--                      auto-complete="off"-->
+<!--                      :readonly=true></el-input>-->
+<!--          </el-form-item>-->
+<!--          <el-form-item label="数据库类型"-->
+<!--                        label-width="120px"-->
+<!--                        style="width:85%">-->
+<!--            <el-input v-model="queryForm.type"-->
+<!--                      auto-complete="off"-->
+<!--                      :readonly=true></el-input>-->
+<!--          </el-form-item>-->
+<!--          <el-form-item label="数据库驱动"-->
+<!--                        label-width="120px"-->
+<!--                        style="width:85%">-->
+<!--            <el-input v-model="queryForm.driver"-->
+<!--                      auto-complete="off"-->
+<!--                      :readonly=true></el-input>-->
+<!--          </el-form-item>-->
+<!--          <el-form-item label="驱动版本号"-->
+<!--                        label-width="120px"-->
+<!--                        style="width:85%">-->
+<!--            <el-input v-model="queryForm.version"-->
+<!--                      auto-complete="off"-->
+<!--                      :readonly=true></el-input>-->
+<!--          </el-form-item>-->
+<!--          <el-form-item label="JDBC连接串"-->
+<!--                        label-width="120px"-->
+<!--                        style="width:85%">-->
+<!--            <el-input type="textarea"-->
+<!--                      :rows="6"-->
+<!--                      :spellcheck="false"-->
+<!--                      v-model="queryForm.url"-->
+<!--                      auto-complete="off"-->
+<!--                      :readonly=true></el-input>-->
+<!--          </el-form-item>-->
+<!--          <el-form-item label="账号名称"-->
+<!--                        label-width="120px"-->
+<!--                        style="width:85%">-->
+<!--            <el-input v-model="queryForm.username"-->
+<!--                      auto-complete="off"-->
+<!--                      :readonly=true></el-input>-->
+<!--          </el-form-item>-->
+<!--          <el-form-item label="连接密码"-->
+<!--                        label-width="120px"-->
+<!--                        style="width:85%">-->
+<!--            <el-input type="password"-->
+<!--                      v-model="queryForm.password"-->
+<!--                      auto-complete="off"-->
+<!--                      :readonly=true></el-input>-->
+<!--          </el-form-item>-->
+<!--        </el-form>-->
+<!--        <div slot="footer"-->
+<!--             class="dialog-footer">-->
+<!--          <el-button @click="dialogFormVisible = false">关闭</el-button>-->
+<!--        </div>-->
+<!--      </el-dialog>-->
 
 <!--      <el-dialog title="接入数据源"-->
 <!--                 :visible.sync="dataSourceCreateStep1"-->
@@ -192,93 +192,93 @@
 
 <!--      </el-dialog>-->
 
-      <el-dialog title="添加数据源连接信息"
-                 :visible.sync="createFormVisible"
-                 :showClose="false"
-                 :before-close="handleClose">
-        <el-form :model="createform"
-                 size="mini"
-                 status-icon
-                 :rules="rules"
-                 ref="createform">
-          <el-form-item label="数据源名称"
-                        label-width="120px"
-                        :required=true
-                        prop="name"
-                        style="width:85%">
-            <el-input v-model="createform.name"
-                      auto-complete="off"></el-input>
-          </el-form-item>
-          <el-form-item label="数据库类型"
-                        label-width="120px"
-                        :required=true
-                        prop="type"
-                        style="width:85%">
-            <el-select v-model="createform.type"
-                       @change="selectChangedDriverVersion"
-                       placeholder="请选择数据库">
-              <el-option v-for="(item,index) in databaseType"
-                         :key="index"
-                         :label="item.type"
-                         :value="item.type"></el-option>
-            </el-select>
-          </el-form-item>
-          <el-form-item label="驱动版本"
-                        label-width="120px"
-                        :required=true
-                        prop="version"
-                        style="width:85%">
-            <el-select v-model="createform.version"
-                       placeholder="请选择版本">
-              <el-option v-for="(item,index) in connectionDriver"
-                         :key="index"
-                         :label="item.driverVersion"
-                         :value="item.driverVersion"></el-option>
-            </el-select>
-          </el-form-item>
-          <el-form-item label="JDBC连接串"
-                        label-width="120px"
-                        :required=true
-                        prop="url"
-                        style="width:85%">
-            <el-tooltip placement="top">
-              <i class="el-icon-question">样例:</i>
-              <div slot="content">
-                {{ createform.sample }}
-              </div>
-            </el-tooltip>
-            <el-input type="textarea"
-                      :rows="6"
-                      :spellcheck="false"
-                      placeholder="请输入"
-                      v-model="createform.url"
-                      auto-complete="off">
-            </el-input>
-          </el-form-item>
-          <el-form-item label="用户名"
-                        label-width="120px"
-                        prop="username"
-                        style="width:85%">
-            <el-input v-model="createform.username"
-                      auto-complete="off"></el-input>
-          </el-form-item>
-          <el-form-item label="密码"
-                        label-width="120px"
-                        prop="password"
-                        style="width:85%">
-            <el-input type="password"
-                      v-model="createform.password"
-                      auto-complete="off"></el-input>
-          </el-form-item>
-        </el-form>
-        <div slot="footer"
-             class="dialog-footer">
-          <el-button @click="createFormVisible = false">取 消</el-button>
-          <el-button type="primary"
-                     @click="handleCreate">确 定
-          </el-button>
-        </div>
-      </el-dialog>
+<!--      <el-dialog title="添加数据源连接信息"-->
+<!--                 :visible.sync="createFormVisible"-->
+<!--                 :showClose="false"-->
+<!--                 :before-close="handleClose">-->
+<!--        <el-form :model="createform"-->
+<!--                 size="mini"-->
+<!--                 status-icon-->
+<!--                 :rules="rules"-->
+<!--                 ref="createform">-->
+<!--          <el-form-item label="数据源名称"-->
+<!--                        label-width="120px"-->
+<!--                        :required=true-->
+<!--                        prop="name"-->
+<!--                        style="width:85%">-->
+<!--            <el-input v-model="createform.name"-->
+<!--                      auto-complete="off"></el-input>-->
+<!--          </el-form-item>-->
+<!--          <el-form-item label="数据库类型"-->
+<!--                        label-width="120px"-->
+<!--                        :required=true-->
+<!--                        prop="type"-->
+<!--                        style="width:85%">-->
+<!--            <el-select v-model="createform.type"-->
+<!--                       @change="selectChangedDriverVersion"-->
+<!--                       placeholder="请选择数据库">-->
+<!--              <el-option v-for="(item,index) in databaseType"-->
+<!--                         :key="index"-->
+<!--                         :label="item.type"-->
+<!--                         :value="item.type"></el-option>-->
+<!--            </el-select>-->
+<!--          </el-form-item>-->
+<!--          <el-form-item label="驱动版本"-->
+<!--                        label-width="120px"-->
+<!--                        :required=true-->
+<!--                        prop="version"-->
+<!--                        style="width:85%">-->
+<!--            <el-select v-model="createform.version"-->
+<!--                       placeholder="请选择版本">-->
+<!--              <el-option v-for="(item,index) in connectionDriver"-->
+<!--                         :key="index"-->
+<!--                         :label="item.driverVersion"-->
+<!--                         :value="item.driverVersion"></el-option>-->
+<!--            </el-select>-->
+<!--          </el-form-item>-->
+<!--          <el-form-item label="JDBC连接串"-->
+<!--                        label-width="120px"-->
+<!--                        :required=true-->
+<!--                        prop="url"-->
+<!--                        style="width:85%">-->
+<!--            <el-tooltip placement="top">-->
+<!--              <i class="el-icon-question">样例:</i>-->
+<!--              <div slot="content">-->
+<!--                {{ createform.sample }}-->
+<!--              </div>-->
+<!--            </el-tooltip>-->
+<!--            <el-input type="textarea"-->
+<!--                      :rows="6"-->
+<!--                      :spellcheck="false"-->
+<!--                      placeholder="请输入"-->
+<!--                      v-model="createform.url"-->
+<!--                      auto-complete="off">-->
+<!--            </el-input>-->
+<!--          </el-form-item>-->
+<!--          <el-form-item label="用户名"-->
+<!--                        label-width="120px"-->
+<!--                        prop="username"-->
+<!--                        style="width:85%">-->
+<!--            <el-input v-model="createform.username"-->
+<!--                      auto-complete="off"></el-input>-->
+<!--          </el-form-item>-->
+<!--          <el-form-item label="密码"-->
+<!--                        label-width="120px"-->
+<!--                        prop="password"-->
+<!--                        style="width:85%">-->
+<!--            <el-input type="password"-->
+<!--                      v-model="createform.password"-->
+<!--                      auto-complete="off"></el-input>-->
+<!--          </el-form-item>-->
+<!--        </el-form>-->
+<!--        <div slot="footer"-->
+<!--             class="dialog-footer">-->
+<!--          <el-button @click="createFormVisible = false">取 消</el-button>-->
+<!--          <el-button type="primary"-->
+<!--                     @click="handleCreate">确 定-->
+<!--          </el-button>-->
+<!--        </div>-->
+<!--      </el-dialog>-->
 
       <el-dialog title="修改数据源连接信息"
                  :visible.sync="updateFormVisible"
@@ -530,8 +530,12 @@ export default {
       });
     },
     handleMore: function (index, row) {
-      this.dialogFormVisible = true;
-      this.queryForm = row;
+      this.$router.push({
+        path: "/connection/list/dataSourceInfo", query:
+        row
+      });
+      // this.dialogFormVisible = true;
+      // this.queryForm = row;
     },
     handleTest: function (index, row) {
       this.$http.get(
@@ -622,18 +626,22 @@ export default {
       });
     },
     handleUpdate: function (index, row) {
-      this.updateform = JSON.parse(JSON.stringify(row));
-      this.$http.get(
-          "/dbswitch/admin/api/v1/connection/" + this.updateform.type + "/drivers"
-      ).then(res => {
-        if (0 === res.data.code) {
-          this.connectionDriver = res.data.data;
-        } else {
-          this.$message.error("查询数据库可用的驱动版本失败," + res.data.message);
-          this.connectionDriver = [];
-        }
+      this.$router.push({
+        path: "/connection/list/updateDataSource", query:
+        row
       });
-      this.updateFormVisible = true;
+      // this.updateform = JSON.parse(JSON.stringify(row));
+      // this.$http.get(
+      //     "/dbswitch/admin/api/v1/connection/" + this.updateform.type + "/drivers"
+      // ).then(res => {
+      //   if (0 === res.data.code) {
+      //     this.connectionDriver = res.data.data;
+      //   } else {
+      //     this.$message.error("查询数据库可用的驱动版本失败," + res.data.message);
+      //     this.connectionDriver = [];
+      //   }
+      // });
+      // this.updateFormVisible = true;
     },
     handleSave: function () {
       let driverClass = "";

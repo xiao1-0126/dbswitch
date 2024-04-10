@@ -132,7 +132,21 @@ const constantRouter = new Router({
                     icon: "el-icon-menu",
                     hidden: true,
                     component: () => import('@/views/connection/addDataSource2.vue')
-                }
+                },
+                {
+                    path: '/connection/list/dataSourceInfo',
+                    name: '数据源详情',
+                    icon: "el-icon-menu",
+                    hidden: true,
+                    component: () => import('@/views/connection/dataSourceInfo.vue')
+                },
+                {
+                    path: '/connection/list/updateDataSource',
+                    name: '编辑数据源',
+                    icon: "el-icon-menu",
+                    hidden: true,
+                    component: () => import('@/views/connection/updateDataSource.vue')
+                },
             ],
         },
 
