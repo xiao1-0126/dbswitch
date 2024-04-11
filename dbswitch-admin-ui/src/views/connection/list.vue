@@ -280,85 +280,85 @@
 <!--        </div>-->
 <!--      </el-dialog>-->
 
-      <el-dialog title="修改数据源连接信息"
-                 :visible.sync="updateFormVisible"
-                 :showClose="false"
-                 :before-close="handleClose">
-        <el-form :model="updateform"
-                 size="mini"
-                 status-icon
-                 :rules="rules"
-                 ref="updateform">
-          <el-form-item label="连接名称"
-                        label-width="120px"
-                        :required=true
-                        prop="name"
-                        style="width:85%">
-            <el-input v-model="updateform.name"
-                      auto-complete="off"></el-input>
-          </el-form-item>
-          <el-form-item label="数据库类型"
-                        label-width="120px"
-                        :required=true
-                        prop="type"
-                        style="width:85%">
-            <el-select v-model="updateform.type"
-                       @change="selectChangedDriverVersion"
-                       placeholder="请选择数据库">
-              <el-option v-for="(item,index) in databaseType"
-                         :key="index"
-                         :label="item.type"
-                         :value="item.type"></el-option>
-            </el-select>
-          </el-form-item>
-          <el-form-item label="驱动版本"
-                        label-width="120px"
-                        :required=true
-                        prop="version"
-                        style="width:85%">
-            <el-select v-model="updateform.version"
-                       placeholder="请选择版本">
-              <el-option v-for="(item,index) in connectionDriver"
-                         :key="index"
-                         :label="item.driverVersion"
-                         :value="item.driverVersion"></el-option>
-            </el-select>
-          </el-form-item>
-          <el-form-item label="JDBC连接串"
-                        label-width="120px"
-                        :required=true
-                        prop="url"
-                        style="width:85%">
-            <el-input type="textarea"
-                      :rows="6"
-                      :spellcheck="false"
-                      v-model="updateform.url"
-                      auto-complete="off"></el-input>
-          </el-form-item>
-          <el-form-item label="账号名称"
-                        label-width="120px"
-                        prop="username"
-                        style="width:85%">
-            <el-input v-model="updateform.username"
-                      auto-complete="off"></el-input>
-          </el-form-item>
-          <el-form-item label="连接密码"
-                        label-width="120px"
-                        prop="password"
-                        style="width:85%">
-            <el-input type="password"
-                      v-model="updateform.password"
-                      auto-complete="off"></el-input>
-          </el-form-item>
-        </el-form>
-        <div slot="footer"
-             class="dialog-footer">
-          <el-button @click="updateFormVisible = false">取 消</el-button>
-          <el-button type="primary"
-                     @click="handleSave">确 定
-          </el-button>
-        </div>
-      </el-dialog>
+<!--      <el-dialog title="修改数据源连接信息"-->
+<!--                 :visible.sync="updateFormVisible"-->
+<!--                 :showClose="false"-->
+<!--                 :before-close="handleClose">-->
+<!--        <el-form :model="updateform"-->
+<!--                 size="mini"-->
+<!--                 status-icon-->
+<!--                 :rules="rules"-->
+<!--                 ref="updateform">-->
+<!--          <el-form-item label="连接名称"-->
+<!--                        label-width="120px"-->
+<!--                        :required=true-->
+<!--                        prop="name"-->
+<!--                        style="width:85%">-->
+<!--            <el-input v-model="updateform.name"-->
+<!--                      auto-complete="off"></el-input>-->
+<!--          </el-form-item>-->
+<!--          <el-form-item label="数据库类型"-->
+<!--                        label-width="120px"-->
+<!--                        :required=true-->
+<!--                        prop="type"-->
+<!--                        style="width:85%">-->
+<!--            <el-select v-model="updateform.type"-->
+<!--                       @change="selectChangedDriverVersion"-->
+<!--                       placeholder="请选择数据库">-->
+<!--              <el-option v-for="(item,index) in databaseType"-->
+<!--                         :key="index"-->
+<!--                         :label="item.type"-->
+<!--                         :value="item.type"></el-option>-->
+<!--            </el-select>-->
+<!--          </el-form-item>-->
+<!--          <el-form-item label="驱动版本"-->
+<!--                        label-width="120px"-->
+<!--                        :required=true-->
+<!--                        prop="version"-->
+<!--                        style="width:85%">-->
+<!--            <el-select v-model="updateform.version"-->
+<!--                       placeholder="请选择版本">-->
+<!--              <el-option v-for="(item,index) in connectionDriver"-->
+<!--                         :key="index"-->
+<!--                         :label="item.driverVersion"-->
+<!--                         :value="item.driverVersion"></el-option>-->
+<!--            </el-select>-->
+<!--          </el-form-item>-->
+<!--          <el-form-item label="JDBC连接串"-->
+<!--                        label-width="120px"-->
+<!--                        :required=true-->
+<!--                        prop="url"-->
+<!--                        style="width:85%">-->
+<!--            <el-input type="textarea"-->
+<!--                      :rows="6"-->
+<!--                      :spellcheck="false"-->
+<!--                      v-model="updateform.url"-->
+<!--                      auto-complete="off"></el-input>-->
+<!--          </el-form-item>-->
+<!--          <el-form-item label="账号名称"-->
+<!--                        label-width="120px"-->
+<!--                        prop="username"-->
+<!--                        style="width:85%">-->
+<!--            <el-input v-model="updateform.username"-->
+<!--                      auto-complete="off"></el-input>-->
+<!--          </el-form-item>-->
+<!--          <el-form-item label="连接密码"-->
+<!--                        label-width="120px"-->
+<!--                        prop="password"-->
+<!--                        style="width:85%">-->
+<!--            <el-input type="password"-->
+<!--                      v-model="updateform.password"-->
+<!--                      auto-complete="off"></el-input>-->
+<!--          </el-form-item>-->
+<!--        </el-form>-->
+<!--        <div slot="footer"-->
+<!--             class="dialog-footer">-->
+<!--          <el-button @click="updateFormVisible = false">取 消</el-button>-->
+<!--          <el-button type="primary"-->
+<!--                     @click="handleSave">确 定-->
+<!--          </el-button>-->
+<!--        </div>-->
+<!--      </el-dialog>-->
     </el-card>
   </div>
 </template>
@@ -505,8 +505,8 @@ export default {
           }
       );
     },
-    handleClose(done) {
-    },
+    // handleClose(done) {
+    // },
     handleDelete: function (index, row) {
       this.$confirm(
           "此操作将此数据源ID=" + row.id + "删除么, 是否继续?",
@@ -552,79 +552,79 @@ export default {
         }
       });
     },
-    addConnection: function () {
-      this.createFormVisible = true;
-      this.createform = {};
-    },
+    // addConnection: function () {
+    //   this.createFormVisible = true;
+    //   this.createform = {};
+    // },
     selectDataSource: function () {
       // this.dataSourceCreateStep1 = true;
       this.$router.push('/connection/list/addDataSource1');
 
     },
-    handleCreate: function () {
-      let driverClass = "";
-      if (this.databaseType.length > 0) {
-        for (let i = 0; i < this.databaseType.length; i++) {
-          //console.log(this.databaseType[i])
-          if (this.databaseType[i].type == this.createform.type) {
-            driverClass = this.databaseType[i].driver;
-            break;
-          }
-        }
-      }
-
-      this.$refs['createform'].validate(valid => {
-        if (valid) {
-          this.$http({
-            method: "POST",
-            headers: {
-              'Content-Type': 'application/json'
-            },
-            url: "/dbswitch/admin/api/v1/connection/create",
-            data: JSON.stringify({
-              name: this.createform.name,
-              type: this.createform.type,
-              version: this.createform.version,
-              driver: driverClass,
-              url: this.createform.url,
-              username: this.createform.username,
-              password: this.createform.password
-            })
-          }).then(res => {
-            if (0 === res.data.code) {
-              this.createFormVisible = false;
-              this.$message("添加连接信息成功");
-              this.createform = {};
-              this.loadData();
-            } else {
-              alert("添加连接信息失败:" + res.data.message);
-            }
-          });
-        } else {
-          alert("请检查输入");
-        }
-      });
-    },
-    selectChangedDriverVersion: function (value) {
-      this.connectionDriver = [];
-      this.$http.get(
-          "/dbswitch/admin/api/v1/connection/" + value + "/drivers"
-      ).then(res => {
-        if (0 === res.data.code) {
-          this.connectionDriver = res.data.data;
-          let varDatabaseType = this.databaseType.find(
-              (item) => {
-                return item.type === value;
-              });
-          if (varDatabaseType) {
-            this.createform.sample = varDatabaseType.sample;
-          }
-        } else {
-          this.$message.error("查询数据库可用的驱动版本失败," + res.data.message);
-          this.connectionDriver = [];
-        }
-      });
-    },
+    // handleCreate: function () {
+    //   let driverClass = "";
+    //   if (this.databaseType.length > 0) {
+    //     for (let i = 0; i < this.databaseType.length; i++) {
+    //       //console.log(this.databaseType[i])
+    //       if (this.databaseType[i].type == this.createform.type) {
+    //         driverClass = this.databaseType[i].driver;
+    //         break;
+    //       }
+    //     }
+    //   }
+    //
+    //   this.$refs['createform'].validate(valid => {
+    //     if (valid) {
+    //       this.$http({
+    //         method: "POST",
+    //         headers: {
+    //           'Content-Type': 'application/json'
+    //         },
+    //         url: "/dbswitch/admin/api/v1/connection/create",
+    //         data: JSON.stringify({
+    //           name: this.createform.name,
+    //           type: this.createform.type,
+    //           version: this.createform.version,
+    //           driver: driverClass,
+    //           url: this.createform.url,
+    //           username: this.createform.username,
+    //           password: this.createform.password
+    //         })
+    //       }).then(res => {
+    //         if (0 === res.data.code) {
+    //           this.createFormVisible = false;
+    //           this.$message("添加连接信息成功");
+    //           this.createform = {};
+    //           this.loadData();
+    //         } else {
+    //           alert("添加连接信息失败:" + res.data.message);
+    //         }
+    //       });
+    //     } else {
+    //       alert("请检查输入");
+    //     }
+    //   });
+    // },
+    // selectChangedDriverVersion: function (value) {
+    //   this.connectionDriver = [];
+    //   this.$http.get(
+    //       "/dbswitch/admin/api/v1/connection/" + value + "/drivers"
+    //   ).then(res => {
+    //     if (0 === res.data.code) {
+    //       this.connectionDriver = res.data.data;
+    //       let varDatabaseType = this.databaseType.find(
+    //           (item) => {
+    //             return item.type === value;
+    //           });
+    //       if (varDatabaseType) {
+    //         this.createform.sample = varDatabaseType.sample;
+    //       }
+    //     } else {
+    //       this.$message.error("查询数据库可用的驱动版本失败," + res.data.message);
+    //       this.connectionDriver = [];
+    //     }
+    //   });
+    // },
     handleUpdate: function (index, row) {
       this.$router.push({
         path: "/connection/list/updateDataSource", query:
@@ -643,51 +643,51 @@ export default {
       // });
       // this.updateFormVisible = true;
     },
-    handleSave: function () {
-      let driverClass = "";
-      if (this.databaseType.length > 0) {
-        for (let i = 0; i < this.databaseType.length; i++) {
-          //console.log(this.databaseType[i])
-          if (this.databaseType[i].type == this.updateform.type) {
-            driverClass = this.databaseType[i].driver;
-            break;
-          }
-        }
-      }
-
-      this.$refs['updateform'].validate(valid => {
-        if (valid) {
-          this.$http({
-            method: "POST",
-            headers: {
-              'Content-Type': 'application/json'
-            },
-            url: "/dbswitch/admin/api/v1/connection/update",
-            data: JSON.stringify({
-              id: this.updateform.id,
-              name: this.updateform.name,
-              type: this.updateform.type,
-              version: this.updateform.version,
-              driver: driverClass,
-              url: this.updateform.url,
-              username: this.updateform.username,
-              password: this.updateform.password
-            })
-          }).then(res => {
-            if (0 === res.data.code) {
-              this.updateFormVisible = false;
-              this.$message("修改连接信息成功");
-              this.loadData();
-              this.updateform = {};
-            } else {
-              alert("修改连接信息失败:" + res.data.message);
-            }
-          });
-        } else {
-          alert("请检查输入");
-        }
-      });
-    },
+    // handleSave: function () {
+    //   let driverClass = "";
+    //   if (this.databaseType.length > 0) {
+    //     for (let i = 0; i < this.databaseType.length; i++) {
+    //       //console.log(this.databaseType[i])
+    //       if (this.databaseType[i].type == this.updateform.type) {
+    //         driverClass = this.databaseType[i].driver;
+    //         break;
+    //       }
+    //     }
+    //   }
+    //
+    //   this.$refs['updateform'].validate(valid => {
+    //     if (valid) {
+    //       this.$http({
+    //         method: "POST",
+    //         headers: {
+    //           'Content-Type': 'application/json'
+    //         },
+    //         url: "/dbswitch/admin/api/v1/connection/update",
+    //         data: JSON.stringify({
+    //           id: this.updateform.id,
+    //           name: this.updateform.name,
+    //           type: this.updateform.type,
+    //           version: this.updateform.version,
+    //           driver: driverClass,
+    //           url: this.updateform.url,
+    //           username: this.updateform.username,
+    //           password: this.updateform.password
+    //         })
+    //       }).then(res => {
+    //         if (0 === res.data.code) {
+    //           this.updateFormVisible = false;
+    //           this.$message("修改连接信息成功");
+    //           this.loadData();
+    //           this.updateform = {};
+    //         } else {
+    //           alert("修改连接信息失败:" + res.data.message);
+    //         }
+    //       });
+    //     } else {
+    //       alert("请检查输入");
+    //     }
+    //   });
+    // },
     handleSizeChange: function (pageSize) {
       this.loading = true;
       this.pageSize = pageSize;

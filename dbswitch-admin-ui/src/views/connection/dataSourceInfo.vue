@@ -98,7 +98,7 @@
           </el-form>
         </el-main>
         <el-footer>
-          <el-row>
+          <el-row style="text-align: center">
             <el-button class="cancel" @click="cancel">取消</el-button>
           </el-row>
         </el-footer>
@@ -171,8 +171,8 @@ export default {
 }
 
 .cancel {
-  float: right;
-  margin-left: 20px;
+  //float: right;
+  //margin-left: 20px;
   padding: 6px 14px;
   border: 1px solid #dcdcdd;
   cursor: pointer;

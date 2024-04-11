@@ -193,7 +193,7 @@ export default {
 
 .active {
   background-color: #ffffff !important;
-  border: 1.8px solid #409EFF;
+  border: 1px solid #409EFF;
 }
 
 .tag-mdi {

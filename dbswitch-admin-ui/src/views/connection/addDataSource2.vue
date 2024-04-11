@@ -40,9 +40,9 @@
                              :value="item.driverVersion"></el-option>
                 </el-select>
               </el-form-item>
-              <el-form-item label="编码格式">
-                <label>utf8、utf8mb4</label>
-              </el-form-item>
+<!--              <el-form-item label="编码格式">-->
+<!--                <label>utf8、utf8mb4</label>-->
+<!--              </el-form-item>-->
 
             </div>
             <div class="f1">
@@ -69,7 +69,7 @@
               <el-form-item label="编码格式" style="width:24%">
                 <el-select v-model="createform.characterEncoding" placeholder="请选择编码格式">
                   <el-option label="utf8" value="utf8"></el-option>
-                  <el-option label="utf8mb4" value="utf8mb4"></el-option>
+<!--                  <el-option label="utf8mb4" value="utf8mb4"></el-option>-->
                 </el-select>
               </el-form-item>
 
@@ -113,10 +113,10 @@
           </el-form>
         </el-main>
         <el-footer>
-          <el-row>
-            <el-button class="cancel" @click="cancel">取消</el-button>
-            <el-button type="primary" class="createDataSource" @click="createDataSource">创建</el-button>
+          <el-row style="text-align: center">
             <el-button type="success" class="startTest" @click="startTest">开始检测</el-button>
+            <el-button type="primary" class="createDataSource" @click="createDataSource">创建</el-button>
+            <el-button class="cancel" @click="cancel">取消</el-button>
           </el-row>
         </el-footer>
       </el-container>
@@ -316,7 +316,7 @@ export default {
               });
               this.$router.push("/connection/list")
             } else {
-              alert("添加连接信息失败:" + res.data.message);
+              this.$message.error("添加连接信息失败：" + res.data.message);
             }
           });
         } else {
@@ -362,8 +362,8 @@ export default {
 }
 
 .cancel {
-  float: right;
-  margin-left: 20px;
+  //float: right;
+  //margin-left: 20px;
   padding: 6px 14px;
   border: 1px solid #dcdcdd;
   cursor: pointer;
@@ -371,8 +371,8 @@ export default {
 }
 
 .createDataSource {
-  float: right;
-  margin-left: 20px;
+  //float: right;
+  //margin-left: 20px;
   padding: 6px 14px;
   border: none;
   color: white;
@@ -381,7 +381,7 @@ export default {
 }
 
 .startTest {
-  float: right;
+  //float: right;
   padding: 6px 14px;
   cursor: pointer;
 }

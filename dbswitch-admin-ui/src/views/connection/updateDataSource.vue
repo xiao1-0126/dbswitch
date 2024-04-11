@@ -6,9 +6,9 @@
       <el-container>
         <el-header style="height: 80px">
           <div style="display: inline-block;float: left">
-            <img title="DB" :src="require('@/assets/icons/' + this.selectedDataSource.name +'.png')" class="image">
+            <img title="DB" :src="require('@/assets/icons/' + this.updateform.typeName +'.png')" class="image">
           </div>
-          <h3 style="font-family: 楷体;margin-left: 60px" class=".h-title">{{ this.selectedDataSource.name }}</h3>
+          <h3 style="font-family: 楷体;margin-left: 60px" class=".h-title">{{ this.updateform.typeName }}</h3>
         </el-header>
         <el-main>
 
@@ -40,9 +40,9 @@
                              :value="item.driverVersion"></el-option>
                 </el-select>
               </el-form-item>
-              <el-form-item label="编码格式">
-                <label>utf8、utf8mb4</label>
-              </el-form-item>
+<!--              <el-form-item label="编码格式">-->
+<!--                <label>utf8、utf8mb4</label>-->
+<!--              </el-form-item>-->
 
             </div>
             <div class="f1">
@@ -69,7 +69,7 @@
               <el-form-item label="编码格式" style="width:24%">
                 <el-select v-model="updateform.characterEncoding" placeholder="请选择编码格式">
                   <el-option label="utf8" value="utf8"></el-option>
-                  <el-option label="utf8mb4" value="utf8mb4"></el-option>
+<!--                  <el-option label="utf8mb4" value="utf8mb4"></el-option>-->
                 </el-select>
               </el-form-item>
 
@@ -113,10 +113,10 @@
           </el-form>
         </el-main>
         <el-footer>
-          <el-row>
-            <el-button class="cancel" @click="cancel">取消</el-button>
-            <el-button type="primary" class="createDataSource" @click="createDataSource">创建</el-button>
+          <el-row style="text-align: center">
             <el-button type="success" class="startTest" @click="startTest">开始检测</el-button>
+            <el-button type="primary" class="createDataSource" @click="updateDataSource">修改</el-button>
+            <el-button class="cancel" @click="cancel">取消</el-button>
           </el-row>
         </el-footer>
       </el-container>
@@ -132,9 +132,11 @@ export default {
       connectionDriver: [],
       databaseType: [],
       updateform: {
+        id: 0,
         diver: "",
         name: "",
         type: "",
+        typeName: "",
         version: "",
         mode: 0,
         address: "",
@@ -261,7 +263,7 @@ export default {
       let driverClass = "";
       if (this.connectionDriver.length > 0) {
         for (let i = 0; i < this.connectionDriver.length; i++) {
-          if (this.connectionDriver[i].driverVersion == this.createform.version) {
+          if (this.connectionDriver[i].driverVersion == this.updateform.version) {
             driverClass = this.connectionDriver[i].driverClass;
             break;
           }
@@ -274,13 +276,13 @@ export default {
         },
         url: "/dbswitch/admin/api/v1/connection/preTest",
         data: JSON.stringify({
-          name: this.createform.name,
-          type: this.selectedDataSource.type,
-          version: this.createform.version,
+          name: this.updateform.name,
+          type: this.updateform.type,
+          version: this.updateform.version,
           driver: driverClass,
-          url: this.createform.url,
-          username: this.createform.username,
-          password: this.createform.password
+          url: this.updateform.url,
+          username: this.updateform.username,
+          password: this.updateform.password
         })
       }).then(res => {
         if (0 === res.data.code) {
@@ -293,52 +295,55 @@ export default {
         }
       });
     },
-    createDataSource: function () {
+    updateDataSource: function () {
       let driverClass = "";
       if (this.connectionDriver.length > 0) {
         for (let i = 0; i < this.connectionDriver.length; i++) {
-          if (this.connectionDriver[i].driverVersion == this.createform.version) {
+          if (this.connectionDriver[i].driverVersion == this.updateform.version) {
             driverClass = this.connectionDriver[i].driverClass;
             break;
           }
         }
       }
 
-      this.$refs['createform'].validate(valid => {
+      this.$refs['updateform'].validate(valid => {
         if (valid) {
           this.$http({
             method: "POST",
             headers: {
               'Content-Type': 'application/json'
             },
-            url: "/dbswitch/admin/api/v1/connection/create",
+            url: "/dbswitch/admin/api/v1/connection/update",
             data: JSON.stringify({
-              name: this.createform.name,
-              type: this.selectedDataSource.type,
-              version: this.createform.version,
+              id: this.updateform.id,
+              name: this.updateform.name,
+              type: this.updateform.type,
+              version: this.updateform.version,
               driver: driverClass,
-              mode:0,
-              address:this.createform.address,
-              port:this.createform.port,
-              databaseName:this.createform.databaseName,
-              characterEncoding:this.createform.characterEncoding,
-              url: this.createform.url,
-              username: this.createform.username,
-              password: this.createform.password
+              mode: 0,
+              address: this.updateform.address,
+              port: this.updateform.port,
+              databaseName: this.updateform.databaseName,
+              characterEncoding: this.updateform.characterEncoding,
+              url: this.updateform.url,
+              username: this.updateform.username,
+              password: this.updateform.password
             })
           }).then(res => {
             if (0 === res.data.code) {
+
               this.$message({
-                message: '添加连接信息成功!',
+                message: '修改连接信息成功!',
                 type: 'success'
               });
               this.$router.push("/connection/list")
             } else {
-              alert("添加连接信息失败:" + res.data.message);
+              this.$message.error("修改连接信息失败：" + res.data.message);
             }
           });
         } else {
           alert("请检查输入");
+          this.$message.error("请检查输入");
         }
       });
     },
@@ -350,15 +355,6 @@ export default {
     this.updateform = this.$route.query;
     this.updateform.mode = parseInt(this.updateform.mode)
     this.loadDatabaseTypes();
-    if (this.databaseType.length > 0) {
-      for (let i = 0; i < this.databaseType.length; i++) {
-        //console.log(this.databaseType[i])
-        if (this.databaseType[i].type == this.updateform.type) {
-          this.selectedDataSource = this.databaseType[i].driver;
-          break;
-        }
-      }
-    }
     this.selectChangedDriverVersion(this.updateform.type);
   }
 }
@@ -390,8 +386,8 @@ export default {
 }
 
 .cancel {
-  float: right;
-  margin-left: 20px;
+  //float: right;
+  //margin-left: 20px;
   padding: 6px 14px;
   border: 1px solid #dcdcdd;
   cursor: pointer;
@@ -399,8 +395,8 @@ export default {
 }
 
 .createDataSource {
-  float: right;
-  margin-left: 20px;
+  //float: right;
+  //margin-left: 20px;
   padding: 6px 14px;
   border: none;
   color: white;
@@ -409,7 +405,7 @@ export default {
 }
 
 .startTest {
-  float: right;
+  //float: right;
   padding: 6px 14px;
   cursor: pointer;
 }
