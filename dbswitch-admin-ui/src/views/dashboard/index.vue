@@ -8,7 +8,7 @@
                      :startVal="startVal"
                      :endVal="statistics.connectionStatistics.totalCount"
                      :duration="2000"></CountTo>
-            <p class="cardItem_p1">数据库连接数</p>
+            <p class="cardItem_p1">数据源连接数</p>
           </div>
           <div class="cardItem_icon">
             <i class="el-icon-s-grid color-green1"></i>
@@ -22,7 +22,7 @@
                      :startVal="startVal"
                      :endVal="statistics.assignmentTaskStatistics.totalCount"
                      :duration="2000"></CountTo>
-            <p class="cardItem_p1">任务安排数</p>
+            <p class="cardItem_p1">任务总数</p>
           </div>
           <div class="cardItem_icon">
             <i class="el-icon-s-data color-blue"></i>
@@ -54,6 +54,62 @@
           </div>
           <div class="cardItem_icon">
             <i class="el-icon-office-building color-red"></i>
+          </div>
+        </div>
+      </el-col>
+      <el-col :span="6">
+        <div class="cardItem">
+          <div class="cardItem_txt">
+            <CountTo class="cardItem_p0 color-running"
+                     :startVal="startVal"
+                     :endVal="statistics.assignmentJobStatistics.runningCount"
+                     :duration="2000"></CountTo>
+            <p class="cardItem_p1">执行中</p>
+          </div>
+          <div class="cardItem_icon">
+            <i class="el-icon-office-building color-running"></i>
+          </div>
+        </div>
+      </el-col>
+      <el-col :span="6">
+        <div class="cardItem">
+          <div class="cardItem_txt">
+            <CountTo class="cardItem_p0 color-error"
+                     :startVal="startVal"
+                     :endVal="statistics.assignmentJobStatistics.failedCount"
+                     :duration="2000"></CountTo>
+            <p class="cardItem_p1">执行异常</p>
+          </div>
+          <div class="cardItem_icon">
+            <i class="el-icon-office-building color-error"></i>
+          </div>
+        </div>
+      </el-col>
+      <el-col :span="6">
+        <div class="cardItem">
+          <div class="cardItem_txt">
+            <CountTo class="cardItem_p0 color-cancel"
+                     :startVal="startVal"
+                     :endVal="statistics.assignmentJobStatistics.cancelCount"
+                     :duration="2000"></CountTo>
+            <p class="cardItem_p1">任务取消</p>
+          </div>
+          <div class="cardItem_icon">
+            <i class="el-icon-office-building color-cancel"></i>
+          </div>
+        </div>
+      </el-col>
+      <el-col :span="6">
+        <div class="cardItem">
+          <div class="cardItem_txt">
+            <CountTo class="cardItem_p0 color-success"
+                     :startVal="startVal"
+                     :endVal="statistics.assignmentJobStatistics.successfulCount"
+                     :duration="2000"></CountTo>
+            <p class="cardItem_p1">执行成功</p>
+          </div>
+          <div class="cardItem_icon">
+            <i class="el-icon-office-building color-success"></i>
           </div>
         </div>
       </el-col>
@@ -97,6 +153,7 @@ export default {
         assignmentJobStatistics: {
           totalCount: 0,
           runningCount: 0,
+          cancelCount: 0,
           successfulCount: 0,
           failedCount: 0,
           waitingCount: 0
@@ -281,6 +338,18 @@ export default {
 }
 .color-red {
   color: #f4516c !important;
+}
+.color-running{
+  color: #8c85d1 !important;
+}
+.color-error{
+  color: #ff9c86 !important;
+}
+.color-cancel{
+  color: #a0a6b8 !important;
+}
+.color-success{
+  color: #6cdbbc !important;
 }
 .color-green2 {
   color: #34bfa3 !important;

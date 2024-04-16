@@ -60,6 +60,9 @@ public class OverviewStatisticsResponse {
     @ApiModelProperty("执行中的Job总数")
     private Integer runningCount;
 
+    @ApiModelProperty("取消的Job总数")
+    private Integer cancelCount;
+
     @ApiModelProperty("已经成功的总数")
     private Integer successfulCount;
 

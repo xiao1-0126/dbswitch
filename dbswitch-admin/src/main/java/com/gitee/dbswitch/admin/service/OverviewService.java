@@ -51,11 +51,11 @@ public class OverviewService {
     AssignmentJobStatistics assignmentJobStatistics = new AssignmentJobStatistics();
     assignmentJobStatistics.setTotalCount(assignmentJobDAO.getTotalCount());
     assignmentJobStatistics
-        .setRunningCount(assignmentJobDAO.getCountByStatus(JobStatusEnum.RUNNING));
+        .setRunningCount(assignmentJobDAO.getCountByStatus(JobStatusEnum.RUNNING.getValue()));
     assignmentJobStatistics
-        .setSuccessfulCount(assignmentJobDAO.getCountByStatus(JobStatusEnum.PASS));
-    assignmentJobStatistics.setFailedCount(assignmentJobDAO.getCountByStatus(JobStatusEnum.FAIL));
-
+        .setSuccessfulCount(assignmentJobDAO.getCountByStatus(JobStatusEnum.PASS.getValue()));
+    assignmentJobStatistics.setFailedCount(assignmentJobDAO.getCountByStatus(JobStatusEnum.FAIL.getValue()));
+    assignmentJobStatistics.setCancelCount(assignmentJobDAO.getCountByStatus(JobStatusEnum.CANCEL.getValue()));
     response.setAssignmentJobStatistics(assignmentJobStatistics);
 
     return response;

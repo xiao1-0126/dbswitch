@@ -53,7 +53,7 @@ public class AssignmentJobDAO {
     assignmentJobMapper.updateById(assignmentJobEntity);
   }
 
-  public int getCountByStatus(JobStatusEnum status) {
+  public int getCountByStatus(Integer status) {
     QueryWrapper<AssignmentJobEntity> queryWrapper = new QueryWrapper<>();
     queryWrapper.lambda().eq(AssignmentJobEntity::getStatus, status);
     return assignmentJobMapper.selectCount(queryWrapper).intValue();

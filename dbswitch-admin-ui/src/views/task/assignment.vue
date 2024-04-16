@@ -26,55 +26,69 @@
                 border>
         <el-table-column prop="id"
                          label="编号"
-                         min-width="8%"></el-table-column>
+                         min-width="6%"></el-table-column>
         <el-table-column prop="name"
-                         label="名称"
+                         label="任务名称"
                          show-overflow-tooltip
-                         min-width="30%"></el-table-column>
+                         min-width="10%"></el-table-column>
         <el-table-column prop="scheduleMode"
-                         label="调度"
+                         label="集成模式"
                          :formatter="stringFormatSchedule"
                          min-width="8%"></el-table-column>
+        <el-table-column prop="name"
+                         label="源端数据源"
+                         show-overflow-tooltip
+                         min-width="10%"></el-table-column>
+        <el-table-column prop="name"
+                         label="目标端数据源"
+                         show-overflow-tooltip
+                         min-width="10%"></el-table-column>
+        <el-table-column prop="name"
+                         label="运行状态"
+                         show-overflow-tooltip
+                         min-width="10%"></el-table-column>
         <el-table-column prop="isPublished"
-                         label="已发布"
+                         label="任务状态"
                          :formatter="boolFormatPublish"
                          :show-overflow-tooltip="true"
                          min-width="8%"></el-table-column>
         <el-table-column prop="createTime"
-                         label="时间"
-                         min-width="15%"></el-table-column>
+                         label="开始调度时间"
+                         min-width="12%"></el-table-column>
         <el-table-column label="操作"
-                         min-width="30%">
+                         min-width="40%">
           <template slot-scope="scope">
             <el-button-group>
               <el-button size="small"
                          type="primary"
                          icon="el-icon-timer"
+                         @click="handlePublish(scope.$index, scope.row)"
+                         round>调度日志</el-button>
+              <el-button size="small"
+                         type="primary"
+                         icon="el-icon-timer"
                          v-if="scope.row.isPublished===false"
                          @click="handlePublish(scope.$index, scope.row)"
-                         round>发布</el-button>
+                         round>启动</el-button>
               <el-button size="small"
                          type="info"
                          icon="el-icon-delete-location"
                          v-if="scope.row.isPublished===true"
                          @click="handleRetireTask(scope.$index, scope.row)"
-                         round>下线</el-button>
+                         round>停止</el-button>
               <el-button size="small"
                          type="danger"
                          icon="el-icon-video-play"
-                         v-if="scope.row.isPublished===true"
                          @click="handleRunTask(scope.$index, scope.row)"
-                         round>执行</el-button>
+                         round>手工调度</el-button>
               <el-button size="small"
                          type="success"
                          icon="el-icon-document"
-                         v-if="scope.row.isPublished===true"
                          @click="handleDetail(scope.$index, scope.row)"
                          round>详情</el-button>
               <el-button size="small"
                          type="warning"
                          icon="el-icon-edit"
-                         v-if="scope.row.isPublished===false"
                          @click="handleUpdate(scope.$index, scope.row)"
                          round>修改</el-button>
               <el-button size="small"
@@ -148,9 +162,9 @@ export default {
     },
     boolFormatPublish (row, column) {
       if (row.isPublished === true) {
-        return "是";
+        return "启动";
       } else {
-        return "否";
+        return "停止";
       }
     },
     stringFormatSchedule (row, column) {
