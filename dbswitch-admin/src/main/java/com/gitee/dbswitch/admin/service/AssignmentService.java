@@ -160,7 +160,9 @@ public class AssignmentService {
             new LambdaQueryWrapper<AssignmentJobEntity>()
                 .eq(AssignmentJobEntity::getAssignmentId, e.getId()).orderByDesc(AssignmentJobEntity::getCreateTime)
                 .last(" limit 1 "));
-        Integer status = assignmentJobEntity.getStatus();
+        Integer status = (assignmentJobEntity == null || assignmentJobEntity.getStatus() == null) ?
+                JobStatusEnum.INIT.getValue() :
+                assignmentJobEntity.getStatus();
         e.setRunStatus(JobStatusEnum.of(status).getName());
 
       });

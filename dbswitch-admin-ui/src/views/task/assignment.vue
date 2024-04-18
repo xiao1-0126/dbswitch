@@ -317,10 +317,8 @@ export default {
   height: 100%;
 }
 
-.el-table__cell{
-  background-color: #f5f7fa; /* 自定义背景色 */
-  color: #303133; /* 自定义字体颜色 */
-  border-right: 0px solid #EBEEF5!important;
+/deep/ .el-table--border .el-table__cell{
+  border-right:0px solid red !important;
 }
 
 .demo-table-expand {
