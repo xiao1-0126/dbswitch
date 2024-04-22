@@ -16,7 +16,7 @@ import lombok.Getter;
 @AllArgsConstructor
 public enum JobStatusEnum {
 
-  INIT(0, "未执行"),
+  INIT(0, "待执行"),
   RUNNING(1, "执行中"),
   FAIL(2, "执行异常"),
   PASS(3, "执行成功"),

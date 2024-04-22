@@ -2,18 +2,19 @@
   <div>
     <el-card>
       <el-row>
-        <el-button size="mini" icon="el-icon-switch-button" :disabled=false plain>启动</el-button>
-        <el-button size="mini" icon="el-icon-video-pause" :disabled=true plain>停止</el-button>
+        <el-button size="mini" icon="el-icon-switch-button" :disabled=isSelected plain @click="batchStart()">启动
+        </el-button>
+        <el-button size="mini" icon="el-icon-video-pause" :disabled=isSelected plain @click="batchStop()">停止</el-button>
         <span style="color:#e9e9f3;">&nbsp;&nbsp;|&nbsp;&nbsp;</span>
         <el-button size="mini" plain>导入任务</el-button>
-        <el-button size="mini" :disabled=true plain>导出任务</el-button>
-<!--        <div class="right-add-button-group">-->
-          <el-button class="right-add-button-group" type="primary"
-                     size="mini"
-                     icon="el-icon-document-add"
-                     @click="handleCreate">创建任务
-          </el-button>
-<!--        </div>-->
+        <el-button size="mini" :disabled=isSelected plain @click="batchExport()">导出任务</el-button>
+        <!--        <div class="right-add-button-group">-->
+        <el-button class="right-add-button-group" type="primary"
+                   size="mini"
+                   icon="el-icon-document-add"
+                   @click="handleCreate">创建任务
+        </el-button>
+        <!--        </div>-->
       </el-row>
       <div class="assignment-list-top">
         <div class="left-search-input-group">
@@ -33,7 +34,8 @@
       <el-table :header-cell-style="{background:'#eef1f6',color:'#606266'}"
                 :data="tableData"
                 size="small"
-                border>
+                border
+                @selection-change="handleSelectionChange">
         <el-table-column prop="id"
                          label="编号"
                          type="selection"
@@ -81,7 +83,8 @@
             <el-icon class="el-icon-success color-success" v-if="scope.row.runStatus == '执行成功'"></el-icon>
             <el-icon class="el-icon-error color-error" v-if="scope.row.runStatus == '执行异常'"></el-icon>
             <el-icon class="el-icon-remove color-cancel" v-if="scope.row.runStatus == '任务取消'"></el-icon>
-            <el-icon class="el-icon-loading color-running" v-if="scope.row.runStatus == '执行中'"></el-icon>
+            <el-icon class="el-icon-video-play color-running" v-if="scope.row.runStatus == '执行中'"></el-icon>
+            <el-icon class="el-icon-loading color-await" v-if="scope.row.runStatus == '待执行'"></el-icon>
             <span>{{ scope.row.runStatus }}</span>
           </template>
         </el-table-column>
@@ -172,6 +175,8 @@ export default {
       totalCount: 2,
       keyword: null,
       tableData: [],
+      isSelected: true,
+      idsSelected:[]
     };
   },
   methods: {
@@ -220,11 +225,120 @@ export default {
         return "定时";
       }
     },
-    stringSourceSchema(row, column) {
-      return row.sourceSchema + " / " + row.sourceType
+    handleSelectionChange(val) {
+      if (val.length > 0) {
+        this.isSelected = false;
+        this.idsSelected.push(val.map(item => item.id));
+      }else {
+        this.isSelected = true;
+        this.idsSelected = []
+      }
     },
-    stringTargetSchema(row, column) {
-      return row.targetSchema + " / " + row.targetType
+    batchStart(){
+      console.log(this.idsSelected)
+      this.$http({
+        method: "POST",
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        url: "/dbswitch/admin/api/v1/assignment/deploy?ids=" + this.idsSelected,
+      }).then(res => {
+        if (0 === res.data.code) {
+          this.$message({
+            message: '任务发布成功!',
+            type: 'success'
+          });
+          this.loadData();
+        } else {
+          if (res.data.message) {
+            this.$message.error("任务发布失败," + res.data.message);
+          }
+        }
+      });
+    },
+    batchStop(){
+      this.$http({
+        method: "POST",
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        url: "/dbswitch/admin/api/v1/assignment/retire?ids=" + this.idsSelected,
+      }).then(res => {
+        if (0 === res.data.code) {
+          this.$message({
+            message: '下线任务成功!',
+            type: 'success'
+          });
+          this.loadData();
+        } else {
+          if (res.data.message) {
+            this.$message.error("下线任务失败," + res.data.message);
+          }
+        }
+      });
+    },
+    batchExport(){
+      this.$http({
+        method: "POST",
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        url: "/dbswitch/admin/api/v1/assignment/export?ids=" + this.idsSelected,
+        responseType: 'blob',
+      }).then(res => {
+        debugger
+        if (200 === res.status) {
+          this.downloadFile(res)
+          this.$message({
+            message: '导出任务成功!',
+            type: 'success'
+          });
+          this.loadData();
+        } else {
+          if (res.data.message) {
+            this.$message.error("导出任务失败," + res.data.message);
+          }
+        }
+      });
+    },
+    downloadFile: function (resp) {
+      const headers = resp.headers;
+      const contentType = headers['content-type'];
+      if (!resp.data) {
+        console.error('响应异常：', resp);
+        return false;
+      } else {
+        console.info('下载文件：', resp);
+        const blob = new Blob([resp.data], {
+          type: contentType
+        });
+
+        const contentDisposition = resp.headers['Content-disposition'];
+        let fileName = 'unknown';
+        if (contentDisposition) {
+          debugger
+          fileName = window.decodeURI(resp.headers['Content-disposition'].split('=')[1]);
+        }
+        console.log('文件名称：', fileName);
+        this.downFile(blob, fileName);
+      }
+    },
+    /* 下载方法 : 根据blob下载 */
+    downFile: function (blob, fileName) {
+      // 非IE下载
+      if ('download' in document.createElement('a')) {
+        const link = document.createElement('a');
+        link.href = window.URL.createObjectURL(blob); // 创建下载的链接
+        link.download = fileName; // 下载后文件名
+        link.style.display = 'none';
+        document.body.appendChild(link);
+        link.click(); // 点击下载
+        window.URL.revokeObjectURL(link.href); // 释放掉blob对象
+        document.body.removeChild(link); // 下载完成移除元素
+      } else {
+        // IE10+下载
+        window.navigator.msSaveBlob(blob, fileName);
+      }
     },
     handleCreate: function () {
       this.$router.push('/task/create')
@@ -267,11 +381,14 @@ export default {
         url: "/dbswitch/admin/api/v1/assignment/deploy?ids=" + row.id,
       }).then(res => {
         if (0 === res.data.code) {
-          this.$message("任务发布成功");
+          this.$message({
+            message: '任务发布成功!',
+            type: 'success'
+          });
           this.loadData();
         } else {
           if (res.data.message) {
-            alert("任务发布失败," + res.data.message);
+            this.$message.error("任务发布失败," + res.data.message);
           }
         }
       });
@@ -286,11 +403,14 @@ export default {
         data: JSON.stringify([row.id])
       }).then(res => {
         if (0 === res.data.code) {
-          this.$message("手动启动执行任务成功");
+          this.$message({
+            message: '手动启动执行任务成功!',
+            type: 'success'
+          });
           this.loadData();
         } else {
           if (res.data.message) {
-            alert("手动启动执行任务失败," + res.data.message);
+            this.$message.error("手动启动执行任务失败," + res.data.message);
           }
         }
       });
@@ -304,11 +424,14 @@ export default {
         url: "/dbswitch/admin/api/v1/assignment/retire?ids=" + row.id,
       }).then(res => {
         if (0 === res.data.code) {
-          this.$message("下线任务成功");
+          this.$message({
+            message: '下线任务成功!',
+            type: 'success'
+          });
           this.loadData();
         } else {
           if (res.data.message) {
-            alert("下线任务失败," + res.data.message);
+            this.$message.error("下线任务失败," + res.data.message);
           }
         }
       });
@@ -392,12 +515,16 @@ export default {
 .right-add-button-group {
   width: 100px;
   margin-left: auto;
-  //margin: 0px 0px;
+/ / margin: 0 px 0 px;
   float: right;
 }
 
+.color-await {
+  color: #a0a6b8 !important;
+}
+
 .color-running {
-  color: #8c85d1 !important;
+  color: #6cdbbc !important;
 }
 
 .color-error {
@@ -412,7 +539,7 @@ export default {
   color: #6cdbbc !important;
 }
 
-.btn-common{
+.btn-common {
 
 }
 

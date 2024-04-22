@@ -24,6 +24,8 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import java.util.List;
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletResponse;
+
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -110,6 +112,14 @@ public class AssignmentController {
   public Result retireAssignments(@RequestParam(value = "ids") List<Long> ids) {
     assignmentService.retireAssignments(ids);
     return Result.success();
+  }
+
+  @TokenCheck
+  @LogOperate(name = "导出任务", description = "'导出任务的ID为：'+#ids")
+  @ApiOperation(value = "导出")
+  @PostMapping(value = "/export")
+  public void exportAssignments(@RequestParam(value = "ids") List<Long> ids, HttpServletResponse response) {
+    assignmentService.exportAssignments(ids,response);
   }
 
 }
