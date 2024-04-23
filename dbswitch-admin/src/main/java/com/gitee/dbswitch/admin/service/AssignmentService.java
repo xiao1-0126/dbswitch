@@ -50,6 +50,7 @@ import com.gitee.dbswitch.admin.model.response.AssignmentInfoResponse;
 import com.gitee.dbswitch.admin.model.response.AssignmentsDataResponse;
 import com.gitee.dbswitch.admin.type.JobStatusEnum;
 import com.gitee.dbswitch.admin.type.ScheduleModeEnum;
+import com.gitee.dbswitch.admin.util.EasyexcelUtils;
 import com.gitee.dbswitch.admin.util.PageUtils;
 import com.gitee.dbswitch.common.converter.ConverterFactory;
 import com.gitee.dbswitch.common.type.ProductTypeEnum;
@@ -79,9 +80,6 @@ public class AssignmentService {
 
 	@Resource
 	private AssignmentJobMapper assignmentJobMapper;
-
-//	@Resource
-//	private AssignmentConvert assignmentConvert;
 
 	@Transactional(rollbackFor = Exception.class)
 	public AssignmentInfoResponse createAssignment(AssigmentCreateRequest request) {
@@ -359,11 +357,8 @@ public class AssignmentService {
 	public void exportAssignments(List<Long> ids, HttpServletResponse response) {
 		checkAssignmentAllExist(ids);
 		List<AssignmentsDataResponse> assignmentsDataResponses = new ArrayList<>();
-		// TODO 任务导出
 		for (Long id : ids) {
 			AssignmentTaskEntity assignmentTaskEntity = assignmentTaskDAO.getById(id);
-//			AssignmentsDataResponse assignmentsDataResponse =
-//					this.assignmentConvert.toAssignmentsDataResponse(assignmentTaskEntity);
 			AssignmentsDataResponse assignmentsDataResponse = ConverterFactory.getConverter(AssignmentsConverter.class)
 					.convert(assignmentTaskEntity);
 
@@ -392,22 +387,7 @@ public class AssignmentService {
 					assignmentJobEntity.getStatus();
 			assignmentsDataResponse.setRunStatus(JobStatusEnum.of(status).getName());
 			assignmentsDataResponses.add(assignmentsDataResponse);
-
 		}
-		try {
-			// 这里注意 有同学反应使用swagger 会导致各种问题，请直接用浏览器或者用postman
-//			response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
-			response.setContentType("application/vnd.ms-excel");
-			response.setCharacterEncoding("utf-8");
-			// 这里URLEncoder.encode可以防止中文乱码 当然和easyexcel没有关系
-			String fileName = URLEncoder.encode("测试", "UTF-8").replaceAll("\\+", "%20");
-//			response.setHeader("Content-disposition", "attachment;filename*=utf-8''" + fileName + ".xlsx");
-			response.setHeader("Content-disposition", "attachment;filename=" + fileName + ".xlsx");
-			EasyExcel.write(response.getOutputStream(), AssignmentsDataResponse.class)
-					.sheet("模板")
-					.doWrite(assignmentsDataResponses);
-		} catch (IOException ex) {
-			throw new DbswitchException(ResultCode.ERROR_INTERNAL_ERROR, ex.getMessage());
-		}
+		EasyexcelUtils.write(response,AssignmentsDataResponse.class,assignmentsDataResponses,"任务管理","任务管理列表");
 	}
 }

@@ -5,6 +5,9 @@ import java.util.Date;
 
 import com.alibaba.excel.annotation.ExcelIgnore;
 import com.alibaba.excel.annotation.ExcelProperty;
+import com.alibaba.excel.annotation.write.style.ColumnWidth;
+import com.alibaba.excel.annotation.write.style.ContentRowHeight;
+import com.alibaba.excel.annotation.write.style.HeadRowHeight;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.gitee.dbswitch.admin.type.ScheduleModeEnum;
 
@@ -20,6 +23,7 @@ import lombok.Setter;
  **/
 @Getter
 @Setter
+@ColumnWidth(25)
 @EqualsAndHashCode
 public class AssignmentsDataResponse {
 

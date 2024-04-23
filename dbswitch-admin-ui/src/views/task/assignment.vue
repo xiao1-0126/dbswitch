@@ -6,7 +6,7 @@
         </el-button>
         <el-button size="mini" icon="el-icon-video-pause" :disabled=isSelected plain @click="batchStop()">停止</el-button>
         <span style="color:#e9e9f3;">&nbsp;&nbsp;|&nbsp;&nbsp;</span>
-        <el-button size="mini" plain>导入任务</el-button>
+        <el-button size="mini" plain @click="batchImport()">导入任务</el-button>
         <el-button size="mini" :disabled=isSelected plain @click="batchExport()">导出任务</el-button>
         <!--        <div class="right-add-button-group">-->
         <el-button class="right-add-button-group" type="primary"
@@ -286,7 +286,6 @@ export default {
         url: "/dbswitch/admin/api/v1/assignment/export?ids=" + this.idsSelected,
         responseType: 'blob',
       }).then(res => {
-        debugger
         if (200 === res.status) {
           this.downloadFile(res)
           this.$message({
@@ -301,6 +300,12 @@ export default {
         }
       });
     },
+    batchImport(){
+      this.$message({
+        message: '功能暂未开放，敬请期待！',
+        center: true
+      });
+    },
     downloadFile: function (resp) {
       const headers = resp.headers;
       const contentType = headers['content-type'];
@@ -313,11 +318,10 @@ export default {
           type: contentType
         });
 
-        const contentDisposition = resp.headers['Content-disposition'];
+        const contentDisposition = resp.headers['content-disposition'];
         let fileName = 'unknown';
         if (contentDisposition) {
-          debugger
-          fileName = window.decodeURI(resp.headers['Content-disposition'].split('=')[1]);
+          fileName = window.decodeURI(resp.headers['content-disposition'].split('=')[1]);
         }
         console.log('文件名称：', fileName);
         this.downFile(blob, fileName);
