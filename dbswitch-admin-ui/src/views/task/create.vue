@@ -14,46 +14,46 @@
              :rules="rules"
              ref="createform">
 
-      <div v-show="active == 1">
-        <el-form-item label="名称"
-                      label-width="240px"
+      <div v-show="active == 1" class="common-top">
+        <el-form-item label="任务名称"
+                      label-width="100px"
                       :required=true
                       prop="name"
                       style="width:65%">
           <el-input v-model="createform.name"
-                    auto-complete="off"></el-input>
+                    auto-complete="off"
+                    placeholder="请输入任务名称"
+                    style="width:50%"></el-input>
+          <label
+              class="tips-style block">请输入任务名称，只能以字母、数字为开头，包含字母、数字和._-，3-100个字符</label>
         </el-form-item>
         <el-form-item label="描述"
-                      label-width="240px"
+                      label-width="100px"
                       prop="description"
                       style="width:65%">
           <el-input v-model="createform.description"
                     type="textarea"
                     :rows="3"
-                    auto-complete="off"></el-input>
+                    auto-complete="off"
+                    placeholder="请输入任务描述"
+                    style="width:50%"></el-input>
         </el-form-item>
-        <el-form-item label="调度方式"
-                      label-width="240px"
+        <el-form-item label="集成模式"
+                      label-width="100px"
                       :required=true
                       prop="scheduleMode"
                       style="width:65%">
-          <el-select v-model="createform.scheduleMode">
-            <el-option label="手动调度"
-                       value="MANUAL"></el-option>
-            <el-option label="系统调度"
-                       value="SYSTEM_SCHEDULED"></el-option>
-          </el-select>
+          <el-input v-model="createform.scheduleMode" v-if="false"></el-input>
+          <el-radio-group v-model="createform.scheduleModeTemp" size="mini" @change="scheduleModeUpdate">
+            <el-radio-button value="MANUAL" label="手动调度"></el-radio-button>
+            <el-radio-button value="SYSTEM_SCHEDULED" label="系统调度"></el-radio-button>
+          </el-radio-group>
         </el-form-item>
         <el-form-item label="执行周期"
-                      label-width="240px"
+                      label-width="100px"
                       style="width:65%"
+                      :required="true"
                       v-if="createform.scheduleMode=='SYSTEM_SCHEDULED'">
-          <el-tooltip placement="top">
-            <div slot="content">
-              执行周期为CRON表达式，即可以选择以下内置的周期，也可以自行输入或粘贴合法的CRON表达式(最小间隔时间为2分钟)。
-            </div>
-            <i class="el-icon-question"></i>
-          </el-tooltip>
           <el-select v-model="createform.cronExpression"
                      filterable
                      allow-create>
@@ -72,11 +72,13 @@
             <el-option label="每日0时执行1次"
                        value="0 0 0 1/1 * ? *"></el-option>
           </el-select>
+          <label
+              class="tips-style block">执行周期为CRON表达式，即可以选择以下内置的周期，也可以自行输入或粘贴合法的CRON表达式(最小间隔时间为2分钟)。</label>
         </el-form-item>
       </div>
-      <div v-show="active == 2">
+      <div v-show="active == 2" class="common-top">
         <el-form-item label="源端数据源"
-                      label-width="240px"
+                      label-width="100px"
                       :required=true
                       prop="sourceConnectionId"
                       style="width:65%">
@@ -90,7 +92,7 @@
           </el-select>
         </el-form-item>
         <el-form-item label="源端模式名"
-                      label-width="240px"
+                      label-width="100px"
                       :required=true
                       prop="sourceSchema"
                       style="width:65%">
@@ -105,7 +107,7 @@
           </el-select>
         </el-form-item>
         <el-form-item label="源端表类型"
-                      label-width="240px"
+                      label-width="100px"
                       :required=true
                       prop="tableType"
                       style="width:65%">
@@ -119,7 +121,7 @@
           </el-select>
         </el-form-item>
         <el-form-item label="配置方式"
-                      label-width="240px"
+                      label-width="100px"
                       :required=true
                       prop="includeOrExclude"
                       style="width:65%">
@@ -132,16 +134,10 @@
           </el-select>
         </el-form-item>
         <el-form-item label="表名配置"
-                      label-width="240px"
+                      label-width="100px"
                       :required=false
                       prop="sourceTables"
                       style="width:65%">
-          <el-tooltip placement="top">
-            <div slot="content">
-              当为包含表时，选择所要精确包含的表名，如果不选则代表选择所有；当为排除表时，选择索要精确排除的表名。
-            </div>
-            <i class="el-icon-question"></i>
-          </el-tooltip>
           <el-select placeholder="请选择表名"
                      multiple
                      filterable
@@ -151,11 +147,13 @@
                        :label="item"
                        :value="item"></el-option>
           </el-select>
+          <label
+              class="tips-style block">当为包含表时，选择所要精确包含的表名，如果不选则代表选择所有；当为排除表时，选择索要精确排除的表名。</label>
         </el-form-item>
       </div>
-      <div v-show="active == 3">
+      <div v-show="active == 3" class="common-top">
         <el-form-item label="目的端数据源"
-                      label-width="240px"
+                      label-width="120px"
                       :required=true
                       prop="targetConnectionId"
                       style="width:65%">
@@ -169,7 +167,7 @@
           </el-select>
         </el-form-item>
         <el-form-item label="目的端模式名"
-                      label-width="240px"
+                      label-width="120px"
                       :required=true
                       prop="targetSchema"
                       style="width:65%">
@@ -183,7 +181,7 @@
           </el-select>
         </el-form-item>
         <el-form-item label="自动同步模式"
-                      label-width="240px"
+                      label-width="120px"
                       :required=true
                       prop="autoSyncMode"
                       style="width:65%">
@@ -194,7 +192,7 @@
             <div slot="content">
               <p>目标端建表并同步数据：首次在目标的自动建表(存在重命表时会删除重建)并执行数据加载同步操作，再次执行时会根据是否有主键进行变化量同步；</p>
               <p>目标端只创建物理表: 每次执行时，只在目标端自动建表，存在重名表时会删除后重建；</p>
-              <p>目标端只同步表里数据：每次执行时，目标端需要存在符合映射规则的物理表，最迟需要在执行任务前已经存在目标表；该选项通<br />
+              <p>目标端只同步表里数据：每次执行时，目标端需要存在符合映射规则的物理表，最迟需要在执行任务前已经存在目标表；<br />该选项通
                 常适用于两端表结构一致时(或目标端字段包含源端所有的字段且字段数据类型一致)的数据同步场景</p>
             </div>
             <i class="el-icon-question"></i>
@@ -209,7 +207,7 @@
           </el-select>
         </el-form-item>
         <el-form-item label="建表字段自增"
-                      label-width="240px"
+                      label-width="120px"
                       :required=true
                       v-if=" createform.autoSyncMode!==0 "
                       prop="targetAutoIncrement"
@@ -228,7 +226,7 @@
           </el-select>
         </el-form-item>
         <el-form-item label="表名大小写转换"
-                      label-width="240px"
+                      label-width="130px"
                       :required=true
                       prop="tableNameCase"
                       style="width:45%">
@@ -248,7 +246,7 @@
           </el-select>
         </el-form-item>
         <el-form-item label="列名大小写转换"
-                      label-width="240px"
+                      label-width="130px"
                       :required=true
                       prop="columnNameCase"
                       style="width:45%">
@@ -268,7 +266,7 @@
           </el-select>
         </el-form-item>
         <el-form-item label="数据批次大小"
-                      label-width="240px"
+                      label-width="120px"
                       :required=true
                       v-if=" createform.autoSyncMode!==1 "
                       prop="batchSize"
@@ -295,7 +293,7 @@
           </el-select>
         </el-form-item>
         <el-form-item label="通道队列大小"
-                      label-width="240px"
+                      label-width="120px"
                       :required=true
                       v-if=" createform.autoSyncMode!==1 "
                       prop="channelSize"
@@ -324,7 +322,7 @@
           </el-select>
         </el-form-item>
         <el-form-item label="同步操作方法"
-                      label-width="240px"
+                      label-width="120px"
                       :required=true
                       v-if=" createform.autoSyncMode!==1 "
                       prop="targetSyncOption"
@@ -353,36 +351,31 @@
           </el-select>
         </el-form-item>
         <el-form-item label="同步前置执行SQL脚本"
-                      label-width="240px"
+                      label-width="160px"
                       v-if=" createform.autoSyncMode!==1 "
                       prop="beforeSqlScripts"
                       style="width:65%">
-          <el-tooltip placement="top">
-            <div slot="content">
-              数据同步写入目标断数据库前执行的SQL，多个SQL间以英文逗号分隔。使用场景如：MySQL数据库关闭外键约束 SET FOREIGN_KEY_CHECKS = 0
-            </div>
-            <i class="el-icon-question"></i>
-          </el-tooltip>
           <el-input v-model="createform.beforeSqlScripts"
                     type="textarea"
                     :rows="3"
-                    auto-complete="off"></el-input>
+                    auto-complete="off"
+                    style="width: 65%"></el-input>
+          <label
+              class="tips-style block">数据同步写入目标端数据库前执行的SQL，多个SQL间以英文逗号分隔。使用场景如：MySQL数据库关闭外键约束 SET FOREIGN_KEY_CHECKS
+            = 0</label>
         </el-form-item>
         <el-form-item label="同步后置执行SQL脚本"
-                      label-width="240px"
+                      label-width="160px"
                       v-if=" createform.autoSyncMode!==1 "
                       prop="afterSqlScripts"
                       style="width:65%">
-          <el-tooltip placement="top">
-            <div slot="content">
-              数据同步写入目标断数据库后执行的SQL，多个SQL间以英文逗号分隔。使用场景如：MySQL数据库恢复外键约束 SET FOREIGN_KEY_CHECKS = 1
-            </div>
-            <i class="el-icon-question"></i>
-          </el-tooltip>
           <el-input v-model="createform.afterSqlScripts"
                     type="textarea"
                     :rows="3"
-                    auto-complete="off"></el-input>
+                    auto-complete="off"
+                    style="width: 65%"></el-input>
+          <label
+              class="tips-style block">数据同步写入目标端数据库后执行的SQL，多个SQL间以英文逗号分隔。使用场景如：MySQL数据库恢复外键约束 SET FOREIGN_KEY_CHECKS = 1</label>
         </el-form-item>
       </div>
       <div v-show="active == 4">
@@ -590,13 +583,14 @@
 
     <el-button round
                v-if="active > 1"
-               style="margin-top: 12px"
+               style="margin-top: 12px;margin-left: 20px"
                @click="pre">
       上一步
     </el-button>
     <el-button round
                @click="next"
-               v-if="active > 0 && active < 5">
+               v-if="active > 0 && active < 5"
+    style="margin-left: 20px">
       下一步
     </el-button>
     <el-button round
@@ -670,6 +664,7 @@ export default {
         name: "",
         description: "",
         scheduleMode: "MANUAL",
+        scheduleModeTemp: "手动调度",
         cronExpression: "",
         sourceConnectionId: '请选择',
         sourceSchema: "",
@@ -789,7 +784,7 @@ export default {
           }
         ]
       },
-      active: 1,
+      active: 3,
       sourceConnection: {},
       targetConnection: {},
       sourceConnectionSchemas: [],
@@ -804,6 +799,14 @@ export default {
     }
   },
   methods: {
+    scheduleModeUpdate(val){
+      if (val === '系统调度'){
+        this.createform.scheduleMode = "SYSTEM_SCHEDULED"
+      }
+      if (val === '手动调度'){
+        this.createform.scheduleMode = "MANUAL"
+      }
+    },
     handleClose (done) {
     },
     next () {
@@ -1096,7 +1099,10 @@ export default {
             })
           }).then(res => {
             if (0 === res.data.code) {
-              this.$message("添加任务成功");
+              this.$message({
+                message: '添加任务成功!',
+                type: 'success'
+              });
               this.$router.push('/task/assignment')
             } else {
               if (res.data.message) {
@@ -1141,5 +1147,19 @@ export default {
   .el-descriptions-item__label {
   min-width: 20px;
   max-width: 60px;
+}
+
+.tips-style {
+  font-size: 10px;
+  color: #a0a6b8;
+}
+
+.block{
+  padding-top: 6px;
+  display: block;
+}
+
+.common-top{
+  margin-top: 40px;
 }
 </style>

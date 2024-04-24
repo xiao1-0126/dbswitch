@@ -232,7 +232,7 @@ public class AssignmentService {
 			if (assignmentTaskEntity.getPublished()) {
 				tasks.add(assignmentTaskEntity);
 			} else {
-				throw new DbswitchException(ResultCode.ERROR_RESOURCE_NOT_DEPLOY, "ID=" + id);
+				throw new DbswitchException(ResultCode.ERROR_RESOURCE_NOT_DEPLOY, assignmentTaskEntity.getName());
 			}
 		}
 

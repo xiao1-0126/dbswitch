@@ -104,7 +104,7 @@
               <el-button size="small"
                          type="primary"
                          icon="el-icon-timer"
-                         @click="handlePublish(scope.$index, scope.row)"
+                         @click="schedulingLog(scope.$index, scope.row)"
                          round>调度日志
               </el-button>
               <el-button size="small"
@@ -128,16 +128,16 @@
                          round>手工调度
               </el-button>
               <el-button size="small"
-                         type="success"
-                         icon="el-icon-document"
-                         @click="handleDetail(scope.$index, scope.row)"
-                         round>详情
-              </el-button>
-              <el-button size="small"
                          type="warning"
                          icon="el-icon-edit"
                          @click="handleUpdate(scope.$index, scope.row)"
                          round>修改
+              </el-button>
+              <el-button size="small"
+                         type="success"
+                         icon="el-icon-document"
+                         @click="handleDetail(scope.$index, scope.row)"
+                         round>详情
               </el-button>
               <el-button size="small"
                          type="danger"
@@ -304,6 +304,11 @@ export default {
       this.$message({
         message: '功能暂未开放，敬请期待！',
         center: true
+      });
+    },
+    schedulingLog(){
+      this.$router.push({
+        path: "/task/schedule"
       });
     },
     downloadFile: function (resp) {
