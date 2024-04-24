@@ -378,7 +378,7 @@
               class="tips-style block">数据同步写入目标端数据库后执行的SQL，多个SQL间以英文逗号分隔。使用场景如：MySQL数据库恢复外键约束 SET FOREIGN_KEY_CHECKS = 1</label>
         </el-form-item>
       </div>
-      <div v-show="active == 4">
+      <div v-show="active == 4" class="common-top">
         <el-alert title="说明信息"
                   type="success">
           <p>(1) 当表名映射规则记录为空时，代表目标表名与源表名的名称相同;</p>
@@ -460,7 +460,7 @@
           </el-table-column>
         </el-table>
       </div>
-      <div v-show="active == 5">
+      <div v-show="active == 5" class="common-top">
         <el-descriptions size="small"
                          :column="1"
                          label-class-name="el-descriptions-item-label-class"
