@@ -123,6 +123,7 @@
                          min-width="10%"></el-table-column>
         <el-table-column prop="scheduleTime"
                          label="调度时间"
+                         :formatter="scheduleTimeFormat"
                          min-width="15%"></el-table-column>
         <el-table-column label="操作"
                          min-width="35%">
@@ -172,7 +173,6 @@
               <el-button size="small"
                          type="success"
                          icon="el-icon-document"
-                         v-if="scope.row.isPublished===true"
                          @click="handleDetail(scope.$index, scope.row)"
                          round>详情
               </el-button>
@@ -254,6 +254,12 @@ export default {
       } else {
         return "已停止";
       }
+    },
+    scheduleTimeFormat (row, column) {
+      if (row.scheduleTime == null) {
+        return "--";
+      }
+      return row.scheduleTime;
     },
     stringFormatSchedule (row, column) {
       if (row.scheduleMode == "MANUAL") {
