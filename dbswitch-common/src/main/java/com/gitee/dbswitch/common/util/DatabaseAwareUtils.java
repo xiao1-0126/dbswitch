@@ -10,12 +10,15 @@
 package com.gitee.dbswitch.common.util;
 
 import com.gitee.dbswitch.common.type.ProductTypeEnum;
+import com.google.common.collect.Sets;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 import javax.sql.DataSource;
 import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
@@ -70,10 +73,10 @@ public final class DatabaseAwareUtils {
   }
 
   /**
-   * 获取数据库的产品名
+   * 获取数据库的产品枚举
    *
    * @param dataSource 数据源
-   * @return 数据库产品名称字符串
+   * @return 数据库产品枚举
    */
   public static ProductTypeEnum getProductTypeByDataSource(DataSource dataSource) {
     try (Connection connection = dataSource.getConnection()) {
@@ -83,40 +86,45 @@ public final class DatabaseAwareUtils {
         ProductTypeEnum productType = driverNameMap.get(driverName);
         if (productType == ProductTypeEnum.POSTGRESQL) {
           String url = connection.getMetaData().getURL();
-          if (null != url && url.contains("jdbc:opengauss:")) {
-            return ProductTypeEnum.OPENGAUSS;
+          Set<ProductTypeEnum> excludes = Sets.immutableEnumSet(ProductTypeEnum.POSTGRESQL);
+          ProductTypeEnum pgLikeType = ProductTypeEnum.getProductType(url, excludes);
+          if (null != pgLikeType) {
+            return pgLikeType;
           }
-          if (null != url && url.contains("jdbc:highgo:")) {
-            return ProductTypeEnum.HIGHGO;
+        } else if (productType == ProductTypeEnum.MYSQL) {
+          if (isStarRocks(connection)) {
+            return ProductTypeEnum.STARROCKS;
           }
         }
         return productType;
       }
-      boolean haveStarRocks = false;
-      try {
-        // 此查询语句是Starrocks查询be节点是否存活，可以用来判断是否是Starrocks数据源
-        haveStarRocks = connection.createStatement().execute("show backends");
-      } catch (Exception sqlException) {
-        log.info("Failed to execute sql :show backends, so guesses it is mysql datasource!");
-      }
-      if (haveStarRocks) {
-        return ProductTypeEnum.STARROCKS;
-      }
+
       ProductTypeEnum type = productNameMap.get(productName);
       if (null != type) {
         return type;
       }
       String url = connection.getMetaData().getURL();
-      if (null != url && url.contains("mongodb://")) {
-        return ProductTypeEnum.MONGODB;
-      }
-      if (null != url && url.contains("jest://")) {
-        return ProductTypeEnum.ELASTICSEARCH;
+      type = ProductTypeEnum.getProductType(url);
+      if (null != type) {
+        return type;
       }
       throw new IllegalStateException("Unable to detect database type from data source instance");
     } catch (SQLException se) {
       throw new RuntimeException(se);
     }
+  }
+
+  private static boolean isStarRocks(Connection connection) {
+    try (Statement statement = connection.createStatement()) {
+      // 此查询语句是Starrocks查询be节点是否存活，可以用来判断是否是Starrocks数据源
+      String sql = "SHOW BACKENDS";
+      return statement.execute(sql);
+    } catch (Exception sqlException) {
+      if (log.isDebugEnabled()) {
+        log.debug("Failed to execute sql :show backends, and guesses it is mysql datasource!");
+      }
+    }
+    return false;
   }
 
   /**

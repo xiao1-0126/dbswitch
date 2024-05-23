@@ -17,6 +17,7 @@ import com.gitee.dbswitch.admin.util.ExecuteSqlUtils;
 import com.gitee.dbswitch.admin.util.ExecuteSqlUtils.ScriptExecuteResult;
 import com.gitee.dbswitch.admin.util.PageUtils;
 import com.gitee.dbswitch.common.entity.CloseableDataSource;
+import com.gitee.dbswitch.common.type.ProductTypeEnum;
 import com.gitee.dbswitch.schema.SchemaTableData;
 import com.gitee.dbswitch.schema.SchemaTableMeta;
 import com.gitee.dbswitch.schema.TableDescription;
@@ -132,6 +133,11 @@ public class MetaDataService {
   }
 
   public Result<OnlineSqlDataResponse> sqlData(Long id, OnlineSqlDataRequest request) {
+    DatabaseConnectionEntity databaseConn = connectionService.getDatabaseConnectionById(id);
+    ProductTypeEnum productType = databaseConn.getType();
+    if (!productType.isUseSql()) {
+      throw new RuntimeException("不支持的SQL操作数据库类型:" + productType.name());
+    }
     List<String> statements = new ArrayList<>();
     ScriptUtils.splitSqlScript(
         null,
@@ -143,7 +149,7 @@ public class MetaDataService {
         statements);
     Integer page = Optional.ofNullable(request.getPage()).orElse(1);
     Integer size = Optional.ofNullable(request.getSize()).orElse(100);
-    try (CloseableDataSource dataSource = connectionService.getDataSource(id)) {
+    try (CloseableDataSource dataSource = connectionService.getDataSource(databaseConn)) {
       try (Connection connection = dataSource.getConnection()) {
         List<SqlInput> summaries = new ArrayList<>(statements.size());
         List<SqlResult> results = new ArrayList<>(statements.size());
@@ -151,27 +157,24 @@ public class MetaDataService {
           try {
             ScriptExecuteResult result = ExecuteSqlUtils.execute(connection, sql, page, size);
             summaries.add(SqlInput.builder().sql(sql).summary(result.getResultSummary()).build());
-            results.add(
-                SqlResult.builder()
-                    .columns(result.getResultHeader().stream()
-                        .map(one ->
-                            ColumnItem.builder()
-                                .columnName(specialReplace(one.getKey()))
-                                .columnType(one.getValue())
-                                .build()
-                        ).collect(Collectors.toList()))
-                    .rows(result.getResultData())
-                    .build());
+            if (CollectionUtils.isNotEmpty(result.getResultHeader())) {
+              results.add(
+                  SqlResult.builder()
+                      .columns(result.getResultHeader().stream()
+                          .map(one ->
+                              ColumnItem.builder()
+                                  .columnName(specialReplace(one.getKey()))
+                                  .columnType(one.getValue())
+                                  .build()
+                          ).collect(Collectors.toList()))
+                      .rows(convertRows(result.getResultData()))
+                      .build());
+            }
           } catch (Exception e) {
             summaries.add(
                 SqlInput.builder()
                     .sql(sql)
                     .summary(e.getMessage())
-                    .build());
-            results.add(
-                SqlResult.builder()
-                    .columns(Collections.emptyList())
-                    .rows(Collections.emptyList())
                     .build());
           }
         }
@@ -204,6 +207,22 @@ public class MetaDataService {
       for (int i = 0; i < columns.size(); ++i) {
         Object v = row.get(i);
         map.put(columns.get(i), Objects.nonNull(v) ? v.toString() : null);
+      }
+      result.add(map);
+    }
+    return result;
+  }
+
+  private List<Map<String, Object>> convertRows(List<Map<String, Object>> rows) {
+    if (null == rows || rows.isEmpty()) {
+      return Collections.emptyList();
+    }
+    List<Map<String, Object>> result = new ArrayList<>(rows.size());
+    for (Map<String, Object> row : rows) {
+      Map<String, Object> map = new LinkedHashMap<>();
+      for (Map.Entry<String, Object> entry : row.entrySet()) {
+        Object v = entry.getValue();
+        map.put(entry.getKey(), Objects.nonNull(v) ? v.toString() : null);
       }
       result.add(map);
     }

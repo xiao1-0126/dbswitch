@@ -144,7 +144,7 @@
       <el-row style="text-align: center">
         <el-button type="success"
                    class="startTest"
-                   @click="startTest">开始检测</el-button>
+                   @click="startTest">测试</el-button>
         <el-button type="primary"
                    class="createDataSource"
                    @click="createDataSource">创建</el-button>

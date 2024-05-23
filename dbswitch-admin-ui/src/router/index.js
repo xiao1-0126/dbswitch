@@ -121,14 +121,14 @@ const constantRouter = new Router({
         },
         {
           path: '/connection/list/addDataSource1',
-          name: '接入数据源',
+          name: '数据源创建步骤1',
           icon: "el-icon-menu",
           hidden: true,
           component: () => import('@/views/connection/addDataSource1.vue')
         },
         {
           path: '/connection/list/addDataSource2',
-          name: '接入数据源',
+          name: '数据源创建步骤2',
           icon: "el-icon-menu",
           hidden: true,
           component: () => import('@/views/connection/addDataSource2.vue')

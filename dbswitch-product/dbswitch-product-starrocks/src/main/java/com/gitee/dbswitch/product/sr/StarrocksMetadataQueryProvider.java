@@ -11,7 +11,6 @@ package com.gitee.dbswitch.product.sr;
 
 import com.gitee.dbswitch.common.consts.Constants;
 import com.gitee.dbswitch.common.type.ProductTypeEnum;
-import com.gitee.dbswitch.common.util.DDLFormatterUtils;
 import com.gitee.dbswitch.provider.ProductFactoryProvider;
 import com.gitee.dbswitch.provider.meta.AbstractMetadataProvider;
 import com.gitee.dbswitch.schema.ColumnDescription;
@@ -31,6 +30,11 @@ import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
+/**
+ * https://docs.starrocks.io/zh/docs/3.1/quick_start/Create_table/
+ * <p>
+ * https://docs.starrocks.io/zh/docs/3.1/quick_start/deploy_with_docker/
+ */
 @Slf4j
 public class StarrocksMetadataQueryProvider extends AbstractMetadataProvider {
 
@@ -130,7 +134,6 @@ public class StarrocksMetadataQueryProvider extends AbstractMetadataProvider {
     }
   }
 
-
   @Override
   public List<ColumnDescription> queryTableColumnMeta(Connection connection, String schemaName,
       String tableName) {
@@ -158,7 +161,6 @@ public class StarrocksMetadataQueryProvider extends AbstractMetadataProvider {
       throw new RuntimeException(e);
     }
   }
-
 
   @Override
   public List<String> queryTablePrimaryKeys(Connection connection, String schemaName, String tableName) {
@@ -311,7 +313,7 @@ public class StarrocksMetadataQueryProvider extends AbstractMetadataProvider {
           if (length == 1) {
             retval += "CHAR(1)";
           } else if (length < 256) {
-            retval += "VARCHAR(" + length*2 + ")";
+            retval += "VARCHAR(" + length * 2 + ")";
           } else if (null != pks && !pks.isEmpty() && pks.contains(fieldname)) {
             /*
              * MySQL5.6中varchar字段为主键时最大长度为254,例如如下的建表语句在MySQL5.7下能通过，但在MySQL5.6下无法通过：

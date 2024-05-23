@@ -53,7 +53,7 @@
         </div>
       </div>
     </el-card>
-    <el-dialog title="添加数据库驱动JAR说明"
+    <el-dialog title="添加说明"
                :visible.sync="dialogVisible"
                width="40%"
                :before-close="handleClose">

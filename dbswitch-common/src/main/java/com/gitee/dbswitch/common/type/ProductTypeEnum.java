@@ -10,6 +10,7 @@
 package com.gitee.dbswitch.common.type;
 
 import java.util.Arrays;
+import java.util.Set;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import org.apache.commons.lang3.StringUtils;
@@ -321,6 +322,15 @@ public enum ProductTypeEnum {
   }
 
   /**
+   * 是否为支持使用SQL的数据库类型
+   *
+   * @return boolean
+   */
+  public boolean isUseSql() {
+    return this != MONGODB && this != ELASTICSEARCH;
+  }
+
+  /**
    * 是否为ClickHouse数据库类型
    *
    * @return boolean
@@ -367,6 +377,24 @@ public enum ProductTypeEnum {
     String prefix1 = "jdbc:sqlite::resource:";
     //String prefix2 = "jdbc:sqlite::memory:";
     return url.startsWith(prefix1);
+  }
+
+  public static ProductTypeEnum getProductType(String url) {
+    return getProductType(url, null);
+  }
+
+  public static ProductTypeEnum getProductType(String url, Set<ProductTypeEnum> excludes) {
+    if (null != url) {
+      for (ProductTypeEnum productType : ProductTypeEnum.values()) {
+        if (null != excludes && excludes.contains(productType)) {
+          continue;
+        }
+        if (url.startsWith(productType.getUrlPrefix())) {
+          return productType;
+        }
+      }
+    }
+    return null;
   }
 
 }

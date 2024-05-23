@@ -53,7 +53,8 @@ public final class ObjectCastUtils {
       }
     } else if (in instanceof java.sql.Clob) {
       try {
-        return Byte.parseByte(clob2Str((java.sql.Clob) in));
+        String v = clob2Str((java.sql.Clob) in);
+        return null == v ? null : Byte.parseByte(v);
       } catch (NumberFormatException e) {
         throw new RuntimeException(
             String.format("无法将java.sql.Clob类型转换为java.lang.Byte类型:%s", e.getMessage()));
@@ -126,8 +127,10 @@ public final class ObjectCastUtils {
       }
     } else if (in instanceof java.sql.Clob) {
       try {
-        String s = clob2Str((java.sql.Clob) in).trim();
-        if (s.equalsIgnoreCase("true")) {
+        String s = clob2Str((java.sql.Clob) in);
+        if (null == s) {
+          return null;
+        } else if (s.equalsIgnoreCase("true")) {
           return Short.valueOf((short) 1);
         } else if (s.equalsIgnoreCase("false")) {
           return Short.valueOf((short) 0);
@@ -181,8 +184,10 @@ public final class ObjectCastUtils {
       }
     } else if (in instanceof java.sql.Clob) {
       try {
-        String s = clob2Str((java.sql.Clob) in).trim();
-        if (s.equalsIgnoreCase("true")) {
+        String s = clob2Str((java.sql.Clob) in);
+        if (null == s) {
+          return null;
+        } else if (s.equalsIgnoreCase("true")) {
           return Integer.valueOf(1);
         } else if (s.equalsIgnoreCase("false")) {
           return Integer.valueOf(0);
@@ -236,8 +241,10 @@ public final class ObjectCastUtils {
       }
     } else if (in instanceof java.sql.Clob) {
       try {
-        String s = clob2Str((java.sql.Clob) in).trim();
-        if (s.equalsIgnoreCase("true")) {
+        String s = clob2Str((java.sql.Clob) in);
+        if (null == s) {
+          return null;
+        } else if (s.equalsIgnoreCase("true")) {
           return Long.valueOf(1);
         } else if (s.equalsIgnoreCase("false")) {
           return Long.valueOf(0);
@@ -289,8 +296,10 @@ public final class ObjectCastUtils {
       }
     } else if (in instanceof java.sql.Clob) {
       try {
-        String s = clob2Str((java.sql.Clob) in).trim();
-        if (s.equalsIgnoreCase("true")) {
+        String s = clob2Str((java.sql.Clob) in);
+        if (null == s) {
+          return null;
+        } else if (s.equalsIgnoreCase("true")) {
           return Integer.valueOf(1);
         } else if (s.equalsIgnoreCase("false")) {
           return Integer.valueOf(0);
@@ -342,8 +351,10 @@ public final class ObjectCastUtils {
       }
     } else if (in instanceof java.sql.Clob) {
       try {
-        String s = clob2Str((java.sql.Clob) in).trim();
-        if (s.equalsIgnoreCase("true")) {
+        String s = clob2Str((java.sql.Clob) in);
+        if (null == s) {
+          return null;
+        } else if (s.equalsIgnoreCase("true")) {
           return Float.valueOf(1);
         } else if (s.equalsIgnoreCase("false")) {
           return Float.valueOf(0);
@@ -395,8 +406,10 @@ public final class ObjectCastUtils {
       }
     } else if (in instanceof java.sql.Clob) {
       try {
-        String s = clob2Str((java.sql.Clob) in).trim();
-        if (s.equalsIgnoreCase("true")) {
+        String s = clob2Str((java.sql.Clob) in);
+        if (null == s) {
+          return null;
+        } else if (s.equalsIgnoreCase("true")) {
           return Double.valueOf(1);
         } else if (s.equalsIgnoreCase("false")) {
           return Double.valueOf(0);
@@ -423,7 +436,8 @@ public final class ObjectCastUtils {
   public static LocalDate castToLocalDate(final Object in) {
     if (in instanceof java.sql.Time) {
       java.sql.Time date = (java.sql.Time) in;
-      LocalDate localDate = Instant.ofEpochMilli(date.getTime()).atZone(ZoneId.systemDefault())
+      LocalDate localDate = Instant.ofEpochMilli(date.getTime())
+          .atZone(ZoneId.systemDefault())
           .toLocalDate();
       return localDate;
     } else if (in instanceof java.sql.Timestamp) {
@@ -432,12 +446,14 @@ public final class ObjectCastUtils {
       return localDateTime.toLocalDate();
     } else if (in instanceof java.util.Date) {
       java.util.Date date = (java.util.Date) in;
-      LocalDate localDate = Instant.ofEpochMilli(date.getTime()).atZone(ZoneId.systemDefault())
+      LocalDate localDate = Instant.ofEpochMilli(date.getTime())
+          .atZone(ZoneId.systemDefault())
           .toLocalDate();
       return localDate;
     } else if (in instanceof java.util.Calendar) {
       java.sql.Date date = new java.sql.Date(((java.util.Calendar) in).getTime().getTime());
-      LocalDate localDate = Instant.ofEpochMilli(date.getTime()).atZone(ZoneId.systemDefault())
+      LocalDate localDate = Instant.ofEpochMilli(date.getTime())
+          .atZone(ZoneId.systemDefault())
           .toLocalDate();
       return localDate;
     } else if (in instanceof LocalDate) {
@@ -471,23 +487,29 @@ public final class ObjectCastUtils {
       }
     } else if (in instanceof String || in instanceof Character) {
       try {
-        java.sql.Time date = java.sql.Time.valueOf(in.toString());
-        LocalDate localDate = Instant.ofEpochMilli(date.getTime()).atZone(ZoneId.systemDefault())
+        java.sql.Date date = java.sql.Date.valueOf(in.toString());
+        LocalDate localDate = Instant.ofEpochMilli(date.getTime())
+            .atZone(ZoneId.systemDefault())
             .toLocalDate();
         return localDate;
       } catch (IllegalArgumentException e) {
         throw new RuntimeException(
-            String.format("无法将java.lang.String类型转换为java.sql.Time类型:%s", e.getMessage()));
+            String.format("无法将java.lang.String类型转换为java.time.LocalDate类型:%s", e.getMessage()));
       }
     } else if (in instanceof java.sql.Clob) {
       try {
-        java.sql.Time date = java.sql.Time.valueOf(clob2Str((java.sql.Clob) in));
-        LocalDate localDate = Instant.ofEpochMilli(date.getTime()).atZone(ZoneId.systemDefault())
+        String v = clob2Str((java.sql.Clob) in);
+        if (null == v) {
+          return null;
+        }
+        java.sql.Date date = java.sql.Date.valueOf(v);
+        LocalDate localDate = Instant.ofEpochMilli(date.getTime())
+            .atZone(ZoneId.systemDefault())
             .toLocalDate();
         return localDate;
       } catch (NumberFormatException e) {
         throw new RuntimeException(
-            String.format("无法将java.sql.Clob类型转换为java.sql.Time类型:%s", e.getMessage()));
+            String.format("无法将java.sql.Clob类型转换为java.time.LocalDate类型:%s", e.getMessage()));
       }
     } else if (in instanceof Number) {
       java.sql.Timestamp t = new java.sql.Timestamp(((Number) in).longValue());
@@ -562,7 +584,11 @@ public final class ObjectCastUtils {
       }
     } else if (in instanceof java.sql.Clob) {
       try {
-        java.sql.Time date = java.sql.Time.valueOf(clob2Str((java.sql.Clob) in));
+        String v = clob2Str((java.sql.Clob) in);
+        if (null == v) {
+          return null;
+        }
+        java.sql.Time date = java.sql.Time.valueOf(v);
         return LocalTime.ofSecondOfDay(date.getTime());
       } catch (NumberFormatException e) {
         throw new RuntimeException(
@@ -655,7 +681,11 @@ public final class ObjectCastUtils {
       }
     } else if (in instanceof java.sql.Clob) {
       try {
-        java.sql.Timestamp t = java.sql.Timestamp.valueOf(clob2Str((java.sql.Clob) in));
+        String v = clob2Str((java.sql.Clob) in);
+        if (null == v) {
+          return null;
+        }
+        java.sql.Timestamp t = java.sql.Timestamp.valueOf(v);
         LocalDateTime localDateTime = LocalDateTime
             .ofInstant(t.toInstant(), ZoneId.systemDefault());
         return localDateTime;
@@ -742,7 +772,11 @@ public final class ObjectCastUtils {
       }
     } else if (in instanceof java.sql.Clob) {
       try {
-        java.sql.Timestamp t = java.sql.Timestamp.valueOf(clob2Str((java.sql.Clob) in));
+        String v = clob2Str((java.sql.Clob) in);
+        if (null == v) {
+          return null;
+        }
+        java.sql.Timestamp t = java.sql.Timestamp.valueOf(v);
         LocalDateTime localDateTime = LocalDateTime
             .ofInstant(t.toInstant(), ZoneId.systemDefault());
         return Timestamp.valueOf(localDateTime);
@@ -779,7 +813,8 @@ public final class ObjectCastUtils {
       }
     } else if (in instanceof java.sql.Clob) {
       try {
-        return Boolean.parseBoolean(clob2Str((java.sql.Clob) in));
+        String v = clob2Str((java.sql.Clob) in);
+        return null == v ? null : Boolean.parseBoolean(v);
       } catch (NumberFormatException e) {
         throw new RuntimeException(
             String.format("无法将java.sql.Clob类型转换为java.lang.Boolean类型:%s", e.getMessage()));
@@ -913,7 +948,7 @@ public final class ObjectCastUtils {
       return new String((byte[]) in);
     } else if (in instanceof Map) {
       return JSONUtil.toJsonStr(in);
-    } else if(in instanceof Collection){
+    } else if (in instanceof Collection) {
       return JSONUtil.toJsonStr(in);
     }
 

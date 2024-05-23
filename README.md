@@ -54,6 +54,7 @@
         ├── dbswitch-product-clickhouse 	//  -> clickhouse方言实现类
         ├── dbswitch-product-mongodb    	//  -> mongodb方言实现类
         ├── dbswitch-product-elasticsearch 	//  -> elasticsearch方言实现类
+        ├── dbswitch-product-starrocks 	    //  -> starrocks方言实现类
     ├── dbswitch-data                   	// 工具入口模块，读取配置文件中的参数执行异构迁移同步
     ├── dbswitch-admin                  	// 在以上模块的基础上引入Quartz的调度服务与接口
     ├── dbswitch-admin-ui               	// 基于Vue2的前段WEB交互页面
@@ -364,12 +365,16 @@ jdbc连接地址：jdbc:mongodb://172.17.2.12:27017/admin?authSource=admin&authM
 jdbc驱动名称：com.gitee.jdbc.mongodb.JdbcDriver
 ```
 
+> 项目地址：https://gitee.com/inrgihc/jdbc-mongodb-driver
+
 **ElasticSearch数据库**
 
 ```
 jdbc连接地址：jdbc:jest://172.17.2.12:9200?useHttps=false
 jdbc驱动名称：com.gitee.jdbc.elasticsearch.JdbcDriver
 ```
+
+> 项目地址：https://gitee.com/inrgihc/jdbc-jest-driver
 
 #### (2)、启动方法
 
@@ -503,6 +508,8 @@ bin/startup.sh
  ![admin_03.png](images/admin_03.png)
  
  ![admin_04.png](images/admin_04.png)
+ 
+ ![admin_04_01.png](images/admin_04_01.png)
  
  ![admin_05.png](images/admin_05.png)
  

@@ -41,7 +41,7 @@
             </el-form-item>
             <el-form-item :required=true
                           label="数据库类型">
-              <label>{{ this.selectedDataSource.name }}</label>
+              <label>{{ this.updateform.type }}</label>
             </el-form-item>
             <el-form-item prop="version"
                           label="驱动版本">
@@ -144,7 +144,7 @@
         <el-row style="text-align: center">
           <el-button type="success"
                      class="startTest"
-                     @click="startTest">开始检测</el-button>
+                     @click="startTest">测试</el-button>
           <el-button type="primary"
                      class="createDataSource"
                      @click="updateDataSource">修改</el-button>

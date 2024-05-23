@@ -1,38 +1,46 @@
 <template>
   <div>
     <el-card>
-      <div class="flex-between">
-        <div class="tree-container">
-          <el-select placeholder="请选择数据源"
-                     v-model="dataSourceId"
-                     @change="loadTreeData">
-            <el-option v-for="(item,index) in connectionList"
-                       :key="index"
-                       :label="`[${item.id}]${item.name}`"
-                       :value="item.id"></el-option>
-          </el-select>
-          <el-scrollbar style="height: 800px;">
-            <el-tree ref="metadataTree"
-                     empty-text="请选择数据源后查看"
-                     :indent=6
-                     :data="treeData"
-                     :props="props"
-                     :load="loadTreeNode"
-                     :expand-on-click-node="true"
-                     :highlight-current="true"
-                     :render-content="renderContent"
-                     @node-click="handleNodeClick"
-                     lazy>
-            </el-tree>
-          </el-scrollbar>
-        </div>
-        <div class="table-container">
-          <el-tabs v-model="tabActiveTabName"
-                   type="border-card">
-            <el-tab-pane label="元数据"
-                         name="metadata">
+      <el-tabs v-model="tabActiveTabName"
+               type="border-card">
+        <el-tab-pane label="元数据"
+                     name="metadata">
+          <div class="flex-between">
+            <el-aside>
+              <div class="select-datasource-container">
+                <el-select placeholder="请选择数据源"
+                           v-model="dataSourceId"
+                           @change="loadTreeData">
+                  <el-option v-for="(item,index) in connectionList"
+                             :key="index"
+                             :label="`[${item.id}]${item.name}`"
+                             :value="item.id"></el-option>
+                </el-select>
+                <el-button type="primary"
+                           size="mini"
+                           :disabled="metadataLoading"
+                           icon="el-icon-refresh"
+                           @click="loadTreeData">刷新</el-button>
+              </div>
+              <el-scrollbar style="height: 800px;">
+                <el-tree ref="metadataTree"
+                         empty-text="请选择数据源后查看"
+                         :indent=6
+                         :data="treeData"
+                         :props="props"
+                         :load="loadTreeNode"
+                         :expand-on-click-node="true"
+                         :highlight-current="true"
+                         :render-content="renderContent"
+                         @node-click="handleNodeClick"
+                         lazy>
+                </el-tree>
+              </el-scrollbar>
+            </el-aside>
+            <el-main class="metadata-container">
               当前表：<el-tag size="medium">{{currentNode.schemaName}} / {{currentNode.tableName}}</el-tag>
-              <el-tabs v-model="metadataActiveTabName">
+              <el-tabs v-model="metadataActiveTabName"
+                       type="border-card">
                 <el-tab-pane label="基本信息"
                              name="first">
                   <el-descriptions size="small"
@@ -64,7 +72,7 @@
                             border
                             style="width: 100%">
                     <template slot="empty">
-                      <span>单击左侧展开"数据源导航树"来查看表的元数据记录</span>
+                      <span>单击点击左侧节点查看对应表的字段信息</span>
                     </template>
                     <el-table-column prop="fieldName"
                                      min-width="20%"
@@ -73,11 +81,11 @@
                     </el-table-column>
                     <el-table-column prop="typeName"
                                      min-width="20%"
-                                     label="类型">
+                                     label="数据类型">
                     </el-table-column>
                     <el-table-column prop="fieldType"
                                      min-width="7%"
-                                     label="枚举值">
+                                     label="类型枚举">
                     </el-table-column>
                     <el-table-column prop="displaySize"
                                      min-width="7%"
@@ -118,7 +126,7 @@
                             border
                             style="width: 100%">
                     <template slot="empty">
-                      <span>单击左侧展开"数据源导航树"来查看表的元数据记录</span>
+                      <span>单击点击左侧节点查看对应表的索引信息</span>
                     </template>
                     <el-table-column prop="indexType"
                                      min-width="20%"
@@ -143,7 +151,7 @@
                             :data="sampleData.rows"
                             border>
                     <template slot="empty">
-                      <span>单击左侧展开"数据源导航树"来查看表的数据记录</span>
+                      <span>单击点击左侧节点查看对应表的取样数据</span>
                     </template>
                     <el-table-column v-for="(item,index) in sampleData.columns"
                                      :prop="item"
@@ -154,14 +162,111 @@
                   </el-table>
                 </el-tab-pane>
               </el-tabs>
-            </el-tab-pane>
-            <!-- <el-tab-pane label="SQL在线"
-                         name="sqlQuery">
-              <multi-sql-editor ref="sqlEditors"></multi-sql-editor>
-            </el-tab-pane> -->
-          </el-tabs>
-        </div>
-      </div>
+            </el-main>
+          </div>
+        </el-tab-pane>
+        <el-tab-pane label="SQL在线"
+                     name="sqlQuery">
+          <el-row :gutter=12
+                  class="padding-row-stype">
+            <el-col :span="6">
+              <div class="sqlonline-select-suffix">
+                <span class="text-label">数据源：</span>
+                <el-select size="small"
+                           placeholder="请选择数据源"
+                           v-model="sqlDataSourceId">
+                  <el-option v-for="(item,index) in connectionList"
+                             :key="index"
+                             :label="`[${item.id}]${item.name}`"
+                             :value="item.id"></el-option>
+                </el-select>
+              </div>
+            </el-col>
+            <el-col :span="6">
+              <div class="sqlonline-select-suffix">
+                <span class="text-label">最大记录数：</span>
+                <el-select size="small"
+                           placeholder="选择结果集MaxRow"
+                           v-model="rsMaxRowCount">
+                  <el-option v-for="(item,index) in maxRowCountList"
+                             :key="index"
+                             :label="item.name"
+                             :value="item.id"></el-option>
+                </el-select>
+              </div>
+            </el-col>
+            <el-col :span="6">
+              <div class="sqlonline-select-suffix">
+                <span class="text-label">编辑器高度：</span>
+                <el-input-number v-model="editorHeightNum"
+                                 size="small"
+                                 :step="10"
+                                 step-strictly></el-input-number>
+              </div>
+            </el-col>
+            <el-col :span="6">
+              <div class="tool">
+                <div class="item-button"
+                     @click="runAll"><i class="el-icon-video-play"></i><span>执行</span></div>
+                <div class="item-button"
+                     @click="runSelected"><i class="el-icon-caret-right"></i><span>选中执行</span></div>
+                <div class="item-button"
+                     @click="formatSql"><i class="el-icon-postcard"></i><span>格式化</span></div>
+              </div>
+            </el-col>
+          </el-row>
+          <el-row class="padding-row-stype">
+          </el-row>
+          <el-row class="padding-row-stype">
+            <div v-loading="sqlResultLoading"
+                 :style="'height: ' + editorHeightNum + 'px'">
+              <ace ref="sqlEditor"
+                   @init="initEditor"
+                   lang="sql"
+                   width="100%"
+                   height="100%"
+                   theme="monokai"
+                   :options="sqlEditorOption">
+              </ace>
+            </div>
+          </el-row>
+          <el-row class="padding-row-stype">
+            <el-tabs v-model="activeResultTab"
+                     tab-position="top"
+                     type="border-card">
+              <el-tab-pane label="信息"
+                           name="0">
+                <div v-for="(one,idx) in sqlExecuteResult.summaries"
+                     :key="idx">
+                  [SQL]: {{one.sql}}<br />{{one.summary}}<br /><br />
+                </div>
+              </el-tab-pane>
+              <el-tab-pane v-for="(one,idx) in sqlExecuteResult.results"
+                           :key="(idx+1)"
+                           :label="'结果'+(idx+1)"
+                           :name="''+(idx+1)">
+                <el-table :header-cell-style="{background:'#eef1f6',color:'#606266','font-size': '12px'}"
+                          style="width: 100%; max-height: 400px; overflow: auto;"
+                          height="400px"
+                          :data="one.rows"
+                          border>
+                  <template slot="empty">
+                    <span>SQL结果为空</span>
+                  </template>
+                  <el-table-column v-for="(item,index) in one.columns"
+                                   :prop="item.columnName"
+                                   :key="index"
+                                   show-overflow-tooltip>
+                    <template slot="header">
+                      {{item.columnName}}<br />({{item.columnType}})
+                    </template>
+                  </el-table-column>
+                </el-table>
+              </el-tab-pane>
+            </el-tabs>
+          </el-row>
+        </el-tab-pane>
+      </el-tabs>
     </el-card>
   </div>
 </template>
@@ -169,14 +274,15 @@
 <script>
 import urlencode from "urlencode";
 import ace from 'vue2-ace-editor'
+const sqlformatter = require("sql-formatter");
 
-// 参考文章：https://blog.csdn.net/m0_50255772/article/details/109484828
 export default {
   components: {
     ace
   },
   data () {
     return {
+      metadataLoading: false,
       props: {
         label: 'label',
         children: 'children',
@@ -210,7 +316,34 @@ export default {
         columns: []
       },
       count: 1,
-      sampleData: []
+      sampleData: [],
+      sqlDataSourceId: null,
+      sqlEditorOption: {
+        enableBasicAutocompletion: true,
+        enableSnippets: true,
+        enableLiveAutocompletion: true,
+        showPrintMargin: false,
+        showLineNumbers: true,
+        tabSize: 6,
+        fontSize: 18,
+      },
+      rsMaxRowCount: 200,
+      maxRowCountList: [
+        { id: 100, name: '100条' },
+        { id: 200, name: '200条' },
+        { id: 500, name: '500条' },
+        { id: 1000, name: '1000条' },
+        { id: 2000, name: '2000条' },
+        { id: 5000, name: '5000条' },
+        { id: 10000, name: '10000条' },
+      ],
+      editorHeightNum: 200,
+      sqlResultLoading: false,
+      sqlExecuteResult: {
+        summaries: [],
+        results: [],
+      },
+      activeResultTab: "0",
     };
   },
   methods: {
@@ -248,12 +381,14 @@ export default {
     loadTreeData: function () {
       if (this.dataSourceId && this.dataSourceId > 0) {
         this.treeData = []
+        this.metadataLoading = true;
         setTimeout(() => {
           this.$http({
             method: "GET",
             url: "/dbswitch/admin/api/v1/connection/schemas/get/" + this.dataSourceId
           }).then(
             res => {
+              this.metadataLoading = false;
               if (0 === res.data.code) {
                 for (let element of res.data.data) {
                   let obj = new Object();
@@ -304,11 +439,13 @@ export default {
     },
     loadTablesList: function (resolve, dataSourceId, schema, type) {
       var tableType = 'VIEW' === type ? 'views' : 'tables'
+      this.metadataLoading = true;
       this.$http({
         method: "GET",
         url: "/dbswitch/admin/api/v1/connection/" + tableType + "/get/" + dataSourceId + "?schema=" + urlencode(schema)
       }).then(
         res => {
+          this.metadataLoading = false;
           if (0 === res.data.code) {
             let tableList = []
             for (let element of res.data.data) {
@@ -400,6 +537,7 @@ export default {
         if (!data.hasChild && datasourceId && schema && table) {
           this.tabActiveTabName = 'metadata';
           this.metadataActiveTabName = 'first';
+          this.clearDataSet();
           this.getTableMeta(datasourceId, schema, table);
           this.getTableData(datasourceId, schema, table);
         }
@@ -415,8 +553,8 @@ export default {
         createSql: "",
         primaryKeys: [],
         columns: []
-      },
-        this.sampleData = []
+      };
+      this.sampleData = []
     },
     getTableMeta (id, schema, table) {
       this.$http({
@@ -431,7 +569,6 @@ export default {
             this.currentNode.schemaName = schema;
           } else {
             this.$alert("加载失败，原因：" + res.data.message, '数据加载失败');
-            this.clearDataSet();
           }
         }
       );
@@ -447,7 +584,6 @@ export default {
             //console.log(this.sampleData)
           } else {
             this.$alert("加载失败，原因：" + res.data.message, '数据加载失败');
-            this.clearDataSet();
           }
         }
       );
@@ -475,6 +611,78 @@ export default {
             this.clearDataSet();
           }
         }
+      );
+    },
+    formatSql: function () {
+      if (this.sqlResultLoading === true) {
+        return
+      }
+      let editor = this.$refs.sqlEditor.editor;
+      let sqlcontent = editor.getSelectedText();
+      if (sqlcontent && sqlcontent.length > 0) {
+        let formatSql = sqlformatter.format(sqlcontent)
+        editor.session.replace(editor.getSelectionRange(), formatSql);
+      } else {
+        sqlcontent = editor.getValue();
+        if (!sqlcontent || sqlcontent.length === 0) {
+          alert("SQL文本内容为空");
+          return
+        }
+        editor.setValue(sqlformatter.format(editor.getValue()));
+      }
+    },
+    runAll: function () {
+      let editor = this.$refs.sqlEditor.editor;
+      let sqlcontent = editor.getValue();
+      if (!sqlcontent || 0 === sqlcontent.length) {
+        alert("SQL文本内容为空");
+        return
+      }
+      this.executeSqlScript(sqlcontent)
+    },
+    runSelected: function () {
+      let editor = this.$refs.sqlEditor.editor;
+      let sqlcontent = editor.getSelectedText();
+      if (!sqlcontent || 0 === sqlcontent.length) {
+        alert("请首先选择SQL文本内容");
+        return
+      }
+      this.executeSqlScript(sqlcontent)
+    },
+    executeSqlScript: function (sqlScript) {
+      if (this.sqlResultLoading === true) {
+        alert("已有一个查询正在进行中");
+        return
+      }
+      if (!this.sqlDataSourceId || this.dataSourceId < 0) {
+        alert("请首先选择一个数据源来");
+        return
+      }
+      this.sqlResultLoading = true;
+      this.sqlExecuteResult = {
+        summaries: [],
+        results: [],
+      };
+      this.$http({
+        method: "POST",
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        url: "/dbswitch/admin/api/v1/metadata/data/sql/" + this.sqlDataSourceId,
+        data: JSON.stringify({
+          script: sqlScript,
+          page: 1,
+          size: this.rsMaxRowCount
+        })
+      }).then(res => {
+        this.sqlResultLoading = false;
+        if (0 === res.data.code) {
+          this.sqlExecuteResult = res.data.data;
+          this.activeResultTab = "0";
+        } else {
+          alert("SQL执行报错:" + res.data.message);
+        }
+      }
       );
     },
   },
@@ -521,8 +729,12 @@ export default {
 .tree-container .tree {
   overflow: auto;
 }
+.metadata-container {
+  padding: 4px;
+}
 .table-container {
   width: 100%;
+  border: darkblue;
 }
 .table-container-data-table {
   height: 90%;
@@ -550,5 +762,36 @@ el-tabs--border-card > .el-tabs__header .el-tabs__item {
 .el-tabs--border-card > .el-tabs__header .el-tabs__item.is-active {
   background-color: #0065d5;
   color: #ffffff;
+}
+.sqlonline-select-suffix {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center; /* 垂直居中 */
+}
+.text-label {
+  font-size: 11px;
+  font-weight: 700;
+}
+.select-datasource-container {
+  display: flex;
+}
+.tool {
+  display: flex;
+  justify-content: flex-end;
+}
+.tool .item-button {
+  display: inline-block;
+  font-size: 20px;
+  color: #009966;
+  margin: 0 20px 0 0;
+  line-height: 26px;
+  cursor: pointer;
+}
+.tool .item-button span {
+  color: #000;
+  font-size: 16px;
+}
+.padding-row-stype {
+  padding: 5px;
 }
 </style>
