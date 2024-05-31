@@ -246,7 +246,7 @@ public class ConnectionService {
     Supplier<List<DbConnectionNameResponse>> method = () -> {
       List<DatabaseConnectionEntity> lists = databaseConnectionDAO.listAll(null);
       return lists.stream()
-          .map(c -> new DbConnectionNameResponse(c.getId(), c.getName()))
+          .map(c -> new DbConnectionNameResponse(c.getId(), c.getName(), c.getType().isUseSql()))
           .collect(Collectors.toList());
     };
 

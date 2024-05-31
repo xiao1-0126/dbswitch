@@ -21,9 +21,6 @@
               <el-description-item label="地址"
                                    :span='15'
                                    :value="userinfo.address"></el-description-item>
-              <el-description-item label="锁定"
-                                   :span='15'
-                                   :value="userinfo.locked"></el-description-item>
               <el-description-item label="创建时间"
                                    :span='15'
                                    :value="userinfo.createTime"></el-description-item>

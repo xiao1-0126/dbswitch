@@ -27,4 +27,6 @@ public class DbConnectionNameResponse {
   @ApiModelProperty("名称")
   private String name;
 
+  @ApiModelProperty("类型")
+  private Boolean useSql;
 }

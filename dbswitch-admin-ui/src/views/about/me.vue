@@ -86,6 +86,8 @@
                 </li>
                 <li>ClickHouse
                 </li>
+                <li>StarRocks
+                </li>
                 <li>MongoDB(只支持数据加载写入，不支持变化量同步)
                 </li>
                 <li>ElasticSearch(只支持数据加载写入，不支持变化量同步)
@@ -128,6 +130,7 @@
                     ├── dbswitch-product-hive           //  -> hive方言实现类
                     ├── dbswitch-product-sqlite         //  -> sqlite方言实现类
                     ├── dbswitch-product-clickhouse     //  -> clickhouse方言实现类
+                    ├── dbswitch-product-starrocks      //  -> starrocks方言实现类
                     ├── dbswitch-product-mongodb        //  -> mongodb方言实现类
                     ├── dbswitch-product-elasticsearch  //  -> elasticsearch方言实现类
                 ├── dbswitch-data                       // 工具入口模块，读取配置文件中的参数执行异构迁移同步

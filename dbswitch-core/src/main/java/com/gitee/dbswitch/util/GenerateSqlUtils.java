@@ -24,6 +24,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.experimental.UtilityClass;
 import org.apache.commons.collections4.CollectionUtils;
@@ -70,9 +71,11 @@ public final class GenerateSqlUtils {
       Map<String, String> tblProperties) {
     ProductTypeEnum type = provider.getProductType();
     StringBuilder sb = new StringBuilder();
-    List<String> pks = fieldNames.stream()
-        .filter((cd) -> primaryKeys.contains(cd.getFieldName()))
-        .map((cd) -> cd.getFieldName())
+    Set<String> fieldNameSets = fieldNames.stream()
+        .map(ColumnDescription::getFieldName)
+        .collect(Collectors.toSet());
+    List<String> pks = primaryKeys.stream()
+        .filter(fieldNameSets::contains)
         .collect(Collectors.toList());
 
     sb.append(Constants.CREATE_TABLE);
@@ -88,16 +91,15 @@ public final class GenerateSqlUtils {
       Integer fieldIndex = 0;
       for (int i = 0; i < fieldNames.size(); i++) {
         ColumnDescription cd = fieldNames.get(i);
-        if (primaryKeys.contains(cd.getFieldName())){
-          copyFieldNames.add(fieldIndex,cd);
-          fieldIndex = fieldIndex +1;
-        }else{
+        if (primaryKeys.contains(cd.getFieldName())) {
+          copyFieldNames.add(fieldIndex, cd);
+          fieldIndex = fieldIndex + 1;
+        } else {
           copyFieldNames.add(cd);
         }
       }
       fieldNames = copyFieldNames;
     }
-
 
     for (int i = 0; i < fieldNames.size(); i++) {
       if (i > 0) {
@@ -147,10 +149,10 @@ public final class GenerateSqlUtils {
         sb.append("ORDER BY tuple()");
       }
       if (withRemarks && StringUtils.isNotBlank(tableRemarks)) {
-        //sb.append(Constants.CR);
-        //sb.append(String.format("COMMENT='%s' ", tableRemarks.replace("'", "\\'")));
+        sb.append(Constants.CR);
+        sb.append(String.format("COMMENT '%s' ", tableRemarks.replace("'", "\\'")));
       }
-    }else if (type.isLikeStarRocks()){
+    } else if (type.isLikeStarRocks()) {
       String pk = provider.getPrimaryKeyAsString(pks);
       sb.append("PRIMARY KEY (").append(pk).append(")");
       sb.append("\n DISTRIBUTED BY HASH(").append(pk).append(")");

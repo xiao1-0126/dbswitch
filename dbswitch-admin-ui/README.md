@@ -4,6 +4,8 @@
 
 基于Vue.js 2.0编写的dbswitch操作管理web端。
 
+> 项目地址：https://gitee.com/inrgihc/dbswitch
+
 ## 二、环境
 
  **node** : >= v14.15.4

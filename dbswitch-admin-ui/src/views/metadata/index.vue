@@ -175,10 +175,12 @@
                 <el-select size="small"
                            placeholder="请选择数据源"
                            v-model="sqlDataSourceId">
-                  <el-option v-for="(item,index) in connectionList"
-                             :key="index"
-                             :label="`[${item.id}]${item.name}`"
-                             :value="item.id"></el-option>
+                  <template v-for="item in connectionList">
+                    <el-option v-if="item.useSql"
+                               :key="item.id"
+                               :label="`[${item.id}]${item.name}`"
+                               :value="item.id"></el-option>
+                  </template>
                 </el-select>
               </div>
             </el-col>
