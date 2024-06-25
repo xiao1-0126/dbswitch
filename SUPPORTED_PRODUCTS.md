@@ -103,7 +103,7 @@ jdbc连接地址：jdbc:opengauss://172.17.2.10:5866/test
 jdbc驱动名称：org.opengauss.Driver
 ```
 
-**ClickHouse数据库**
+**ClickHouse(>=22.0.0.0)数据库**
 
 ```
 jdbc连接地址：jdbc:clickhouse://172.17.2.10:8123/default
