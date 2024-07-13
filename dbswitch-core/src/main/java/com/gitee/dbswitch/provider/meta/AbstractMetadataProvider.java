@@ -33,11 +33,9 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.util.StreamUtils;
 
 /**
  * 数据库元信息抽象基类
@@ -104,7 +102,7 @@ public abstract class AbstractMetadataProvider
   public TableDescription queryTableMeta(Connection connection, String schemaName,
       String tableName) {
     try (ResultSet tables = connection.getMetaData()
-        .getTables(catalogName, schemaName, tableName, new String[]{"TABLE","VIEW"})) {
+        .getTables(catalogName, schemaName, tableName, new String[]{"TABLE", "VIEW"})) {
       if (tables.next()) {
         TableDescription td = new TableDescription();
         td.setSchemaName(schemaName);
@@ -231,6 +229,26 @@ public abstract class AbstractMetadataProvider
   public String getFieldDefinition(ColumnMetaData v, List<String> pks, boolean useAutoInc,
       boolean addCr, boolean withRemarks) {
     throw new RuntimeException("AbstractDatabase Unimplemented!");
+  }
+
+  @Override
+  public void preAppendCreateTableSql(StringBuilder builder) {
+    // NOTHING, Please override by subclass!
+  }
+
+  @Override
+  public void appendPrimaryKeyForCreateTableSql(StringBuilder builder, List<String> primaryKeys) {
+    // 不支持主键的数据库类型(例如：hive)，需要覆盖掉该方法
+    if (CollectionUtils.isNotEmpty(primaryKeys)) {
+      String primaryKeyAsString = getPrimaryKeyAsString(primaryKeys);
+      builder.append(", PRIMARY KEY (").append(primaryKeyAsString).append(")");
+    }
+  }
+
+  @Override
+  public void postAppendCreateTableSql(StringBuilder builder, String tblComment, List<String> primaryKeys,
+      Map<String, String> tblProperties) {
+    // Nothing, please override by subclass!
   }
 
   @Override

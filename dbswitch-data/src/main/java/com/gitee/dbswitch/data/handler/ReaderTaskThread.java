@@ -21,7 +21,6 @@ import com.gitee.dbswitch.common.entity.ResultSetWrapper;
 import com.gitee.dbswitch.common.type.CaseConvertEnum;
 import com.gitee.dbswitch.common.type.ProductTypeEnum;
 import com.gitee.dbswitch.common.util.DatabaseAwareUtils;
-import com.gitee.dbswitch.common.util.ExamineUtils;
 import com.gitee.dbswitch.common.util.JdbcTypesUtils;
 import com.gitee.dbswitch.common.util.PatterNameUtils;
 import com.gitee.dbswitch.core.exchange.BatchElement;
@@ -32,6 +31,7 @@ import com.gitee.dbswitch.data.domain.ReaderTaskParam;
 import com.gitee.dbswitch.data.domain.ReaderTaskResult;
 import com.gitee.dbswitch.data.entity.SourceDataSourceProperties;
 import com.gitee.dbswitch.data.entity.TargetDataSourceProperties;
+import com.gitee.dbswitch.data.util.HiveTblUtils;
 import com.gitee.dbswitch.provider.ProductFactoryProvider;
 import com.gitee.dbswitch.provider.ProductProviderFactory;
 import com.gitee.dbswitch.provider.manage.TableManageProvider;
@@ -48,7 +48,6 @@ import com.google.common.collect.Lists;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -693,46 +692,12 @@ public class ReaderTaskThread extends TaskProcessor<ReaderTaskResult> {
         .build();
   }
 
-  /**
-   * https://cwiki.apache.org/confluence/display/Hive/JDBC+Storage+Handler
-   *
-   * @return Map<String, String>
-   */
   public Map<String, String> getTblProperties() {
-    Map<String, String> ret = new HashMap<>();
     if (targetProductType.isLikeHive()) {
-      // hive.sql.database.type: MYSQL, POSTGRES, ORACLE, DERBY, DB2
-      final List<ProductTypeEnum> supportedProductTypes =
-          Arrays.asList(ProductTypeEnum.MYSQL, ProductTypeEnum.ORACLE,
-              ProductTypeEnum.DB2, ProductTypeEnum.POSTGRESQL);
-      ExamineUtils.check(supportedProductTypes.contains(sourceProductType),
-          "Unsupported data from %s to Hive", sourceProductType.name());
-
-      String fullTableName = sourceProductType.quoteSchemaTableName(sourceSchemaName, sourceTableName);
-      List<String> columnNames = sourceColumnDescriptions.stream().map(ColumnDescription::getFieldName)
-          .collect(Collectors.toList());
-      String querySql = String.format("SELECT %s FROM %s",
-          columnNames.stream()
-              .map(s -> sourceProductType.quoteName(s))
-              .collect(Collectors.joining(",")),
-          fullTableName);
-      String databaseType = sourceProductType.name().toUpperCase();
-      if (ProductTypeEnum.POSTGRESQL == sourceProductType) {
-        databaseType = "POSTGRES";
-      } else if (ProductTypeEnum.SQLSERVER == sourceProductType) {
-        databaseType = "MSSQL";
-      }
-      ret.put("hive.sql.database.type", databaseType);
-      ret.put("hive.sql.jdbc.driver", sourceDataSource.getDriverClass());
-      ret.put("hive.sql.jdbc.url", sourceDataSource.getJdbcUrl());
-      ret.put("hive.sql.dbcp.username", sourceDataSource.getUserName());
-      ret.put("hive.sql.dbcp.password", sourceDataSource.getPassword());
-      ret.put("hive.sql.query", querySql);
-      ret.put("hive.sql.jdbc.read-write", "read");
-      ret.put("hive.sql.jdbc.fetch.size", "2000");
-      ret.put("hive.sql.dbcp.maxActive", "1");
+      return HiveTblUtils.getTblProperties(sourceProductType, sourceDataSource,
+          sourceSchemaName, sourceTableName, sourceColumnDescriptions);
     }
-    return ret;
+    return new HashMap<>();
   }
 
   @Override

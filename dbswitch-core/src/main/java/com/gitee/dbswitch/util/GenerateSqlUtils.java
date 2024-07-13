@@ -13,7 +13,6 @@ import com.gitee.dbswitch.common.consts.Constants;
 import com.gitee.dbswitch.common.type.ProductTableEnum;
 import com.gitee.dbswitch.common.type.ProductTypeEnum;
 import com.gitee.dbswitch.common.util.DDLFormatterUtils;
-import com.gitee.dbswitch.common.util.UuidUtils;
 import com.gitee.dbswitch.provider.meta.MetadataProvider;
 import com.gitee.dbswitch.schema.ColumnDescription;
 import com.gitee.dbswitch.schema.ColumnMetaData;
@@ -28,7 +27,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.experimental.UtilityClass;
 import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
 
 /**
  * 拼接SQL工具类
@@ -37,8 +35,6 @@ import org.apache.commons.lang3.StringUtils;
  */
 @UtilityClass
 public final class GenerateSqlUtils {
-
-  private static final boolean HIVE_USE_CTAS = false;
 
   public static String getDDLCreateTableSQL(
       MetadataProvider provider,
@@ -79,21 +75,18 @@ public final class GenerateSqlUtils {
         .collect(Collectors.toList());
 
     sb.append(Constants.CREATE_TABLE);
-    // if(ifNotExist && !type.isLikeOracle()) {
-    // sb.append( Const.IF_NOT_EXISTS );
-    // }
+    provider.preAppendCreateTableSql(sb);
     sb.append(provider.getQuotedSchemaTableCombination(schemaName, tableName));
     sb.append("(");
 
-    // starrocks 当中，字段主键的情况下，必须将字段放在最前面，并且顺序一致。
-    if (type.isLikeStarRocks()) {
+    // StarRocks 当中，字段主键的情况下，必须将字段放在最前面，并且顺序一致。
+    if (type.isPrimaryKeyShouldAtFirst()) {
       List<ColumnDescription> copyFieldNames = new ArrayList<>();
       Integer fieldIndex = 0;
       for (int i = 0; i < fieldNames.size(); i++) {
         ColumnDescription cd = fieldNames.get(i);
         if (primaryKeys.contains(cd.getFieldName())) {
-          copyFieldNames.add(fieldIndex, cd);
-          fieldIndex = fieldIndex + 1;
+          copyFieldNames.add(fieldIndex++, cd);
         } else {
           copyFieldNames.add(cd);
         }
@@ -112,51 +105,9 @@ public final class GenerateSqlUtils {
       sb.append(provider.getFieldDefinition(v, pks, autoIncr, false, withRemarks));
     }
 
-    if (!pks.isEmpty() && !type.isLikeHive() && !type.isLikeStarRocks()) {
-      String pk = provider.getPrimaryKeyAsString(pks);
-      sb.append(", PRIMARY KEY (").append(pk).append(")");
-    }
-
+    provider.appendPrimaryKeyForCreateTableSql(sb, pks);
     sb.append(")");
-    if (type.isLikeGbase8a()) {
-      sb.append("ENGINE=EXPRESS DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin");
-      if (withRemarks && StringUtils.isNotBlank(tableRemarks)) {
-        sb.append(String.format(" COMMENT='%s' ", tableRemarks.replace("'", "\\'")));
-      }
-    } else if (type.isLikeMysql()) {
-      sb.append("ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin");
-      if (withRemarks && StringUtils.isNotBlank(tableRemarks)) {
-        sb.append(String.format(" COMMENT='%s' ", tableRemarks.replace("'", "\\'")));
-      }
-    } else if (type.isLikeHive()) {
-      if (null != tblProperties && !tblProperties.isEmpty()) {
-        List<String> kvProperties = new ArrayList<>();
-        tblProperties.forEach((k, v) -> kvProperties.add(String.format("\t\t'%s' = '%s'", k, v)));
-        sb.append(Constants.CR);
-        sb.append("STORED BY 'org.apache.hive.storage.jdbc.JdbcStorageHandler'");
-        sb.append(Constants.CR);
-        sb.append("TBLPROPERTIES (");
-        sb.append(kvProperties.stream().collect(Collectors.joining(",\n")));
-        sb.append(")");
-      } else {
-        sb.append(Constants.CR);
-        sb.append("STORED AS ORC");
-      }
-    } else if (type.isClickHouse()) {
-      sb.append("ENGINE=MergeTree");
-      if (CollectionUtils.isEmpty(pks)) {
-        sb.append(Constants.CR);
-        sb.append("ORDER BY tuple()");
-      }
-      if (withRemarks && StringUtils.isNotBlank(tableRemarks)) {
-        sb.append(Constants.CR);
-        sb.append(String.format("COMMENT '%s' ", tableRemarks.replace("'", "\\'")));
-      }
-    } else if (type.isLikeStarRocks()) {
-      String pk = provider.getPrimaryKeyAsString(pks);
-      sb.append("PRIMARY KEY (").append(pk).append(")");
-      sb.append("\n DISTRIBUTED BY HASH(").append(pk).append(")");
-    }
+    provider.postAppendCreateTableSql(sb, tableRemarks, pks, tblProperties);
 
     return DDLFormatterUtils.format(sb.toString());
   }
@@ -172,29 +123,8 @@ public final class GenerateSqlUtils {
       Map<String, String> tblProperties) {
     ProductTypeEnum productType = provider.getProductType();
     if (productType.isLikeHive()) {
-      List<String> sqlLists = new ArrayList<>();
-      String tmpTableName = "tmp_" + UuidUtils.generateUuid();
-      String createTableSql = getDDLCreateTableSQL(provider, fieldNames, primaryKeys, schemaName,
-          tmpTableName, true, tableRemarks, autoIncr, tblProperties);
-      sqlLists.add(createTableSql);
-      if (HIVE_USE_CTAS) {
-        String createAsTableSql = String.format("CREATE TABLE `%s`.`%s` STORED AS ORC AS (SELECT * FROM `%s`.`%s`)",
-            schemaName, tableName, schemaName, tmpTableName);
-        sqlLists.add(createAsTableSql);
-      } else {
-        String createAsTableSql = getDDLCreateTableSQL(provider, fieldNames, primaryKeys, schemaName,
-            tableName, true, tableRemarks, autoIncr, null);
-        sqlLists.add(createAsTableSql);
-        String selectColumns = fieldNames.stream()
-            .map(s -> String.format("`%s`", s.getFieldName()))
-            .collect(Collectors.joining(","));
-        String insertIntoSql = String.format("INSERT INTO `%s`.`%s` SELECT %s FROM `%s`.`%s`",
-            schemaName, tableName, selectColumns, schemaName, tmpTableName);
-        sqlLists.add(insertIntoSql);
-      }
-      String dropTmpTableSql = String.format("DROP TABLE IF EXISTS `%s`.`%s`", schemaName, tmpTableName);
-      sqlLists.add(dropTmpTableSql);
-      return sqlLists;
+      return provider.getCreateTableSqlList(
+          fieldNames, primaryKeys, schemaName, tableName, tableRemarks, autoIncr, tblProperties);
     } else if (productType.noCommentStatement()) {
       String createTableSql = getDDLCreateTableSQL(provider, fieldNames, primaryKeys, schemaName,
           tableName, true, tableRemarks, autoIncr, tblProperties);

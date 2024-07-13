@@ -11,12 +11,14 @@ package com.gitee.dbswitch.product.hive;
 
 import com.gitee.dbswitch.common.consts.Constants;
 import com.gitee.dbswitch.common.type.ProductTypeEnum;
+import com.gitee.dbswitch.common.util.UuidUtils;
 import com.gitee.dbswitch.provider.ProductFactoryProvider;
 import com.gitee.dbswitch.provider.meta.AbstractMetadataProvider;
 import com.gitee.dbswitch.schema.ColumnDescription;
 import com.gitee.dbswitch.schema.ColumnMetaData;
 import com.gitee.dbswitch.schema.IndexDescription;
 import com.gitee.dbswitch.schema.TableDescription;
+import com.gitee.dbswitch.util.GenerateSqlUtils;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
@@ -25,13 +27,17 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 
 @Slf4j
 public class HiveMetadataQueryProvider extends AbstractMetadataProvider {
 
+  private static final boolean HIVE_USE_CTAS = false;
   private static final String SHOW_CREATE_TABLE_SQL = "SHOW CREATE TABLE `%s`.`%s` ";
 
   public HiveMetadataQueryProvider(ProductFactoryProvider factoryProvider) {
@@ -168,6 +174,58 @@ public class HiveMetadataQueryProvider extends AbstractMetadataProvider {
   public List<String> getTableColumnCommentDefinition(TableDescription td,
       List<ColumnDescription> cds) {
     return Collections.emptyList();
+  }
+
+  @Override
+  public void appendPrimaryKeyForCreateTableSql(StringBuilder builder, List<String> primaryKeys) {
+    // HIVE表没有主键
+  }
+
+  @Override
+  public void postAppendCreateTableSql(StringBuilder builder, String tblComment, List<String> primaryKeys,
+      Map<String, String> tblProperties) {
+    if (MapUtils.isNotEmpty(tblProperties)) {
+      builder.append(Constants.CR);
+      builder.append("STORED BY 'org.apache.hive.storage.jdbc.JdbcStorageHandler'");
+      builder.append(Constants.CR);
+      builder.append("TBLPROPERTIES (");
+      builder.append(
+          tblProperties.entrySet().stream()
+              .map(entry -> String.format("\t\t'%s' = '%s'", entry.getKey(), entry.getValue()))
+              .collect(Collectors.joining(",\n")));
+      builder.append(")");
+    } else {
+      builder.append(Constants.CR);
+      builder.append("STORED AS ORC");
+    }
+  }
+
+  @Override
+  public List<String> getCreateTableSqlList(List<ColumnDescription> fieldNames, List<String> primaryKeys,
+      String schemaName, String tableName, String tableRemarks, boolean autoIncr, Map<String, String> tblProperties) {
+    List<String> sqlLists = new ArrayList<>();
+    String tmpTableName = "tmp_" + UuidUtils.generateUuid();
+    String createTableSql = GenerateSqlUtils.getDDLCreateTableSQL(this, fieldNames, primaryKeys, schemaName,
+        tmpTableName, true, tableRemarks, autoIncr, tblProperties);
+    sqlLists.add(createTableSql);
+    if (HIVE_USE_CTAS) {
+      String createAsTableSql = String.format("CREATE TABLE `%s`.`%s` STORED AS ORC AS (SELECT * FROM `%s`.`%s`)",
+          schemaName, tableName, schemaName, tmpTableName);
+      sqlLists.add(createAsTableSql);
+    } else {
+      String createAsTableSql = GenerateSqlUtils.getDDLCreateTableSQL(this, fieldNames, primaryKeys, schemaName,
+          tableName, true, tableRemarks, autoIncr, null);
+      sqlLists.add(createAsTableSql);
+      String selectColumns = fieldNames.stream()
+          .map(s -> String.format("`%s`", s.getFieldName()))
+          .collect(Collectors.joining(","));
+      String insertIntoSql = String.format("INSERT INTO `%s`.`%s` SELECT %s FROM `%s`.`%s`",
+          schemaName, tableName, selectColumns, schemaName, tmpTableName);
+      sqlLists.add(insertIntoSql);
+    }
+    String dropTmpTableSql = String.format("DROP TABLE IF EXISTS `%s`.`%s`", schemaName, tmpTableName);
+    sqlLists.add(dropTmpTableSql);
+    return sqlLists;
   }
 
 }

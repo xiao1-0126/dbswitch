@@ -23,8 +23,10 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
 @Slf4j
@@ -299,4 +301,17 @@ public class ClickhouseMetadataQueryProvider extends AbstractMetadataProvider {
     return Collections.emptyList();
   }
 
+  @Override
+  public void postAppendCreateTableSql(StringBuilder builder, String tblComment, List<String> primaryKeys,
+      Map<String, String> tblProperties) {
+    builder.append("ENGINE=MergeTree");
+    if (CollectionUtils.isEmpty(primaryKeys)) {
+      builder.append(Constants.CR);
+      builder.append("ORDER BY tuple()");
+    }
+    if (StringUtils.isNotBlank(tblComment)) {
+      builder.append(Constants.CR);
+      builder.append(String.format("COMMENT '%s' ", tblComment.replace("'", "\\'")));
+    }
+  }
 }

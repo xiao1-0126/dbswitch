@@ -25,6 +25,7 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
@@ -359,5 +360,16 @@ public class StarrocksMetadataQueryProvider extends AbstractMetadataProvider {
     return Collections.emptyList();
   }
 
+  @Override
+  public void appendPrimaryKeyForCreateTableSql(StringBuilder builder, List<String> primaryKeys) {
+    // StarRocks主键需要在postAppendCreateTableSql函数里组装
+  }
 
+  @Override
+  public void postAppendCreateTableSql(StringBuilder builder, String tblComment, List<String> primaryKeys,
+      Map<String, String> tblProperties) {
+    String pk = getPrimaryKeyAsString(primaryKeys);
+    builder.append("PRIMARY KEY (").append(pk).append(")");
+    builder.append("\n DISTRIBUTED BY HASH(").append(pk).append(")");
+  }
 }

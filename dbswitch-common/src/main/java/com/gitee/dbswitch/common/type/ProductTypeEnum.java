@@ -241,21 +241,21 @@ public enum ProductTypeEnum {
   }
 
   /**
+   * 建表语句中主键字段是否必须放在最前边
+   *
+   * @return boolean
+   */
+  public boolean isPrimaryKeyShouldAtFirst() {
+    return this == STARROCKS;
+  }
+
+  /**
    * 类似于PostgreSQL系列的数据库类型
    *
    * @return boolean
    */
   public boolean isLikePostgres() {
     return this == POSTGRESQL || this == KINGBASE || this == OPENGAUSS;
-  }
-
-  /**
-   * 类似于Starrocks系列的数据库类型
-   *
-   * @return boolean
-   */
-  public boolean isLikeStarRocks() {
-    return this == STARROCKS;
   }
 
   /**
@@ -268,30 +268,12 @@ public enum ProductTypeEnum {
   }
 
   /**
-   * 类似于MySQL系列的数据库类型
-   *
-   * @return boolean
-   */
-  public boolean isLikeGbase8a() {
-    return this == GBASE8A;
-  }
-
-  /**
    * 类似于Oracle系列的数据库类型
    *
    * @return boolean
    */
   public boolean isLikeOracle() {
     return this == ORACLE || this == DM;
-  }
-
-  /**
-   * 类似于SQL Server系列的数据库类型
-   *
-   * @return boolean
-   */
-  public boolean isLikeSqlServer() {
-    return this == SQLSERVER || this == SYBASE;
   }
 
   /**

@@ -16,6 +16,7 @@ import com.gitee.dbswitch.schema.IndexDescription;
 import com.gitee.dbswitch.schema.TableDescription;
 import java.sql.Connection;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 元数据查询
@@ -158,6 +159,33 @@ public interface MetadataProvider {
       boolean withRemarks);
 
   /**
+   * 前置补充建表SQL
+   *
+   * @param builder 建表SQL的字符串构造器
+   */
+  void preAppendCreateTableSql(StringBuilder builder);
+
+
+  /**
+   * 在建表SQl中补充主键
+   *
+   * @param builder     建表SQL的字符串构造器
+   * @param primaryKeys 主键字段列表
+   */
+  void appendPrimaryKeyForCreateTableSql(StringBuilder builder, List<String> primaryKeys);
+
+  /**
+   * 后置补充建表SQL
+   *
+   * @param builder       建表SQL的字符串构造器
+   * @param tblComment    表的注释
+   * @param primaryKeys   主键列表
+   * @param tblProperties 表的属性
+   */
+  void postAppendCreateTableSql(StringBuilder builder, String tblComment, List<String> primaryKeys,
+      Map<String, String> tblProperties);
+
+  /**
    * 主键列转换为逗号分隔的字符串
    *
    * @param pks 主键字段列表
@@ -173,4 +201,20 @@ public interface MetadataProvider {
    * @return 定义字符串列表
    */
   List<String> getTableColumnCommentDefinition(TableDescription td, List<ColumnDescription> cds);
+
+  /**
+   * 为hive定制的获取联邦建表导数SQL列表
+   *
+   * @param fieldNames    字段结构信息
+   * @param primaryKeys   主键字段信息
+   * @param schemaName    模式名称
+   * @param tableName     表名称
+   * @param autoIncr      是否允许主键自增
+   * @param tblProperties 表的属性信息
+   * @return 建表导数SQL列表
+   */
+  default List<String> getCreateTableSqlList(List<ColumnDescription> fieldNames, List<String> primaryKeys,
+      String schemaName, String tableName, String tableRemarks, boolean autoIncr, Map<String, String> tblProperties) {
+    throw new UnsupportedOperationException("Unsupported function!");
+  }
 }
