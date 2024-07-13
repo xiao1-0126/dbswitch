@@ -1,6 +1,8 @@
 package com.gitee.dbswitch.common.util;
 
 import cn.hutool.core.codec.Base64;
+import cn.hutool.core.date.DateTime;
+import cn.hutool.core.date.DateUtil;
 import cn.hutool.json.JSONUtil;
 import java.io.ByteArrayOutputStream;
 import java.io.ObjectOutputStream;
@@ -487,8 +489,8 @@ public final class ObjectCastUtils {
       }
     } else if (in instanceof String || in instanceof Character) {
       try {
-        java.sql.Date date = java.sql.Date.valueOf(in.toString());
-        LocalDate localDate = Instant.ofEpochMilli(date.getTime())
+        DateTime dt = DateUtil.parse(in.toString());
+        LocalDate localDate = Instant.ofEpochMilli(dt.toSqlDate().getTime())
             .atZone(ZoneId.systemDefault())
             .toLocalDate();
         return localDate;
@@ -502,8 +504,8 @@ public final class ObjectCastUtils {
         if (null == v) {
           return null;
         }
-        java.sql.Date date = java.sql.Date.valueOf(v);
-        LocalDate localDate = Instant.ofEpochMilli(date.getTime())
+        DateTime dt = DateUtil.parse(in.toString());
+        LocalDate localDate = Instant.ofEpochMilli(dt.toSqlDate().getTime())
             .atZone(ZoneId.systemDefault())
             .toLocalDate();
         return localDate;
@@ -576,8 +578,8 @@ public final class ObjectCastUtils {
       }
     } else if (in instanceof String || in instanceof Character) {
       try {
-        java.sql.Time date = java.sql.Time.valueOf(in.toString());
-        return LocalTime.ofSecondOfDay(date.getTime());
+        DateTime dt = DateUtil.parse(in.toString());
+        return LocalTime.ofSecondOfDay(dt.toSqlDate().getTime());
       } catch (IllegalArgumentException e) {
         throw new RuntimeException(
             String.format("无法将java.lang.String类型转换为java.sql.Time类型:%s", e.getMessage()));
@@ -588,8 +590,8 @@ public final class ObjectCastUtils {
         if (null == v) {
           return null;
         }
-        java.sql.Time date = java.sql.Time.valueOf(v);
-        return LocalTime.ofSecondOfDay(date.getTime());
+        DateTime dt = DateUtil.parse(in.toString());
+        return LocalTime.ofSecondOfDay(dt.toSqlDate().getTime());
       } catch (NumberFormatException e) {
         throw new RuntimeException(
             String.format("无法将java.sql.Clob类型转换为java.sql.Time类型:%s", e.getMessage()));
@@ -671,9 +673,9 @@ public final class ObjectCastUtils {
       }
     } else if (in instanceof String || in instanceof Character) {
       try {
-        java.sql.Timestamp t = java.sql.Timestamp.valueOf(in.toString());
+        DateTime dt = DateUtil.parse(in.toString());
         LocalDateTime localDateTime = LocalDateTime
-            .ofInstant(t.toInstant(), ZoneId.systemDefault());
+            .ofInstant(dt.toTimestamp().toInstant(), ZoneId.systemDefault());
         return localDateTime;
       } catch (IllegalArgumentException e) {
         throw new RuntimeException(
@@ -762,9 +764,9 @@ public final class ObjectCastUtils {
       }
     } else if (in instanceof String || in instanceof Character) {
       try {
-        java.sql.Timestamp t = java.sql.Timestamp.valueOf(in.toString());
+        DateTime dt = DateUtil.parse(in.toString());
         LocalDateTime localDateTime = LocalDateTime
-            .ofInstant(t.toInstant(), ZoneId.systemDefault());
+            .ofInstant(dt.toTimestamp().toInstant(), ZoneId.systemDefault());
         return Timestamp.valueOf(localDateTime);
       } catch (IllegalArgumentException e) {
         throw new RuntimeException(
