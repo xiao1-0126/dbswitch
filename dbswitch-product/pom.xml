@@ -32,6 +32,7 @@
     <module>dbswitch-product-elasticsearch</module>
     <module>dbswitch-product-highgo</module>
     <module>dbswitch-product-starrocks</module>
+    <module>dbswitch-product-greenplum</module>
   </modules>
 
 </project>

@@ -87,4 +87,9 @@ public final class Constants {
    * database product module SPI file path name
    */
   public static final String SPI_FILE = "META-INF/services/dbswitch.providers";
+
+  /**
+   * for distributed database,like greenplum
+   */
+  public static final String DISTRIBUTED_KEY = "distributed_key_";
 }

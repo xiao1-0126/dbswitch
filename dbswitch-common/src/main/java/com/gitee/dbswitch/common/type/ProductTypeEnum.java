@@ -197,6 +197,15 @@ public enum ProductTypeEnum {
       new String[]{"jdbc:mysql://{host}[:{port}]/[{database}][\\?{params}]"},
       "jdbc:mysql://127.0.0.1:9030/test?useUnicode=true&characterEncoding=utf-8&useSSL=false&zeroDateTimeBehavior=convertToNull&serverTimezone=Asia/Shanghai&tinyInt1isBit=false&rewriteBatchedStatements=true&useCompression=true"),
 
+  /**
+   * Greenplum数据库类型
+   */
+  GREENPLUM(20, "\"", "Greenplum", "org.postgresql.Driver", 5432,
+      "SELECT 1",
+      "jdbc:postgresql://",
+      new String[]{"jdbc:postgresql://{host}[:{port}]/[{database}][\\?{params}]"},
+      "jdbc:postgresql://127.0.0.1:5432/test"),
+
   ;
 
   private int id;
@@ -255,7 +264,7 @@ public enum ProductTypeEnum {
    * @return boolean
    */
   public boolean isLikePostgres() {
-    return this == POSTGRESQL || this == KINGBASE || this == OPENGAUSS;
+    return this == POSTGRESQL || this == KINGBASE || this == OPENGAUSS || this == GREENPLUM;
   }
 
   /**

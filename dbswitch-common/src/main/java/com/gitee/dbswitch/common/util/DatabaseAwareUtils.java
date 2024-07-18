@@ -10,7 +10,6 @@
 package com.gitee.dbswitch.common.util;
 
 import com.gitee.dbswitch.common.type.ProductTypeEnum;
-import com.google.common.collect.Sets;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -18,7 +17,6 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 import javax.sql.DataSource;
 import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
@@ -48,6 +46,7 @@ public final class DatabaseAwareUtils {
     productNameMap.put("MariaDB", ProductTypeEnum.MARIADB);
     productNameMap.put("Oracle", ProductTypeEnum.ORACLE);
     productNameMap.put("PostgreSQL", ProductTypeEnum.POSTGRESQL);
+    productNameMap.put("Greenplum", ProductTypeEnum.GREENPLUM);
     productNameMap.put("Highgo", ProductTypeEnum.HIGHGO);
     productNameMap.put("DB2 for Unix/Windows", ProductTypeEnum.DB2);
     productNameMap.put("Hive", ProductTypeEnum.HIVE);
@@ -88,11 +87,14 @@ public final class DatabaseAwareUtils {
       if (driverNameMap.containsKey(driverName)) {
         ProductTypeEnum productType = driverNameMap.get(driverName);
         if (productType == ProductTypeEnum.POSTGRESQL) {
-          String url = connection.getMetaData().getURL();
-          Set<ProductTypeEnum> excludes = Sets.immutableEnumSet(ProductTypeEnum.POSTGRESQL);
-          ProductTypeEnum pgLikeType = ProductTypeEnum.getProductType(url, excludes);
-          if (null != pgLikeType) {
-            return pgLikeType;
+          // String url = connection.getMetaData().getURL();
+          // Set<ProductTypeEnum> excludes = Sets.immutableEnumSet(ProductTypeEnum.POSTGRESQL);
+          // ProductTypeEnum pgLikeType = ProductTypeEnum.getProductType(url, excludes);
+          // if (null != pgLikeType) {
+          //   return pgLikeType;
+          // }
+          if (DataSourceTypeUtils.isGreenplum(connection)) {
+            return ProductTypeEnum.GREENPLUM;
           }
         } else if (productType == ProductTypeEnum.MYSQL) {
           if (isStarRocks(connection)) {
