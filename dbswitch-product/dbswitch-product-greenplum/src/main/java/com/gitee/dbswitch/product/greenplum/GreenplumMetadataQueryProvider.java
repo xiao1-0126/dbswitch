@@ -11,13 +11,17 @@ package com.gitee.dbswitch.product.greenplum;
 
 import com.gitee.dbswitch.product.postgresql.PostgresMetadataQueryProvider;
 import com.gitee.dbswitch.provider.ProductFactoryProvider;
+import com.gitee.dbswitch.schema.SourceProperties;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class GreenplumMetadataQueryProvider extends PostgresMetadataQueryProvider {
+
+  static {
+    systemSchemas.add("gp_toolkit");
+  }
 
   public GreenplumMetadataQueryProvider(ProductFactoryProvider factoryProvider) {
     super(factoryProvider);
@@ -25,7 +29,7 @@ public class GreenplumMetadataQueryProvider extends PostgresMetadataQueryProvide
 
   @Override
   public void postAppendCreateTableSql(StringBuilder builder, String tblComment, List<String> primaryKeys,
-      Map<String, String> tblProperties) {
+      SourceProperties tblProperties) {
     // 有主键就优先使用主键作为分布键。
     if (Objects.nonNull(primaryKeys) && !primaryKeys.isEmpty()) {
       String pk = getPrimaryKeyAsString(primaryKeys);

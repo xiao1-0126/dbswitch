@@ -26,7 +26,8 @@ public class OracleTableDataSynchronizer extends DefaultTableDataSynchronizeProv
     List<InputStream> iss = new ArrayList<>();
     records.parallelStream().forEach((Object[] row) -> {
       for (int i = 0; i < row.length; ++i) {
-        row[i] = OracleCastUtils.castByJdbcType(insertArgsType[i], row[i], iss);
+        int jdbcType = this.columnType.get(this.fieldOrders.get(i));
+        row[i] = OracleCastUtils.castByJdbcType(jdbcType, row[i], iss);
       }
     });
 
@@ -47,7 +48,8 @@ public class OracleTableDataSynchronizer extends DefaultTableDataSynchronizeProv
     List<InputStream> iss = new ArrayList<>();
     records.parallelStream().forEach((Object[] row) -> {
       for (int i = 0; i < row.length; ++i) {
-        row[i] = OracleCastUtils.castByJdbcType(updateArgsType[i], row[i], iss);
+        int jdbcType = this.columnType.get(this.fieldOrders.get(i));
+        row[i] = OracleCastUtils.castByJdbcType(jdbcType, row[i], iss);
       }
     });
 

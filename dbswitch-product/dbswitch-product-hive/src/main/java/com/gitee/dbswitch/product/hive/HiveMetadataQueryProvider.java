@@ -18,6 +18,7 @@ import com.gitee.dbswitch.schema.ColumnDescription;
 import com.gitee.dbswitch.schema.ColumnMetaData;
 import com.gitee.dbswitch.schema.IndexDescription;
 import com.gitee.dbswitch.schema.TableDescription;
+import com.gitee.dbswitch.schema.SourceProperties;
 import com.gitee.dbswitch.util.GenerateSqlUtils;
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -28,16 +29,15 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 
 @Slf4j
 public class HiveMetadataQueryProvider extends AbstractMetadataProvider {
 
-  private static final boolean HIVE_USE_CTAS = false;
   private static final String SHOW_CREATE_TABLE_SQL = "SHOW CREATE TABLE `%s`.`%s` ";
 
   public HiveMetadataQueryProvider(ProductFactoryProvider factoryProvider) {
@@ -183,14 +183,15 @@ public class HiveMetadataQueryProvider extends AbstractMetadataProvider {
 
   @Override
   public void postAppendCreateTableSql(StringBuilder builder, String tblComment, List<String> primaryKeys,
-      Map<String, String> tblProperties) {
-    if (MapUtils.isNotEmpty(tblProperties)) {
+      SourceProperties tblProperties) {
+    if (Objects.nonNull(tblProperties)) {
+      Map<String, String> keyValues = HiveTblUtils.getTblProperties(tblProperties);
       builder.append(Constants.CR);
       builder.append("STORED BY 'org.apache.hive.storage.jdbc.JdbcStorageHandler'");
       builder.append(Constants.CR);
       builder.append("TBLPROPERTIES (");
       builder.append(
-          tblProperties.entrySet().stream()
+          keyValues.entrySet().stream()
               .map(entry -> String.format("\t\t'%s' = '%s'", entry.getKey(), entry.getValue()))
               .collect(Collectors.joining(",\n")));
       builder.append(")");
@@ -202,13 +203,15 @@ public class HiveMetadataQueryProvider extends AbstractMetadataProvider {
 
   @Override
   public List<String> getCreateTableSqlList(List<ColumnDescription> fieldNames, List<String> primaryKeys,
-      String schemaName, String tableName, String tableRemarks, boolean autoIncr, Map<String, String> tblProperties) {
+      String schemaName, String tableName, String tableRemarks, boolean autoIncr, SourceProperties tblProperties) {
     List<String> sqlLists = new ArrayList<>();
     String tmpTableName = "tmp_" + UuidUtils.generateUuid();
     String createTableSql = GenerateSqlUtils.getDDLCreateTableSQL(this, fieldNames, primaryKeys, schemaName,
         tmpTableName, true, tableRemarks, autoIncr, tblProperties);
     sqlLists.add(createTableSql);
-    if (HIVE_USE_CTAS) {
+
+    HiveFeatures features = getProductFeatures();
+    if (features.useCTAS()) {
       String createAsTableSql = String.format("CREATE TABLE `%s`.`%s` STORED AS ORC AS (SELECT * FROM `%s`.`%s`)",
           schemaName, tableName, schemaName, tmpTableName);
       sqlLists.add(createAsTableSql);

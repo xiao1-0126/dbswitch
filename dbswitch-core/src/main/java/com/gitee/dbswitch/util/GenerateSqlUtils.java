@@ -17,12 +17,11 @@ import com.gitee.dbswitch.provider.meta.MetadataProvider;
 import com.gitee.dbswitch.schema.ColumnDescription;
 import com.gitee.dbswitch.schema.ColumnMetaData;
 import com.gitee.dbswitch.schema.TableDescription;
+import com.gitee.dbswitch.schema.SourceProperties;
 import com.google.common.collect.Lists;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.experimental.UtilityClass;
@@ -52,7 +51,7 @@ public final class GenerateSqlUtils {
         false,
         null,
         autoIncr,
-        Collections.emptyMap());
+        null);
   }
 
   public static String getDDLCreateTableSQL(
@@ -64,7 +63,7 @@ public final class GenerateSqlUtils {
       boolean withRemarks,
       String tableRemarks,
       boolean autoIncr,
-      Map<String, String> tblProperties) {
+      SourceProperties tblProperties) {
     ProductTypeEnum type = provider.getProductType();
     StringBuilder sb = new StringBuilder();
     Set<String> fieldNameSets = fieldNames.stream()
@@ -120,7 +119,7 @@ public final class GenerateSqlUtils {
       String tableName,
       String tableRemarks,
       boolean autoIncr,
-      Map<String, String> tblProperties) {
+      SourceProperties tblProperties) {
     ProductTypeEnum productType = provider.getProductType();
     if (productType.isLikeHive()) {
       return provider.getCreateTableSqlList(

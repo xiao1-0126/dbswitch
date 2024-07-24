@@ -17,6 +17,7 @@ import com.gitee.dbswitch.schema.ColumnDescription;
 import com.gitee.dbswitch.schema.ColumnMetaData;
 import com.gitee.dbswitch.schema.IndexDescription;
 import com.gitee.dbswitch.schema.TableDescription;
+import com.gitee.dbswitch.schema.SourceProperties;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -25,7 +26,6 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
@@ -367,7 +367,7 @@ public class StarrocksMetadataQueryProvider extends AbstractMetadataProvider {
 
   @Override
   public void postAppendCreateTableSql(StringBuilder builder, String tblComment, List<String> primaryKeys,
-      Map<String, String> tblProperties) {
+      SourceProperties tblProperties) {
     String pk = getPrimaryKeyAsString(primaryKeys);
     builder.append("PRIMARY KEY (").append(pk).append(")");
     builder.append("\n DISTRIBUTED BY HASH(").append(pk).append(")");

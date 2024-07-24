@@ -1,9 +1,8 @@
-package com.gitee.dbswitch.data.util;
+package com.gitee.dbswitch.product.hive;
 
-import com.gitee.dbswitch.common.entity.CloseableDataSource;
 import com.gitee.dbswitch.common.type.ProductTypeEnum;
 import com.gitee.dbswitch.common.util.ExamineUtils;
-import com.gitee.dbswitch.schema.ColumnDescription;
+import com.gitee.dbswitch.schema.SourceProperties;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -24,17 +23,17 @@ public class HiveTblUtils {
    *
    * @return Map<String, String>
    */
-  public static Map<String, String> getTblProperties(ProductTypeEnum sourceProductType,
-      CloseableDataSource sourceDataSource, String sourceSchemaName,
-      String sourceTableName, List<ColumnDescription> sourceColumnDescriptions) {
+  public static Map<String, String> getTblProperties(SourceProperties tblProperties) {
+    ProductTypeEnum sourceProductType = tblProperties.getProductType();
+    String sourceSchemaName = tblProperties.getSchemaName();
+    String sourceTableName = tblProperties.getTableName();
     ExamineUtils.check(supportedProductTypes.contains(sourceProductType),
         "Unsupported data from %s to Hive", sourceProductType.name());
 
     Map<String, String> ret = new HashMap<>();
 
     String querySql = String.format("SELECT %s FROM %s",
-        sourceColumnDescriptions.stream()
-            .map(ColumnDescription::getFieldName)
+        tblProperties.getColumnNames().stream()
             .map(s -> sourceProductType.quoteName(s))
             .collect(Collectors.joining(",")),
         sourceProductType.quoteSchemaTableName(sourceSchemaName, sourceTableName));
@@ -48,10 +47,10 @@ public class HiveTblUtils {
       databaseType = sourceProductType.name().toUpperCase();
     }
     ret.put("hive.sql.database.type", databaseType);
-    ret.put("hive.sql.jdbc.driver", sourceDataSource.getDriverClass());
-    ret.put("hive.sql.jdbc.url", sourceDataSource.getJdbcUrl());
-    ret.put("hive.sql.dbcp.username", sourceDataSource.getUserName());
-    ret.put("hive.sql.dbcp.password", sourceDataSource.getPassword());
+    ret.put("hive.sql.jdbc.driver", tblProperties.getDriverClass());
+    ret.put("hive.sql.jdbc.url", tblProperties.getJdbcUrl());
+    ret.put("hive.sql.dbcp.username", tblProperties.getUsername());
+    ret.put("hive.sql.dbcp.password", tblProperties.getPassword());
     ret.put("hive.sql.query", querySql);
     ret.put("hive.sql.jdbc.read-write", "read");
     ret.put("hive.sql.jdbc.fetch.size", "2000");

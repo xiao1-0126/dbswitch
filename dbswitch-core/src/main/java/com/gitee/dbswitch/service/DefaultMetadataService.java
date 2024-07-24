@@ -19,12 +19,12 @@ import com.gitee.dbswitch.schema.IndexDescription;
 import com.gitee.dbswitch.schema.SchemaTableData;
 import com.gitee.dbswitch.schema.SchemaTableMeta;
 import com.gitee.dbswitch.schema.TableDescription;
+import com.gitee.dbswitch.schema.SourceProperties;
 import com.gitee.dbswitch.util.GenerateSqlUtils;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import javax.sql.DataSource;
 
 /**
@@ -224,7 +224,7 @@ public class DefaultMetadataService implements MetadataService {
   @Override
   public List<String> getDDLCreateTableSQL(MetadataProvider provider,
       List<ColumnDescription> fieldNames, List<String> primaryKeys, String schemaName,
-      String tableName, String tableRemarks, boolean autoIncr, Map<String, String> tblProperties) {
+      String tableName, String tableRemarks, boolean autoIncr, SourceProperties tblProperties) {
     return GenerateSqlUtils.getDDLCreateTableSQL(
         provider, fieldNames, primaryKeys, schemaName, tableName, tableRemarks, autoIncr, tblProperties);
   }

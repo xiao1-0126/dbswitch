@@ -14,9 +14,9 @@ import com.gitee.dbswitch.schema.ColumnDescription;
 import com.gitee.dbswitch.schema.ColumnMetaData;
 import com.gitee.dbswitch.schema.IndexDescription;
 import com.gitee.dbswitch.schema.TableDescription;
+import com.gitee.dbswitch.schema.SourceProperties;
 import java.sql.Connection;
 import java.util.List;
-import java.util.Map;
 
 /**
  * 元数据查询
@@ -183,7 +183,7 @@ public interface MetadataProvider {
    * @param tblProperties 表的属性
    */
   void postAppendCreateTableSql(StringBuilder builder, String tblComment, List<String> primaryKeys,
-      Map<String, String> tblProperties);
+      SourceProperties tblProperties);
 
   /**
    * 主键列转换为逗号分隔的字符串
@@ -203,7 +203,7 @@ public interface MetadataProvider {
   List<String> getTableColumnCommentDefinition(TableDescription td, List<ColumnDescription> cds);
 
   /**
-   * 为hive定制的获取联邦建表导数SQL列表
+   * 为hive等定制的获取联邦建表导数SQL列表
    *
    * @param fieldNames    字段结构信息
    * @param primaryKeys   主键字段信息
@@ -214,7 +214,7 @@ public interface MetadataProvider {
    * @return 建表导数SQL列表
    */
   default List<String> getCreateTableSqlList(List<ColumnDescription> fieldNames, List<String> primaryKeys,
-      String schemaName, String tableName, String tableRemarks, boolean autoIncr, Map<String, String> tblProperties) {
+      String schemaName, String tableName, String tableRemarks, boolean autoIncr, SourceProperties tblProperties) {
     throw new UnsupportedOperationException("Unsupported function!");
   }
 }

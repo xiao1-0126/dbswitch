@@ -12,5 +12,13 @@ package com.gitee.dbswitch.product.hive;
 import com.gitee.dbswitch.features.ProductFeatures;
 
 public class HiveFeatures implements ProductFeatures {
-  
+
+  /**
+   * 是否使用CreateTableAs方式建表
+   *
+   * @return boolean
+   */
+  public boolean useCTAS() {
+    return false;
+  }
 }

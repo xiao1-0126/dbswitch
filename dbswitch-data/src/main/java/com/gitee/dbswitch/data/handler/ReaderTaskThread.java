@@ -31,7 +31,6 @@ import com.gitee.dbswitch.data.domain.ReaderTaskParam;
 import com.gitee.dbswitch.data.domain.ReaderTaskResult;
 import com.gitee.dbswitch.data.entity.SourceDataSourceProperties;
 import com.gitee.dbswitch.data.entity.TargetDataSourceProperties;
-import com.gitee.dbswitch.data.util.HiveTblUtils;
 import com.gitee.dbswitch.provider.ProductFactoryProvider;
 import com.gitee.dbswitch.provider.ProductProviderFactory;
 import com.gitee.dbswitch.provider.manage.TableManageProvider;
@@ -42,6 +41,7 @@ import com.gitee.dbswitch.provider.transform.RecordTransformProvider;
 import com.gitee.dbswitch.provider.write.TableDataWriteProvider;
 import com.gitee.dbswitch.schema.ColumnDescription;
 import com.gitee.dbswitch.schema.TableDescription;
+import com.gitee.dbswitch.schema.SourceProperties;
 import com.gitee.dbswitch.service.DefaultMetadataService;
 import com.gitee.dbswitch.service.MetadataService;
 import com.google.common.collect.Lists;
@@ -692,12 +692,20 @@ public class ReaderTaskThread extends TaskProcessor<ReaderTaskResult> {
         .build();
   }
 
-  public Map<String, String> getTblProperties() {
-    if (targetProductType.isLikeHive()) {
-      return HiveTblUtils.getTblProperties(sourceProductType, sourceDataSource,
-          sourceSchemaName, sourceTableName, sourceColumnDescriptions);
-    }
-    return new HashMap<>();
+  public SourceProperties getTblProperties() {
+    List<String> columnNames = sourceColumnDescriptions.stream()
+        .map(ColumnDescription::getFieldName)
+        .collect(Collectors.toList());
+    SourceProperties param = new SourceProperties();
+    param.setProductType(sourceProductType);
+    param.setDriverClass(sourceDataSource.getDriverClass());
+    param.setJdbcUrl(sourceDataSource.getJdbcUrl());
+    param.setUsername(sourceDataSource.getUserName());
+    param.setPassword(sourceDataSource.getPassword());
+    param.setSchemaName(sourceSchemaName);
+    param.setTableName(sourceTableName);
+    param.setColumnNames(columnNames);
+    return param;
   }
 
   @Override

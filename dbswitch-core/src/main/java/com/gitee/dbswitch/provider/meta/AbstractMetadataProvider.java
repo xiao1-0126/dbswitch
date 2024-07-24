@@ -19,6 +19,7 @@ import com.gitee.dbswitch.schema.ColumnMetaData;
 import com.gitee.dbswitch.schema.IndexDescription;
 import com.gitee.dbswitch.schema.IndexFieldMeta;
 import com.gitee.dbswitch.schema.TableDescription;
+import com.gitee.dbswitch.schema.SourceProperties;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
@@ -247,7 +248,7 @@ public abstract class AbstractMetadataProvider
 
   @Override
   public void postAppendCreateTableSql(StringBuilder builder, String tblComment, List<String> primaryKeys,
-      Map<String, String> tblProperties) {
+      SourceProperties tblProperties) {
     // Nothing, please override by subclass!
   }
 

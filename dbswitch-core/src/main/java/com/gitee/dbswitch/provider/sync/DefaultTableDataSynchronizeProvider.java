@@ -38,7 +38,7 @@ public class DefaultTableDataSynchronizeProvider
 
   private JdbcTemplate jdbcTemplate;
   private PlatformTransactionManager tx;
-  private Map<String, Integer> columnType;
+  protected Map<String, Integer> columnType;
   protected List<String> fieldOrders;
   protected List<String> pksOrders;
   protected String insertStatementSql;

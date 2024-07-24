@@ -32,7 +32,7 @@ import org.apache.commons.lang3.math.NumberUtils;
 @Slf4j
 public class PostgresMetadataQueryProvider extends AbstractMetadataProvider {
 
-  private static Set<String> systemSchemas = new HashSet<>();
+  protected static Set<String> systemSchemas = new HashSet<>();
 
   private static final String SHOW_CREATE_VIEW_SQL_1 =
       "SELECT pg_get_viewdef((select pg_class.relfilenode from pg_catalog.pg_class \n"
@@ -42,6 +42,7 @@ public class PostgresMetadataQueryProvider extends AbstractMetadataProvider {
       "select pg_get_viewdef('\"%s\".\"%s\"', true)";
 
   static {
+    systemSchemas.add("pg_temp");
     systemSchemas.add("pg_aoseg");
     systemSchemas.add("information_schema");
     systemSchemas.add("pg_catalog");

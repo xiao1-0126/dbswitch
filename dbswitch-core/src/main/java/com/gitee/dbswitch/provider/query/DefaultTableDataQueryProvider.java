@@ -14,6 +14,7 @@ import com.gitee.dbswitch.common.consts.Constants;
 import com.gitee.dbswitch.common.entity.ResultSetWrapper;
 import com.gitee.dbswitch.common.type.ProductTypeEnum;
 import com.gitee.dbswitch.common.util.ObjectCastUtils;
+import com.gitee.dbswitch.features.ProductFeatures;
 import com.gitee.dbswitch.provider.AbstractCommonProvider;
 import com.gitee.dbswitch.provider.ProductFactoryProvider;
 import com.gitee.dbswitch.schema.SchemaTableData;
@@ -68,7 +69,8 @@ public class DefaultTableDataQueryProvider
       sb.append(" ORDER BY ");
       sb.append(productType.quoteName(StringUtils.join(orders, productType.quoteName(","))));
     }
-    return this.selectTableData(sb.toString(), getProductFeatures().convertFetchSize(this.fetchSize));
+    ProductFeatures features = getProductFeatures();
+    return this.selectTableData(sb.toString(), features.convertFetchSize(this.fetchSize));
   }
 
   protected ResultSetWrapper selectTableData(String sql, int fetchSize) {

@@ -46,8 +46,8 @@ public abstract class AbstractCommonProvider {
     return dataSource;
   }
 
-  public ProductFeatures getProductFeatures() {
-    return productFeatures;
+  public <T extends ProductFeatures> T getProductFeatures() {
+    return (T) productFeatures;
   }
 
   protected String getTableFieldsQuerySQL(String schemaName, String tableName) {

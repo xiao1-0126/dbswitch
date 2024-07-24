@@ -26,7 +26,9 @@ public final class ProductTypeUtils {
         if (resultSet.next()) {
           String version = resultSet.getString(1);
           if (Objects.nonNull(version) && version.contains("Greenplum")) {
-            log.info("#### Target database is Greenplum Cluster");
+            if (log.isDebugEnabled()) {
+              log.debug("#### Target database is Greenplum Cluster");
+            }
             return true;
           }
         }

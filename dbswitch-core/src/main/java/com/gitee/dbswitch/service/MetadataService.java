@@ -11,12 +11,12 @@ package com.gitee.dbswitch.service;
 
 import com.gitee.dbswitch.provider.meta.MetadataProvider;
 import com.gitee.dbswitch.schema.ColumnDescription;
+import com.gitee.dbswitch.schema.SourceProperties;
 import com.gitee.dbswitch.schema.IndexDescription;
 import com.gitee.dbswitch.schema.SchemaTableData;
 import com.gitee.dbswitch.schema.SchemaTableMeta;
 import com.gitee.dbswitch.schema.TableDescription;
 import java.util.List;
-import java.util.Map;
 import javax.sql.DataSource;
 
 public interface MetadataService {
@@ -159,5 +159,5 @@ public interface MetadataService {
    */
   List<String> getDDLCreateTableSQL(MetadataProvider provider, List<ColumnDescription> fieldNames,
       List<String> primaryKeys, String schemaName, String tableName, String tableRemarks,
-      boolean autoIncr, Map<String, String> tblProperties);
+      boolean autoIncr, SourceProperties tblProperties);
 }
