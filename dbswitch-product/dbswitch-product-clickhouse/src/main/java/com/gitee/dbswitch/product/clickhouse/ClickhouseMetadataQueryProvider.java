@@ -14,8 +14,8 @@ import com.gitee.dbswitch.provider.ProductFactoryProvider;
 import com.gitee.dbswitch.provider.meta.AbstractMetadataProvider;
 import com.gitee.dbswitch.schema.ColumnDescription;
 import com.gitee.dbswitch.schema.ColumnMetaData;
-import com.gitee.dbswitch.schema.TableDescription;
 import com.gitee.dbswitch.schema.SourceProperties;
+import com.gitee.dbswitch.schema.TableDescription;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -35,13 +35,19 @@ public class ClickhouseMetadataQueryProvider extends AbstractMetadataProvider {
   private static final String SHOW_CREATE_TABLE_SQL = "SHOW CREATE TABLE `%s`.`%s` ";
   private static final String SHOW_CREATE_VIEW_SQL = "SHOW CREATE VIEW `%s`.`%s` ";
   private static final String QUERY_SCHEMA_LIST_SQL =
-      "SELECT name from `system`.`databases` where engine !='Memory'";
-  private static final String QUERY_TABLE_LIST_SQL =
-      "SELECT database ,name, comment, engine from `system`.`tables` where is_temporary =0 and database = ? ";
-  private static final String QUERY_TABLE_META_SQL =
-      "SELECT database ,name, comment, engine from `system`.`tables` where is_temporary =0 and database = ? and name = ?";
+      "SELECT `name` from `system`.`databases` where `engine` !='Memory'";
+  private static final String SYSTEM_TABLES_COMMENT_SQL =
+      "SELECT * from `system`.`columns` where database ='system' and `table` ='tables' and `name` ='comment'";
+  private static final String QUERY_TABLE_LIST_V1_SQL =
+      "SELECT `database` ,`name`, null as `comment`, `engine` from `system`.`tables` where `is_temporary` =0 and `database` = ? ";
+  private static final String QUERY_TABLE_LIST_V2_SQL =
+      "SELECT `database` ,`name`, `comment`, `engine` from `system`.`tables` where `is_temporary` =0 and `database` = ? ";
+  private static final String QUERY_TABLE_META_V1_SQL =
+      "SELECT `database` ,`name`, null as `comment`, `engine` from `system`.`tables` where `is_temporary` =0 and `database` = ? and `name` = ?";
+  private static final String QUERY_TABLE_META_V2_SQL =
+      "SELECT `database` ,`name`, null as `comment`, `engine` from `system`.`tables` where `is_temporary` =0 and `database` = ? and `name` = ?";
   private static final String QUERY_PRIMARY_KEY_SQL =
-      "SELECT name from `system`.`columns` where `database` = ? and `table` = ? and is_in_primary_key =1 order by `position` ";
+      "SELECT `name` from `system`.`columns` where `database` = ? and `table` = ? and `is_in_primary_key` =1 order by `position` ";
 
   public ClickhouseMetadataQueryProvider(ProductFactoryProvider factoryProvider) {
     super(factoryProvider);
@@ -62,10 +68,28 @@ public class ClickhouseMetadataQueryProvider extends AbstractMetadataProvider {
     }
   }
 
+  private boolean isTableHasComment() {
+    try (Connection connection = getDataSource().getConnection()) {
+      return isTableHasComment(connection);
+    } catch (SQLException e) {
+      throw new RuntimeException(e);
+    }
+  }
+
+  private boolean isTableHasComment(Connection connection) {
+    try (Statement st = connection.createStatement()) {
+      ResultSet rs = st.executeQuery(SYSTEM_TABLES_COMMENT_SQL);
+      return rs.next();
+    } catch (SQLException e) {
+      throw new RuntimeException(e);
+    }
+  }
+
   @Override
   public List<TableDescription> queryTableList(Connection connection, String schemaName) {
     List<TableDescription> result = new ArrayList<>();
-    try (PreparedStatement ps = connection.prepareStatement(QUERY_TABLE_LIST_SQL)) {
+    String sql = isTableHasComment(connection) ? QUERY_TABLE_LIST_V2_SQL : QUERY_TABLE_LIST_V1_SQL;
+    try (PreparedStatement ps = connection.prepareStatement(sql)) {
       ps.setString(1, schemaName);
       try (ResultSet rs = ps.executeQuery();) {
         while (rs.next()) {
@@ -92,7 +116,8 @@ public class ClickhouseMetadataQueryProvider extends AbstractMetadataProvider {
 
   @Override
   public TableDescription queryTableMeta(Connection connection, String schemaName, String tableName) {
-    try (PreparedStatement ps = connection.prepareStatement(QUERY_TABLE_META_SQL)) {
+    String sql = isTableHasComment(connection) ? QUERY_TABLE_META_V2_SQL : QUERY_TABLE_META_V1_SQL;
+    try (PreparedStatement ps = connection.prepareStatement(sql)) {
       ps.setString(1, schemaName);
       ps.setString(2, tableName);
       try (ResultSet rs = ps.executeQuery();) {
@@ -309,7 +334,7 @@ public class ClickhouseMetadataQueryProvider extends AbstractMetadataProvider {
       builder.append(Constants.CR);
       builder.append("ORDER BY tuple()");
     }
-    if (StringUtils.isNotBlank(tblComment)) {
+    if (StringUtils.isNotBlank(tblComment) && isTableHasComment()) {
       builder.append(Constants.CR);
       builder.append(String.format("COMMENT '%s' ", tblComment.replace("'", "\\'")));
     }
