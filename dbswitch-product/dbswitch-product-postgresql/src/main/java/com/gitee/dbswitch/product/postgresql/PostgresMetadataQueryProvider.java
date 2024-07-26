@@ -79,7 +79,8 @@ public class PostgresMetadataQueryProvider extends AbstractMetadataProvider {
     }
 
     // 低版本的PostgreSQL的表的DDL获取方法
-    return PostgresUtils.getTableDDL(this, connection, schemaName, tableName);
+    String ddlSql = PostgresUtils.getTableDDL(this, connection, schemaName, tableName);
+    return DDLFormatterUtils.format(ddlSql);
   }
 
   @Override

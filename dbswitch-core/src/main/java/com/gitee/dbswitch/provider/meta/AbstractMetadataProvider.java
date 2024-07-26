@@ -18,8 +18,8 @@ import com.gitee.dbswitch.schema.ColumnDescription;
 import com.gitee.dbswitch.schema.ColumnMetaData;
 import com.gitee.dbswitch.schema.IndexDescription;
 import com.gitee.dbswitch.schema.IndexFieldMeta;
-import com.gitee.dbswitch.schema.TableDescription;
 import com.gitee.dbswitch.schema.SourceProperties;
+import com.gitee.dbswitch.schema.TableDescription;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
@@ -48,6 +48,8 @@ public abstract class AbstractMetadataProvider
     extends AbstractCommonProvider
     implements MetadataProvider {
 
+  protected static final String[] TABLE_TYPES = new String[]{"TABLE", "VIEW", "PARTITIONED TABLE"};
+
   protected String catalogName = null;
 
   protected AbstractMetadataProvider(ProductFactoryProvider factoryProvider) {
@@ -75,9 +77,8 @@ public abstract class AbstractMetadataProvider
   public List<TableDescription> queryTableList(Connection connection, String schemaName) {
     List<TableDescription> ret = new ArrayList<>();
     Set<String> uniqueSet = new LinkedHashSet<>();
-    String[] types = new String[]{"TABLE", "VIEW"};
     try (ResultSet tables = connection.getMetaData()
-        .getTables(catalogName, schemaName, "%", types)) {
+        .getTables(catalogName, schemaName, "%", TABLE_TYPES)) {
       while (tables.next()) {
         String tableName = tables.getString("TABLE_NAME");
         if (uniqueSet.contains(tableName)) {
@@ -103,7 +104,7 @@ public abstract class AbstractMetadataProvider
   public TableDescription queryTableMeta(Connection connection, String schemaName,
       String tableName) {
     try (ResultSet tables = connection.getMetaData()
-        .getTables(catalogName, schemaName, tableName, new String[]{"TABLE", "VIEW"})) {
+        .getTables(catalogName, schemaName, tableName, TABLE_TYPES)) {
       if (tables.next()) {
         TableDescription td = new TableDescription();
         td.setSchemaName(schemaName);

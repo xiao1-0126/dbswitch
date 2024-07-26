@@ -52,6 +52,9 @@ public class TableDescription {
   }
 
   public void setTableType(String tableType) {
+    if ("PARTITIONED TABLE".equals(tableType)) {
+      tableType = "TABLE";
+    }
     this.tableType = ProductTableEnum.valueOf(tableType.toUpperCase());
   }
 
