@@ -32,22 +32,22 @@ public class GreenplumMetadataQueryProvider extends PostgresMetadataQueryProvide
   @Override
   public void postAppendCreateTableSql(StringBuilder builder, String tblComment, List<String> primaryKeys,
       SourceProperties tblProperties) {
-    if (CollectionUtils.isEmpty(primaryKeys)) {
+    List<String> distributed = determineDistributed(primaryKeys, tblProperties.getDistributedKeys());
+    if (null == distributed) {
       return;
     }
-    // 分布键不为空，且需要满足是主键的子集
-    if (!CollectionUtils.isEmpty(tblProperties.getDistributedKeys()) && new HashSet<>(primaryKeys).containsAll(
-        tblProperties.getDistributedKeys())) {
-      getPkOrDkAsString(builder, tblProperties.getDistributedKeys());
-    } else {
-      getPkOrDkAsString(builder, primaryKeys);
-      log.info("using primaryKey as distributed key");
-    }
+    String dk = getPrimaryKeyAsString(distributed);
+    builder.append("\n DISTRIBUTED BY (").append(dk).append(")");
   }
 
-  private void getPkOrDkAsString(StringBuilder builder, List<String> primaryKeys) {
-    String pk = getPrimaryKeyAsString(primaryKeys);
-    builder.append("\n DISTRIBUTED BY (").append(pk).append(")");
+  private List<String> determineDistributed(List<String> primaryKeys, List<String> distributedKeys) {
+    if (CollectionUtils.isEmpty(distributedKeys)) {
+      // 分布键为空,看是否有主键
+      return CollectionUtils.isEmpty(primaryKeys) ? null : primaryKeys;
+    }
+    // 分布键不为空,看是否是主键的子集,主键为空直接用分布键
+    return CollectionUtils.isEmpty(primaryKeys) || new HashSet<>(primaryKeys).containsAll(distributedKeys)
+        ? distributedKeys : null;
   }
 
 }
