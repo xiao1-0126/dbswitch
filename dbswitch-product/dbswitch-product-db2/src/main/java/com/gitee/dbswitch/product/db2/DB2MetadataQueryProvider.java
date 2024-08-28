@@ -137,7 +137,7 @@ public class DB2MetadataQueryProvider extends AbstractMetadataProvider {
         retval += "DATE";
         break;
       case ColumnMetaData.TYPE_BOOLEAN:
-        retval += "BOOLEAN";
+        retval += "SMALLINT";
         break;
       case ColumnMetaData.TYPE_NUMBER:
       case ColumnMetaData.TYPE_BIGNUMBER:
