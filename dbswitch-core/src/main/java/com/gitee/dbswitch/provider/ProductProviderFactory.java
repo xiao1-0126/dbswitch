@@ -10,7 +10,6 @@
 package com.gitee.dbswitch.provider;
 
 import com.gitee.dbswitch.common.type.ProductTypeEnum;
-import com.gitee.dbswitch.common.util.DatabaseAwareUtils;
 import com.gitee.dbswitch.common.util.ExamineUtils;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -69,11 +68,6 @@ public class ProductProviderFactory {
             "can't be opened by product type '%s'",
         instance.getProductType(), type);
     return instance;
-  }
-
-  public static ProductFactoryProvider newProvider(DataSource dataSource) {
-    ProductTypeEnum type = DatabaseAwareUtils.getProductTypeByDataSource(dataSource);
-    return newProvider(type, dataSource);
   }
 
 }

@@ -12,6 +12,7 @@ package com.gitee.dbswitch.data.entity;
 import com.gitee.dbswitch.common.entity.PatternMapper;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+import com.gitee.dbswitch.common.type.ProductTypeEnum;
 import lombok.Data;
 
 /**
@@ -22,6 +23,7 @@ import lombok.Data;
 @Data
 public class SourceDataSourceProperties {
 
+  private ProductTypeEnum type;
   private String url;
   private String driverClassName;
   private String username;

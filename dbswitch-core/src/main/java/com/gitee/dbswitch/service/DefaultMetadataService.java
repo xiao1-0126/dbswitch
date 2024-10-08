@@ -39,14 +39,6 @@ public class DefaultMetadataService implements MetadataService {
   private MetadataProvider metaQueryProvider;
   private TableDataQueryProvider dataQueryProvider;
 
-  public DefaultMetadataService(DataSource dataSource) {
-    this.dataSource = dataSource;
-    ProductFactoryProvider factoryProvider = ProductProviderFactory
-        .newProvider(dataSource);
-    this.metaQueryProvider = factoryProvider.createMetadataQueryProvider();
-    this.dataQueryProvider = factoryProvider.createTableDataQueryProvider();
-  }
-
   public DefaultMetadataService(DataSource dataSource, ProductTypeEnum type) {
     this.dataSource = dataSource;
     this.factoryProvider = ProductProviderFactory

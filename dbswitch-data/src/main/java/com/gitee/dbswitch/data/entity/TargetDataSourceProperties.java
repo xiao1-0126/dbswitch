@@ -10,6 +10,7 @@
 package com.gitee.dbswitch.data.entity;
 
 import com.gitee.dbswitch.common.type.CaseConvertEnum;
+import com.gitee.dbswitch.common.type.ProductTypeEnum;
 import com.gitee.dbswitch.common.type.SyncOptionEnum;
 import java.util.concurrent.TimeUnit;
 import lombok.Data;
@@ -22,6 +23,7 @@ import lombok.Data;
 @Data
 public class TargetDataSourceProperties {
 
+  private ProductTypeEnum type;
   private String url;
   private String driverClassName;
   private String username;

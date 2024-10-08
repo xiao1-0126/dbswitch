@@ -206,6 +206,18 @@ public enum ProductTypeEnum {
       new String[]{"jdbc:postgresql://{host}[:{port}]/[{database}][\\?{params}]"},
       "jdbc:postgresql://127.0.0.1:5432/test"),
 
+
+  /**
+   * DORIS数据库类型
+   */
+  DORIS(21, "`", "Doris", "com.mysql.jdbc.Driver", 9030,
+          "/* ping */ SELECT 1",
+          "jdbc:mysql://",
+          new String[]{"jdbc:mysql://{host}[:{port}]/[{database}][\\?{params}]"},
+        "jdbc:mysql://127.0.0.1:9030/test?useUnicode=true&characterEncoding=utf-8&useSSL=false&zeroDateTimeBehavior=convertToNull&serverTimezone=Asia/Shanghai&tinyInt1isBit=false&rewriteBatchedStatements=true&useCompression=true"),
+
+
+
   ;
 
   private int id;
@@ -255,7 +267,7 @@ public enum ProductTypeEnum {
    * @return boolean
    */
   public boolean isPrimaryKeyShouldAtFirst() {
-    return this == STARROCKS;
+    return this == STARROCKS || this == DORIS;
   }
 
   /**
@@ -310,6 +322,15 @@ public enum ProductTypeEnum {
    */
   public boolean isElasticSearch() {
     return this == ELASTICSEARCH;
+  }
+
+  /**
+   * 是否为Doris数据库类型
+   *
+   * @return boolean
+   */
+  public boolean isDoris() {
+    return this == DORIS;
   }
 
   /**

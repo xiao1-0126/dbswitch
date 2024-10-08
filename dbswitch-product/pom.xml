@@ -33,6 +33,7 @@
     <module>dbswitch-product-highgo</module>
     <module>dbswitch-product-starrocks</module>
     <module>dbswitch-product-greenplum</module>
+    <module>dbswitch-product-doris</module>
   </modules>
 
 </project>

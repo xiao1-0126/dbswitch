@@ -10,14 +10,12 @@
 package com.gitee.dbswitch.common.util;
 
 import com.gitee.dbswitch.common.type.ProductTypeEnum;
-import com.google.common.collect.Sets;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 import javax.sql.DataSource;
 import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
@@ -74,58 +72,6 @@ public final class DatabaseAwareUtils {
     driverNameMap.put("MongoDB JDBC Driver", ProductTypeEnum.MONGODB);
     driverNameMap.put("esJestDriver", ProductTypeEnum.ELASTICSEARCH);
   }
-
-  /**
-   * 获取数据库的产品枚举
-   *
-   * @param dataSource 数据源
-   * @return 数据库产品枚举
-   */
-  public static ProductTypeEnum getProductTypeByDataSource(DataSource dataSource) {
-    try (Connection connection = dataSource.getConnection()) {
-      String productName = connection.getMetaData().getDatabaseProductName();
-      String driverName = connection.getMetaData().getDriverName();
-      if (driverNameMap.containsKey(driverName)) {
-        ProductTypeEnum productType = driverNameMap.get(driverName);
-        if (productType == ProductTypeEnum.POSTGRESQL) {
-          if (ProductTypeUtils.isGreenplum(connection)) {
-            return ProductTypeEnum.GREENPLUM;
-          }
-          String url = connection.getMetaData().getURL();
-          Set<ProductTypeEnum> excludes = Sets.immutableEnumSet(ProductTypeEnum.POSTGRESQL, ProductTypeEnum.GREENPLUM);
-          ProductTypeEnum pgLikeType = ProductTypeEnum.getProductType(url, excludes);
-          if (null != pgLikeType) {
-            return pgLikeType;
-          }
-        } else if (productType == ProductTypeEnum.MYSQL) {
-          if (ProductTypeUtils.isStarRocks(connection)) {
-            return ProductTypeEnum.STARROCKS;
-          }
-        }
-        return productType;
-      }
-
-      ProductTypeEnum type = productNameMap.get(productName);
-      if (null != type) {
-        return type;
-      }
-      String url = connection.getMetaData().getURL();
-      if (null != url && url.contains("mongodb://")) {
-        return ProductTypeEnum.MONGODB;
-      }
-      if (null != url && url.contains("jest://")) {
-        return ProductTypeEnum.ELASTICSEARCH;
-      }
-      type = ProductTypeEnum.getProductType(url);
-      if (null != type) {
-        return type;
-      }
-      throw new IllegalStateException("Unable to detect database type from data source instance");
-    } catch (SQLException se) {
-      throw new RuntimeException(se);
-    }
-  }
-
 
   /**
    * 检查MySQL数据库表的存储引擎是否为Innodb

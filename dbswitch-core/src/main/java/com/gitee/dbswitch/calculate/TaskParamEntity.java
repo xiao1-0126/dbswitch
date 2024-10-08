@@ -9,6 +9,7 @@
 /////////////////////////////////////////////////////////////
 package com.gitee.dbswitch.calculate;
 
+import com.gitee.dbswitch.common.type.ProductTypeEnum;
 import com.gitee.dbswitch.provider.transform.RecordTransformProvider;
 import java.util.Collections;
 import java.util.List;
@@ -48,6 +49,13 @@ public class TaskParamEntity {
   private String oldTableName;
 
   /**
+   * 老表的数据库产品类型
+   */
+  @NonNull
+  private ProductTypeEnum oldProductType;
+
+
+  /**
    * 新表的数据源
    */
   @NonNull
@@ -64,6 +72,12 @@ public class TaskParamEntity {
    */
   @NonNull
   private String newTableName;
+
+  /**
+   * 新表的数据库产品类型
+   */
+  @NonNull
+  private ProductTypeEnum newProductType;
 
   /**
    * 字段列

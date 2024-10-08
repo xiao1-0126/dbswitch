@@ -113,6 +113,11 @@
       <artifactId>dbswitch-product-greenplum</artifactId>
       <version>${project.version}</version>
     </dependency>
+    <dependency>
+      <groupId>com.gitee.dbswitch</groupId>
+      <artifactId>dbswitch-product-doris</artifactId>
+      <version>${project.version}</version>
+    </dependency>
   </dependencies>
 
 </project>

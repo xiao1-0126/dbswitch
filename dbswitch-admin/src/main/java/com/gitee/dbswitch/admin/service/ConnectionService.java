@@ -93,7 +93,7 @@ public class ConnectionService {
 
   public MetadataService getMetaDataCoreService(DatabaseConnectionEntity dbConn) {
     CloseableDataSource dataSource = getDataSource(dbConn);
-    MetadataService metaDataService = new DefaultMetadataService(dataSource);
+    MetadataService metaDataService = new DefaultMetadataService(dataSource, dbConn.getType());
     return metaDataService;
   }
 

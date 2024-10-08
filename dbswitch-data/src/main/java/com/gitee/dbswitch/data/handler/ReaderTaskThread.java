@@ -114,6 +114,8 @@ public class ReaderTaskThread extends TaskProcessor<ReaderTaskResult> {
     this.properties = taskParam.getConfiguration();
     this.sourceProperties = this.properties.getSource();
     this.targetProperties = this.properties.getTarget();
+    this.sourceProductType = this.sourceProperties.getType();
+    this.targetProductType = this.targetProperties.getType();
     this.sourceSchemaName = this.sourceProperties.getSourceSchema();
     this.sourceTableName = this.tableDescription.getTableName();
     this.targetExistTables = taskParam.getTargetExistTables();
@@ -126,8 +128,6 @@ public class ReaderTaskThread extends TaskProcessor<ReaderTaskResult> {
       fetchSize = sourceProperties.getFetchSize();
     }
 
-    this.sourceProductType = DatabaseAwareUtils.getProductTypeByDataSource(sourceDataSource);
-    this.targetProductType = DatabaseAwareUtils.getProductTypeByDataSource(targetDataSource);
 
     if (this.targetProductType.isLikeHive()) {
       // !! hive does not support upper table name and upper column name
@@ -519,9 +519,11 @@ public class ReaderTaskThread extends TaskProcessor<ReaderTaskResult> {
     taskBuilder.oldDataSource(targetDataSource);
     taskBuilder.oldSchemaName(targetSchemaName);
     taskBuilder.oldTableName(targetTableName);
+    taskBuilder.oldProductType(targetProductType);
     taskBuilder.newDataSource(sourceDataSource);
     taskBuilder.newSchemaName(sourceSchemaName);
     taskBuilder.newTableName(sourceTableName);
+    taskBuilder.newProductType(sourceProductType);
     taskBuilder.fieldColumns(sourceFields);
     taskBuilder.columnsMap(columnNameMaps);
     taskBuilder.transformer(transformer);

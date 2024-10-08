@@ -3,6 +3,7 @@ dbswitch:
     # source database connection information
     ## support MySQL/MariaDB/DB2/DM/Kingbase8/Oracle/SQLServer/PostgreSQL/Greenplum etc.
     ## support multiple source database connection
+    type: MYSQL
     url: jdbc:mysql://172.17.2.10:3306/test?useUnicode=true&characterEncoding=utf-8&useSSL=false&zeroDateTimeBehavior=convertToNull&serverTimezone=Asia/Shanghai&nullCatalogMeansCurrent=true&tinyInt1isBit=false&rewriteBatchedStatements=true&useCompression=true
     driver-class-name: 'com.mysql.jdbc.Driver'
     driver-path: D:\Workspace\IdeaProjects\dbswitch\drivers\mysql\mysql-5
@@ -29,6 +30,7 @@ dbswitch:
   target:
     # target database connection information
     ## Best support for Oracle/PostgreSQL/Greenplum/DM etc.
+    type: POSTGRESQL
     url: jdbc:postgresql://172.17.2.10:5432/test
     driver-class-name: org.postgresql.Driver
     driver-path: D:\Workspace\IdeaProjects\dbswitch\drivers\postgresql\postgresql-11.4

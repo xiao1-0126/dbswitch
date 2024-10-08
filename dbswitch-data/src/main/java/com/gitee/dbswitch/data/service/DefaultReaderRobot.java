@@ -77,7 +77,7 @@ public class DefaultReaderRobot extends RobotReader<ReaderTaskResult> {
   public void init(AsyncTaskExecutor threadExecutor) {
     this.threadExecutor = threadExecutor;
     this.readTaskThreads = new ArrayList<>();
-    MetadataService tdsService = new DefaultMetadataService(targetDataSource);
+    MetadataService tdsService = new DefaultMetadataService(targetDataSource, configuration.getTarget().getType());
     Set<String> targetExistTables = tdsService.queryTableList(configuration.getTarget().getTargetSchema())
         .stream().map(TableDescription::getTableName).collect(Collectors.toSet());
     List<TableDescription> tableDescriptions = splitReaderTask();
@@ -105,10 +105,10 @@ public class DefaultReaderRobot extends RobotReader<ReaderTaskResult> {
   private List<TableDescription> splitReaderTask() {
     List<TableDescription> tableDescriptions = new ArrayList<>();
 
-    MetadataService sourceMetaDataService = new DefaultMetadataService(sourceDataSource);
+    SourceDataSourceProperties sourceProperties = configuration.getSource();
+    MetadataService sourceMetaDataService = new DefaultMetadataService(sourceDataSource, sourceProperties.getType());
 
     // 判断处理的策略：是排除还是包含
-    SourceDataSourceProperties sourceProperties = configuration.getSource();
     List<String> includes =
         StreamUtil.of(StrUtil.split(sourceProperties.getSourceIncludes(), StrPool.COMMA))
             .collect(Collectors.toList());

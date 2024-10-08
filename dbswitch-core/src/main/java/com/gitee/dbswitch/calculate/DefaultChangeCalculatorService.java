@@ -133,8 +133,8 @@ public final class DefaultChangeCalculatorService implements RecordRowChangeCalc
     boolean useOwnFieldsColumns = !CollectionUtils.isEmpty(task.getFieldColumns());
 
     // 检查新旧两张表的主键字段与比较字段
-    MetadataService oldMd = new DefaultMetadataService(task.getOldDataSource());
-    MetadataService newMd = new DefaultMetadataService(task.getNewDataSource());
+    MetadataService oldMd = new DefaultMetadataService(task.getOldDataSource(), task.getOldProductType());
+    MetadataService newMd = new DefaultMetadataService(task.getNewDataSource(), task.getNewProductType());
     List<String> fieldsPrimaryKeyOld = oldMd
         .queryTablePrimaryKeys(task.getOldSchemaName(), task.getOldTableName());
     List<String> fieldsAllColumnOld = oldMd
@@ -213,11 +213,11 @@ public final class DefaultChangeCalculatorService implements RecordRowChangeCalc
     try {
       // 提取新旧两表数据的结果集(按主键排序后的)
       TableDataQueryProvider oldQuery = ProductProviderFactory
-          .newProvider(task.getOldDataSource())
+          .newProvider(task.getOldProductType(), task.getOldDataSource())
           .createTableDataQueryProvider();
       oldQuery.setQueryFetchSize(this.queryFetchSize);
       TableDataQueryProvider newQuery = ProductProviderFactory
-          .newProvider(task.getNewDataSource())
+          .newProvider(task.getNewProductType(), task.getNewDataSource())
           .createTableDataQueryProvider();
       newQuery.setQueryFetchSize(this.queryFetchSize);
 

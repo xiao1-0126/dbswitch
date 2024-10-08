@@ -104,8 +104,14 @@ public final class GenerateSqlUtils {
       sb.append(provider.getFieldDefinition(v, pks, autoIncr, false, withRemarks));
     }
 
-    provider.appendPrimaryKeyForCreateTableSql(sb, pks);
-    sb.append(")");
+    if (type.isDoris()) {
+      sb.append(")");
+      provider.appendPrimaryKeyForCreateTableSql(sb, pks);
+    } else {
+      provider.appendPrimaryKeyForCreateTableSql(sb, pks);
+      sb.append(")");
+    }
+
     provider.postAppendCreateTableSql(sb, tableRemarks, pks, tblProperties);
 
     return DDLFormatterUtils.format(sb.toString());

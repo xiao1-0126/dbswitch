@@ -264,6 +264,7 @@ public class AssignmentService {
     File driverVersionFile = driverLoadService.getVersionDriverFile(
         sourceDatabaseConnectionEntity.getType(),
         sourceDatabaseConnectionEntity.getVersion());
+    sourceDataSourceProperties.setType(sourceDatabaseConnectionEntity.getType());
     sourceDataSourceProperties.setUrl(sourceDatabaseConnectionEntity.getUrl());
     sourceDataSourceProperties.setDriverClassName(sourceDatabaseConnectionEntity.getDriver());
     sourceDataSourceProperties.setDriverPath(driverVersionFile.getAbsolutePath());
@@ -306,6 +307,7 @@ public class AssignmentService {
     File driverVersionFile = driverLoadService.getVersionDriverFile(
         targetDatabaseConnectionEntity.getType(),
         targetDatabaseConnectionEntity.getVersion());
+    targetDataSourceProperties.setType(targetDatabaseConnectionEntity.getType());
     targetDataSourceProperties.setUrl(targetDatabaseConnectionEntity.getUrl());
     targetDataSourceProperties.setDriverClassName(targetDatabaseConnectionEntity.getDriver());
     targetDataSourceProperties.setDriverPath(driverVersionFile.getAbsolutePath());
