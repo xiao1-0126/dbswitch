@@ -123,7 +123,7 @@ CREATE TABLE IF NOT EXISTS DBSWITCH_ASSIGNMENT_CONFIG (
   "source_schema"               varchar(1024)         not null,
   "table_type"                  varchar(32)           not null default 'TABLE',
   "source_tables"               text                  ,
-  "excluded"                    boolean               not null default false,
+  "excluded_flag"               boolean               not null default false,
   "target_connection_id"        int8                  not null,
   "table_name_case"             varchar(32)           not null default 'NONE',
   "column_name_case"            varchar(32)           not null default 'NONE',
@@ -153,7 +153,7 @@ COMMENT ON COLUMN DBSWITCH_ASSIGNMENT_CONFIG."source_connection_id" IS '来源�
 COMMENT ON COLUMN DBSWITCH_ASSIGNMENT_CONFIG."source_schema" IS '来源端的schema';
 COMMENT ON COLUMN DBSWITCH_ASSIGNMENT_CONFIG."table_type" IS '表类型:TABLE;VIEW';
 COMMENT ON COLUMN DBSWITCH_ASSIGNMENT_CONFIG."source_tables" IS '来源端的table列表';
-COMMENT ON COLUMN DBSWITCH_ASSIGNMENT_CONFIG."excluded" IS '是否排除(0:否 1:是)';
+COMMENT ON COLUMN DBSWITCH_ASSIGNMENT_CONFIG."excluded_flag" IS '是否排除(0:否 1:是)';
 COMMENT ON COLUMN DBSWITCH_ASSIGNMENT_CONFIG."target_connection_id" IS '目的端连接ID';
 COMMENT ON COLUMN DBSWITCH_ASSIGNMENT_CONFIG."target_schema" IS '目的端的schema(一个)';
 COMMENT ON COLUMN DBSWITCH_ASSIGNMENT_CONFIG."table_name_case" IS '表名大小写转换策略';
@@ -185,7 +185,6 @@ CREATE TABLE IF NOT EXISTS DBSWITCH_ASSIGNMENT_JOB (
   primary key ("id"),
   foreign key ("assignment_id") references DBSWITCH_ASSIGNMENT_TASK ("id") on delete cascade on update cascade
 );
-
 COMMENT ON TABLE DBSWITCH_ASSIGNMENT_JOB IS 'JOB日志表';
 COMMENT ON COLUMN DBSWITCH_ASSIGNMENT_JOB."id" IS '主键';
 COMMENT ON COLUMN DBSWITCH_ASSIGNMENT_JOB."assignment_id" IS '任务ID';
@@ -197,3 +196,17 @@ COMMENT ON COLUMN DBSWITCH_ASSIGNMENT_JOB."status" IS '执行状态:0-未执行;
 COMMENT ON COLUMN DBSWITCH_ASSIGNMENT_JOB."error_log" IS '异常日志';
 COMMENT ON COLUMN DBSWITCH_ASSIGNMENT_JOB."create_time" IS '创建时间';
 COMMENT ON COLUMN DBSWITCH_ASSIGNMENT_JOB."update_time" IS '修改时间';
+
+CREATE TABLE IF NOT EXISTS DBSWITCH_JOB_LOGBACK  (
+  "id"                  bigserial             not null,
+  "uuid"                varchar(128)          not null default '',
+  "content"             text,
+  "create_time"         timestamp(6) not null default (CURRENT_TIMESTAMP(0))::timestamp(0) without time zone,
+  PRIMARY KEY ("id")
+);
+CREATE INDEX DBSWITCH_JOB_LOGBACK_UUID_IDX ON DBSWITCH_JOB_LOGBACK("uuid");
+COMMENT ON TABLE DBSWITCH_JOB_LOGBACK IS 'JOB执行日志';
+COMMENT ON COLUMN DBSWITCH_JOB_LOGBACK."id" IS '主键';
+COMMENT ON COLUMN DBSWITCH_JOB_LOGBACK."uuid" IS 'job id';
+COMMENT ON COLUMN DBSWITCH_JOB_LOGBACK."content" IS '日志内容';
+COMMENT ON COLUMN DBSWITCH_JOB_LOGBACK."create_time" IS '创建时间';

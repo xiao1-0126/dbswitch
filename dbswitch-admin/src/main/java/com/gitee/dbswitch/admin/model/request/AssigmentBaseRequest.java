@@ -54,7 +54,7 @@ public class AssigmentBaseRequest {
     assignmentConfigEntity.setSourceSchema(config.getSourceSchema());
     assignmentConfigEntity.setTableType(config.getTableType());
     assignmentConfigEntity.setSourceTables(config.getSourceTables());
-    assignmentConfigEntity.setExcluded(
+    assignmentConfigEntity.setExcludedFlag(
         config.getIncludeOrExclude() == IncludeExcludeEnum.EXCLUDE
     );
     assignmentConfigEntity.setTargetConnectionId(config.getTargetConnectionId());

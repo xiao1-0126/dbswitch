@@ -272,7 +272,7 @@ public class AssignmentService {
     sourceDataSourceProperties.setPassword(sourceDatabaseConnectionEntity.getPassword());
 
     String sourceSchema = assignmentConfigEntity.getSourceSchema();
-    if (assignmentConfigEntity.getExcluded()) {
+    if (assignmentConfigEntity.getExcludedFlag()) {
       if (CollectionUtils.isEmpty(assignmentConfigEntity.getSourceTables())) {
         sourceDataSourceProperties.setSourceExcludes("");
       } else {

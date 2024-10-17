@@ -38,7 +38,7 @@ public class AssignmentDetailConverter extends
     config.setSourceConnectionName(srcConn.getName());
     config.setSourceSchema(taskConfig.getSourceSchema());
     config.setTableType(taskConfig.getTableType());
-    config.setIncludeOrExclude(taskConfig.getExcluded()
+    config.setIncludeOrExclude(taskConfig.getExcludedFlag()
         ? IncludeExcludeEnum.EXCLUDE
         : IncludeExcludeEnum.INCLUDE);
     config.setSourceTables(taskConfig.getSourceTables());

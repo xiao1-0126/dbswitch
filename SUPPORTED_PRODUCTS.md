@@ -2,14 +2,14 @@
 
 支持的数据库产品及其JDBC驱动连接示例如下：
 
-**MySQL/MariaDB/StarRocks数据库**
+**MySQL数据库**
 
 ```
 jdbc连接地址：jdbc:mysql://172.17.2.10:3306/test?useUnicode=true&characterEncoding=utf-8&useSSL=false&zeroDateTimeBehavior=convertToNull&serverTimezone=Asia/Shanghai&tinyInt1isBit=false&rewriteBatchedStatements=true&useCompression=true
 jdbc驱动名称： com.mysql.jdbc.Driver
 ```
 
-与:
+**MariaDB数据库**
 
 ```
 jdbc连接地址：jdbc:mariadb://172.17.2.10:3306/test?useUnicode=true&characterEncoding=utf-8&useSSL=false&zeroDateTimeBehavior=convertToNull&serverTimezone=Asia/Shanghai&tinyInt1isBit=false&rewriteBatchedStatements=true&useCompression=true
@@ -23,7 +23,7 @@ jdbc连接地址：jdbc:oracle:thin:@172.17.2.10:1521:ORCL  或   jdbc:oracle:th
 jdbc驱动名称：oracle.jdbc.driver.OracleDriver
 ```
 
-**SQL Server(>=2005)数据库**
+**SQLServer(>=2005)数据库**
 
 ```
 jdbc连接地址：jdbc:sqlserver://172.17.2.10:1433;DatabaseName=test
@@ -38,7 +38,14 @@ jdbc驱动名称：com.sybase.jdbc4.jdbc.SybDriver
 ```
 > JDBC连接Sybase数据库使用中文时只能使用CP936这个字符集
 
-**PostgreSQL/Greenplum数据库**
+**PostgreSQL数据库**
+
+```
+jdbc连接地址：jdbc:postgresql://172.17.2.10:5432/test
+jdbc驱动名称：org.postgresql.Driver
+```
+
+**Greenplum数据库**
 
 ```
 jdbc连接地址：jdbc:postgresql://172.17.2.10:5432/test
@@ -59,7 +66,7 @@ jdbc连接地址：jdbc:dm://172.17.2.10:5236
 jdbc驱动名称：dm.jdbc.driver.DmDriver
 ```
 
-**人大金仓Kingbase8数据库**
+**金仓Kingbase8数据库**
 
 ```
 jdbc连接地址：jdbc:kingbase8://172.17.2.10:54321/MYTEST
@@ -131,7 +138,7 @@ jdbc连接地址：jdbc:clickhouse://172.17.2.10:8123/default
 jdbc驱动名称：com.clickhouse.jdbc.ClickHouseDriver
 ```
 
-**SQLite数据库**
+**SQLite3数据库**
 
 ```
 jdbc连接地址：jdbc:sqlite:/tmp/test.db   或者  jdbc:sqlite::resource:http://172.17.2.12:8080/test.db
@@ -164,7 +171,7 @@ jdbc驱动名称：com.gitee.jdbc.mongodb.JdbcDriver
 
 > 项目地址：https://gitee.com/inrgihc/jdbc-mongodb-driver
 
-**ElasticSearch数据库**
+**ElasticSearch(7.x版本)数据库**
 
 ```
 jdbc连接地址：jdbc:jest://172.17.2.12:9200?useHttps=false

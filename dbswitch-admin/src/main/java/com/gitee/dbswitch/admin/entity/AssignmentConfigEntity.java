@@ -53,8 +53,8 @@ public class AssignmentConfigEntity {
   @TableField(value = "source_tables", typeHandler = ListTypeHandler.class)
   private List<String> sourceTables;
 
-  @TableField("excluded")
-  private Boolean excluded;
+  @TableField("excluded_flag")
+  private Boolean excludedFlag;
 
   @TableField("target_connection_id")
   private Long targetConnectionId;

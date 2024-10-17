@@ -54,7 +54,7 @@ public class AssigmentCreateRequest extends AssigmentBaseRequest {
     AssignmentConfigEntity assignmentConfigEntity = toAssignmentConfig(assignmentId, config);
     assignmentConfigEntity.setFirstFlag(Boolean.TRUE);
 
-    if (!assignmentConfigEntity.getExcluded()
+    if (!assignmentConfigEntity.getExcludedFlag()
         && !CollectionUtils.isEmpty(assignmentConfigEntity.getSourceTables())) {
       for (String tableName : assignmentConfigEntity.getSourceTables()) {
         String targetTableName = PatterNameUtils.getFinalName(tableName,

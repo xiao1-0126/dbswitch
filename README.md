@@ -274,11 +274,11 @@ dbswitch.target.writer-engine-insert=true
 
 ### 2、基于conf/application.yml配置的dbswitch-admin模块启动的WEB使用方式
 
-#### (1)、准备一个MySQL(建议版本为: 5.7+ )或PostgreSQL(建议版本：11.7+ )的数据库
+#### (1)、准备一个MySQL(建议版本为: 5.7+ )或PostgreSQL(建议版本：11.7+ )或者OpenGauss(建议版本：5.0+ )的数据库
 
-> dbswitch-admin模块后端同时支持MySQL、PostgreSQL作为配置数据库。
+> dbswitch-admin模块后端同时支持MySQL、PostgreSQL、OpenGauss作为配置数据库。
 
-#### (2)、配置conf/application.yml(MySQL可参考application_sample_mysql.yml配置，PostgreSQL可参考application_sample_postgresql.yml配置)
+#### (2)、配置conf/application.yml(MySQL可参考application_sample_mysql.yml配置，PostgreSQL/OpenGauss可参考application_sample_postgresql.yml配置)
 
 MySQL的application.yml配置内容示例如下：
 
