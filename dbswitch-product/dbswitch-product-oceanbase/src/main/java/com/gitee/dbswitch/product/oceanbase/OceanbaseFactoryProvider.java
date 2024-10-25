@@ -63,9 +63,10 @@ public class OceanbaseFactoryProvider extends AbstractFactoryProvider {
 
   @Override
   public MetadataProvider createMetadataQueryProvider() {
-    return isMySqlMode
+    MetadataProvider provider = isMySqlMode
         ? new MysqlMetadataQueryProvider(this)
         : new OracleMetadataQueryProvider(this);
+    return new OceanbaseMetadataQueryProvider(this, provider);
   }
 
   @Override
