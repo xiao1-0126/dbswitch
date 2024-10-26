@@ -288,6 +288,9 @@ public class MysqlMetadataQueryProvider extends AbstractMetadataProvider {
             }
           } else {
             // Floating point values...
+            if (length > 65) {
+              length = 65;
+            }
             if (length > 15) {
               retval += "DECIMAL(" + length;
               if (precision > 0) {

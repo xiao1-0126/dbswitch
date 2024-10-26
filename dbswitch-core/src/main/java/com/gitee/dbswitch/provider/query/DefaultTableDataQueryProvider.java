@@ -60,14 +60,13 @@ public class DefaultTableDataQueryProvider
   @Override
   public ResultSetWrapper queryTableData(String schemaName, String tableName, List<String> fields,
       List<String> orders) {
-    ProductTypeEnum productType = getProductType();
     StringBuilder sb = new StringBuilder("SELECT ");
-    sb.append(productType.quoteName(StringUtils.join(fields, productType.quoteName(","))));
+    sb.append(quoteName(StringUtils.join(fields, quoteName(","))));
     sb.append(" FROM ");
-    sb.append(productType.quoteSchemaTableName(schemaName, tableName));
+    sb.append(quoteSchemaTableName(schemaName, tableName));
     if (CollectionUtils.isNotEmpty(orders)) {
       sb.append(" ORDER BY ");
-      sb.append(productType.quoteName(StringUtils.join(orders, productType.quoteName(","))));
+      sb.append(quoteName(StringUtils.join(orders, quoteName(","))));
     }
     ProductFeatures features = getProductFeatures();
     return this.selectTableData(sb.toString(), features.convertFetchSize(this.fetchSize));
@@ -96,8 +95,7 @@ public class DefaultTableDataQueryProvider
   @Override
   public SchemaTableData queryTableData(Connection connection, String schemaName, String tableName,
       int rowCount) {
-    ProductTypeEnum productType = getProductType();
-    String fullTableName = productType.quoteSchemaTableName(schemaName, tableName);
+    String fullTableName = quoteSchemaTableName(schemaName, tableName);
     String querySQL = String.format("SELECT * FROM %s ", fullTableName);
     SchemaTableData data = new SchemaTableData();
     data.setSchemaName(schemaName);

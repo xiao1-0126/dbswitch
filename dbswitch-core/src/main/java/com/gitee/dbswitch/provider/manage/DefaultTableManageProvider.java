@@ -39,14 +39,14 @@ public class DefaultTableManageProvider
 
   @Override
   public void truncateTableData(String schemaName, String tableName) {
-    String fullTableName = getProductType().quoteSchemaTableName(schemaName, tableName);
+    String fullTableName = quoteSchemaTableName(schemaName, tableName);
     String sql = String.format("TRUNCATE TABLE %s ", fullTableName);
     this.executeSql(sql);
   }
 
   @Override
   public void dropTable(String schemaName, String tableName) {
-    String fullTableName = getProductType().quoteSchemaTableName(schemaName, tableName);
+    String fullTableName = quoteSchemaTableName(schemaName, tableName);
     String sql = String.format("DROP TABLE %s ", fullTableName);
     this.executeSql(sql);
   }

@@ -91,14 +91,17 @@ public class MongodbMetadataQueryProvider extends AbstractMetadataProvider {
     }
   }
 
+  @Override
   public String getTableDDL(Connection connection, String schemaName, String tableName) {
     return null;
   }
 
+  @Override
   public String getViewDDL(Connection connection, String schemaName, String tableName) {
     return null;
   }
 
+  @Override
   public List<String> queryTableColumnName(Connection connection, String schemaName, String tableName) {
     List<String> ret = new ArrayList<>();
     try (ResultSet rs = connection.getMetaData().getColumns(schemaName, null, tableName, null)) {
@@ -111,6 +114,7 @@ public class MongodbMetadataQueryProvider extends AbstractMetadataProvider {
     return ret;
   }
 
+  @Override
   public List<ColumnDescription> queryTableColumnMeta(Connection connection, String schemaName,
       String tableName) {
     List<ColumnDescription> ret = new ArrayList<>();
@@ -148,10 +152,12 @@ public class MongodbMetadataQueryProvider extends AbstractMetadataProvider {
     return ret;
   }
 
+  @Override
   public List<ColumnDescription> querySelectSqlColumnMeta(Connection connection, String sql) {
     return Collections.emptyList();
   }
 
+  @Override
   public List<String> queryTablePrimaryKeys(Connection connection, String schemaName, String tableName) {
     List<String> ret = new ArrayList<>();
     try (ResultSet rs = connection.getMetaData().getPrimaryKeys(schemaName, null, tableName)) {
@@ -164,27 +170,33 @@ public class MongodbMetadataQueryProvider extends AbstractMetadataProvider {
     return ret;
   }
 
+  @Override
   public List<IndexDescription> queryTableIndexes(Connection connection, String schemaName, String tableName) {
     return Collections.emptyList();
   }
 
+  @Override
   public void testQuerySQL(Connection connection, String sql) {
 
   }
 
+  @Override
   public String getQuotedSchemaTableCombination(String schemaName, String tableName) {
     return String.format("%s.%s", schemaName, tableName);
   }
 
+  @Override
   public String getFieldDefinition(ColumnMetaData v, List<String> pks, boolean useAutoInc, boolean addCr,
       boolean withRemarks) {
     return null;
   }
 
+  @Override
   public String getPrimaryKeyAsString(List<String> pks) {
     return null;
   }
 
+  @Override
   public List<String> getTableColumnCommentDefinition(TableDescription td, List<ColumnDescription> cds) {
     return Collections.emptyList();
   }

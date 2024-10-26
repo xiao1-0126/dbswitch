@@ -45,11 +45,7 @@ public class OceanbaseFactoryProvider extends AbstractFactoryProvider {
     try (Connection connection = getDataSource().getConnection()) {
       this.isMySqlMode = ProductTypeUtils.isOceanBaseUseMysqlMode(connection);
       if (log.isDebugEnabled()) {
-        if (this.isMySqlMode) {
-          log.debug("#### Target OceanBase is MySQL Mode ");
-        } else {
-          log.debug("#### Target OceanBase is Oracle Mode ");
-        }
+        log.debug("#### Target OceanBase is {} Mode ", this.isMySqlMode ? "MySQL" : "Oracle");
       }
     } catch (SQLException e) {
       throw new RuntimeException(e);
@@ -71,22 +67,25 @@ public class OceanbaseFactoryProvider extends AbstractFactoryProvider {
 
   @Override
   public TableDataWriteProvider createTableDataWriteProvider(boolean useInsert) {
-    return isMySqlMode
+    TableDataWriteProvider provider = isMySqlMode
         ? new AutoCastTableDataWriteProvider(this)
         : new OracleTableDataWriteProvider(this);
+    return new OceanbaseTableDataWriteProvider(this, provider);
   }
 
   @Override
   public TableManageProvider createTableManageProvider() {
-    return isMySqlMode
+    TableManageProvider provider = isMySqlMode
         ? new DefaultTableManageProvider(this)
         : new OracleTableManageProvider(this);
+    return new OceanbaseTableManageProvider(this, provider);
   }
 
   @Override
   public TableDataSynchronizeProvider createTableDataSynchronizeProvider() {
-    return isMySqlMode
+    TableDataSynchronizeProvider provider = isMySqlMode
         ? new AutoCastTableDataSynchronizeProvider(this)
         : new OracleTableDataSynchronizer(this);
+    return new OceanbaseTableDataSynchronizer(this, provider);
   }
 }

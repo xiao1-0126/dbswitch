@@ -24,6 +24,7 @@ public abstract class AbstractFactoryProvider implements ProductFactoryProvider 
     this.dataSource = dataSource;
   }
 
+  @Override
   public DataSource getDataSource() {
     return this.dataSource;
   }

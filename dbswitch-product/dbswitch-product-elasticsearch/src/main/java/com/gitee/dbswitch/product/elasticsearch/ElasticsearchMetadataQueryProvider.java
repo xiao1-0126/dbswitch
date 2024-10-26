@@ -43,6 +43,7 @@ public class ElasticsearchMetadataQueryProvider extends AbstractMetadataProvider
     return Collections.emptyList();
   }
 
+  @Override
   public List<ColumnDescription> queryTableColumnMeta(Connection connection, String schemaName,
       String tableName) {
     List<ColumnDescription> ret = new ArrayList<>();
@@ -78,27 +79,33 @@ public class ElasticsearchMetadataQueryProvider extends AbstractMetadataProvider
     }
   }
 
+  @Override
   public List<String> queryTablePrimaryKeys(Connection connection, String schemaName, String tableName) {
     return Collections.emptyList();
   }
 
+  @Override
   public List<IndexDescription> queryTableIndexes(Connection connection, String schemaName, String tableName) {
     return Collections.emptyList();
   }
 
+  @Override
   public String getQuotedSchemaTableCombination(String schemaName, String tableName) {
     return String.format("%s.%s", schemaName, tableName);
   }
 
+  @Override
   public String getFieldDefinition(ColumnMetaData v, List<String> pks, boolean useAutoInc, boolean addCr,
       boolean withRemarks) {
     return null;
   }
 
+  @Override
   public String getPrimaryKeyAsString(List<String> pks) {
     return null;
   }
 
+  @Override
   public List<String> getTableColumnCommentDefinition(TableDescription td, List<ColumnDescription> cds) {
     return Collections.emptyList();
   }

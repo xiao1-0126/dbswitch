@@ -74,6 +74,7 @@ public class WriterTaskThread extends TaskProcessor<WriterTaskResult> {
     return taskResult;
   }
 
+  @Override
   public WriterTaskResult exceptProcess(Throwable t) {
     return WriterTaskResult.builder()
         .success(false)

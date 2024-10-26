@@ -225,11 +225,10 @@ public class DefaultTableDataSynchronizeProvider
   protected String getInsertPrepareStatementSql(String schemaName, String tableName,
       List<String> fieldNames) {
     List<String> placeHolders = Collections.nCopies(fieldNames.size(), "?");
-    ProductTypeEnum productType = getProductType();
-    String fullTableName = productType.quoteSchemaTableName(schemaName, tableName);
+    String fullTableName = quoteSchemaTableName(schemaName, tableName);
     return String.format("INSERT INTO %s ( %s ) VALUES ( %s )",
         fullTableName,
-        productType.quoteName(StringUtils.join(fieldNames, productType.quoteName(","))),
+        quoteName(StringUtils.join(fieldNames, quoteName(","))),
         StringUtils.join(placeHolders, ","));
   }
 
@@ -244,14 +243,13 @@ public class DefaultTableDataSynchronizeProvider
    */
   protected String getUpdatePrepareStatementSql(String schemaName, String tableName,
       List<String> fieldNames, List<String> pks) {
-    ProductTypeEnum productType = getProductType();
-    String fullTableName = productType.quoteSchemaTableName(schemaName, tableName);
+    String fullTableName = quoteSchemaTableName(schemaName, tableName);
     List<String> uf = fieldNames.stream()
         .filter(field -> !pks.contains(field))
-        .map(field -> String.format("%s=?", productType.quoteName(field)))
+        .map(field -> String.format("%s=?", quoteName(field)))
         .collect(Collectors.toList());
     List<String> uw = pks.stream()
-        .map(pk -> String.format("%s=?", productType.quoteName(pk)))
+        .map(pk -> String.format("%s=?", quoteName(pk)))
         .collect(Collectors.toList());
     return String.format("UPDATE %s SET %s WHERE %s",
         fullTableName, StringUtils.join(uf, " , "),
@@ -268,10 +266,9 @@ public class DefaultTableDataSynchronizeProvider
    */
   protected String getDeletePrepareStatementSql(String schemaName, String tableName,
       List<String> pks) {
-    ProductTypeEnum productType = getProductType();
-    String fullTableName = productType.quoteSchemaTableName(schemaName, tableName);
+    String fullTableName = quoteSchemaTableName(schemaName, tableName);
     List<String> uw = pks.stream()
-        .map(pk -> String.format("%s=?", productType.quoteName(pk)))
+        .map(pk -> String.format("%s=?", quoteName(pk)))
         .collect(Collectors.toList());
     return String.format("DELETE FROM %s WHERE %s ",
         fullTableName, StringUtils.join(uw, "  AND  "));

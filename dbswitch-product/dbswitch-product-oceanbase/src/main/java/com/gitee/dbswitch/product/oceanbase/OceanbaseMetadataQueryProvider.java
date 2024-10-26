@@ -26,10 +26,26 @@ import org.apache.commons.lang3.StringUtils;
 public class OceanbaseMetadataQueryProvider extends AbstractMetadataProvider {
 
   private final MetadataProvider delegate;
+  private final ProductTypeEnum dialect;
 
   public OceanbaseMetadataQueryProvider(ProductFactoryProvider factoryProvider, MetadataProvider delegate) {
     super(factoryProvider);
     this.delegate = delegate;
+    if (this.delegate instanceof MysqlMetadataQueryProvider) {
+      this.dialect = ProductTypeEnum.MYSQL;
+    } else {
+      this.dialect = ProductTypeEnum.ORACLE;
+    }
+  }
+
+  @Override
+  protected String quoteName(String name) {
+    return this.dialect.quoteName(name);
+  }
+
+  @Override
+  protected String quoteSchemaTableName(String schemaName, String tableName) {
+    return this.dialect.quoteSchemaTableName(schemaName, tableName);
   }
 
   @Override
@@ -87,11 +103,7 @@ public class OceanbaseMetadataQueryProvider extends AbstractMetadataProvider {
   @Override
   public void testQuerySQL(Connection connection, String sql) {
     if (StringUtils.equals(ProductTypeEnum.OCEANBASE.getSql(), sql)) {
-      if (this.delegate instanceof MysqlMetadataQueryProvider) {
-        this.delegate.testQuerySQL(connection, ProductTypeEnum.MYSQL.getSql());
-      } else {
-        this.delegate.testQuerySQL(connection, ProductTypeEnum.ORACLE.getSql());
-      }
+      this.delegate.testQuerySQL(connection, this.dialect.getSql());
     } else {
       this.delegate.testQuerySQL(connection, sql);
     }

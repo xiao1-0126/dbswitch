@@ -50,17 +50,23 @@ public abstract class AbstractCommonProvider {
     return (T) productFeatures;
   }
 
+  protected String quoteName(String name) {
+    return getProductType().quoteName(name);
+  }
+
+  protected String quoteSchemaTableName(String schemaName, String tableName) {
+    return getProductType().quoteSchemaTableName(schemaName, tableName);
+  }
+
   protected String getTableFieldsQuerySQL(String schemaName, String tableName) {
-    ProductTypeEnum productType = getProductType();
-    String fullTableName = productType.quoteSchemaTableName(schemaName, tableName);
+    String fullTableName = quoteSchemaTableName(schemaName, tableName);
     return String.format("SELECT %s FROM %s WHERE 1=2", "*", fullTableName);
   }
 
   protected Map<String, Integer> getTableColumnMetaData(String schemaName, String tableName, List<String> fieldNames) {
-    ProductTypeEnum productType = getProductType();
-    String fullTableName = productType.quoteSchemaTableName(schemaName, tableName);
+    String fullTableName = quoteSchemaTableName(schemaName, tableName);
     String queryColumnStr = CollectionUtils.isEmpty(fieldNames) ? "*"
-        : productType.quoteName(StringUtils.join(fieldNames, productType.quoteName(",")));
+        : quoteName(StringUtils.join(fieldNames, quoteName(",")));
     String sql = String.format("SELECT %s FROM %s WHERE 1=2", queryColumnStr, fullTableName);
 
     Map<String, Integer> columnMetaDataMap = new HashMap<>();

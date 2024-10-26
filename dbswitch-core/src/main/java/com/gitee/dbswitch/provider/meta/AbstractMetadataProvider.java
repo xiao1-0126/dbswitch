@@ -224,7 +224,7 @@ public abstract class AbstractMetadataProvider
 
   @Override
   public String getQuotedSchemaTableCombination(String schemaName, String tableName) {
-    return getProductType().quoteSchemaTableName(schemaName, tableName);
+    return quoteSchemaTableName(schemaName, tableName);
   }
 
   @Override
@@ -256,8 +256,7 @@ public abstract class AbstractMetadataProvider
   @Override
   public String getPrimaryKeyAsString(List<String> pks) {
     if (!pks.isEmpty()) {
-      ProductTypeEnum productType = getProductType();
-      return productType.quoteName(StringUtils.join(pks, productType.quoteName(StrPool.COMMA)));
+      return quoteName(StringUtils.join(pks, quoteName(StrPool.COMMA)));
     }
     return StringUtils.EMPTY;
   }

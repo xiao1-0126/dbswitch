@@ -34,29 +34,35 @@ public final class JsonUtils {
       try {
         return jacksonMapper.writeValueAsString(object);
       } catch (JsonProcessingException e) {
-        log.error(" convert object to json string error：{}", object.toString(), e);
+        log.error("convert object to json string error：{}", object.toString(), e);
+        throw new RuntimeException(e);
       }
     }
-
     return null;
   }
 
   public static <T> T toBeanObject(String jsonString, Class<T> clazz) {
-    try {
-      return jacksonMapper.readValue(jsonString, clazz);
-    } catch (JsonProcessingException e) {
-      String className = clazz.getSimpleName();
-      log.error(" parse json [{}] to class [{}] error：{}", jsonString, className, e);
+    if (Objects.nonNull(jsonString)) {
+      try {
+        return jacksonMapper.readValue(jsonString, clazz);
+      } catch (JsonProcessingException e) {
+        String className = clazz.getSimpleName();
+        log.error("parse json [{}] to class [{}] error：{}", jsonString, className, e);
+        throw new RuntimeException(e);
+      }
     }
     return null;
   }
 
   public static <T> List<T> toBeanList(String jsonString, Class<T> clazz) {
-    try {
-      return jacksonMapper.readValue(jsonString, getCollectionType(List.class, clazz));
-    } catch (JsonProcessingException e) {
-      String className = clazz.getSimpleName();
-      log.error(" parse json [{}] to class [{}] error：{}", jsonString, className, e);
+    if (Objects.nonNull(jsonString)) {
+      try {
+        return jacksonMapper.readValue(jsonString, getCollectionType(List.class, clazz));
+      } catch (JsonProcessingException e) {
+        String className = clazz.getSimpleName();
+        log.error("parse json [{}] to class [{}] error：{}", jsonString, className, e);
+        throw new RuntimeException(e);
+      }
     }
     return Collections.emptyList();
   }
