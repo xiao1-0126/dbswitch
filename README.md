@@ -138,9 +138,9 @@ docker run -d --name dbswitch \
 (3) 基于docker-compose提供linux联网环境下的**一键安装**，x86的CentOS系统下安装命令如下：
 
 ```
-curl -k -sSL https://gitee.com/dromara/dbswitch/attach_files/1946254/download | bash
+curl -k -sSL https://gitee.com/dromara/dbswitch/attach_files/1946284/download | bash
 ```
-注：默认yum源不可用可用命令```curl -o /etc/yum.repos.d/CentOS-Base.repo http://mirrors.aliyun.com/repo/Centos-7.repo```安装阿里源。
+注：安装阿里源命令```curl -o /etc/yum.repos.d/CentOS-Base.repo http://mirrors.aliyun.com/repo/Centos-7.repo```。
 
 文档详见: [build-docker/install/README.md](build-docker/install) 
 
