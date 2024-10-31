@@ -11,7 +11,6 @@ package com.gitee.dbswitch.product.oceanbase;
 
 import com.gitee.dbswitch.annotation.Product;
 import com.gitee.dbswitch.common.type.ProductTypeEnum;
-import com.gitee.dbswitch.common.util.ProductTypeUtils;
 import com.gitee.dbswitch.features.DefaultProductFeatures;
 import com.gitee.dbswitch.features.ProductFeatures;
 import com.gitee.dbswitch.product.mysql.MysqlFeatures;
@@ -43,7 +42,7 @@ public class OceanbaseFactoryProvider extends AbstractFactoryProvider {
     super(dataSource);
 
     try (Connection connection = getDataSource().getConnection()) {
-      this.isMySqlMode = ProductTypeUtils.isOceanBaseUseMysqlMode(connection);
+      this.isMySqlMode = OceanbaseUtils.isOceanBaseUseMysqlMode(connection);
       if (log.isDebugEnabled()) {
         log.debug("#### Target OceanBase is {} Mode ", this.isMySqlMode ? "MySQL" : "Oracle");
       }

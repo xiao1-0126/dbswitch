@@ -3,7 +3,7 @@
 ![](https://gitee.com/inrgihc/dbswitch/badge/star.svg)
 ![](https://gitee.com/inrgihc/dbswitch/badge/fork.svg?theme=gvp)
 
-![dbswitch](https://gitee.com/dromara/dbswitch/raw/master/dbswitch-admin-ui/src/assets/logo.png#pic_center)
+![dbswitch](https://gitee.com/dromara/dbswitch/raw/master/images/dbswitch-logo.png#pic_center)
 
 ## 一、工具介绍
 

@@ -1,7 +1,7 @@
 services:
   mysqldb:
     container_name: dbswitch_mysqldb
-    image: mysql:5.7
+    image: registry.cn-hangzhou.aliyuncs.com/inrgihc/mysql:5.7
     volumes:
       - "/data/mysql:/var/lib/mysql"
     environment:

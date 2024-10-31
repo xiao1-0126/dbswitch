@@ -13,16 +13,14 @@ import cn.hutool.core.util.ClassLoaderUtil;
 import com.gitee.dbswitch.common.entity.CloseableDataSource;
 import com.gitee.dbswitch.common.entity.InvisibleDataSource;
 import com.gitee.dbswitch.common.entity.JarClassLoader;
+import com.gitee.dbswitch.common.type.ProductTypeEnum;
 import com.gitee.dbswitch.common.util.ExamineUtils;
-import com.gitee.dbswitch.common.util.ProductTypeUtils;
 import com.gitee.dbswitch.data.domain.WrapCommonDataSource;
 import com.gitee.dbswitch.data.domain.WrapHikariDataSource;
 import com.gitee.dbswitch.data.entity.SourceDataSourceProperties;
 import com.gitee.dbswitch.data.entity.TargetDataSourceProperties;
 import com.zaxxer.hikari.HikariDataSource;
 import java.net.URLClassLoader;
-import java.sql.Connection;
-import java.sql.SQLException;
 import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
@@ -130,15 +128,9 @@ public final class DataSourceUtils {
     );
 
     // 如果是Greenplum数据库，这里需要关闭会话的查询优化器
-    if (properties.getDriverClassName().contains("postgresql")) {
-      try (Connection connection = dataSource.getConnection()) {
-        if (ProductTypeUtils.isGreenplum(connection)) {
-          ds.setConnectionInitSql("set optimizer to 'off'");
-          log.info("Greenplum: Close Optimizer now: set optimizer to 'off'");
-        }
-      } catch (SQLException e) {
-        throw new RuntimeException(e);
-      }
+    if (ProductTypeEnum.GREENPLUM == properties.getType()) {
+      ds.setConnectionInitSql("set optimizer to 'off'");
+      log.info("Greenplum: Close Optimizer now: set optimizer to 'off'");
     }
 
     ds.setDataSource(dataSource);
