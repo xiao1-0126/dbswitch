@@ -217,11 +217,11 @@ public enum ProductTypeEnum {
   /**
    * OceanBase数据库类型
    */
-  OCEANBASE(22, "`", "OceanBase", "com.oceanbase.jdbc.Driver", 2881,
-      "/* ping */ SELECT 1",
+  OCEANBASE(22, "", "OceanBase", "com.oceanbase.jdbc.Driver", 2881,
+      "/* ping */",
       "jdbc:oceanbase://",
       new String[]{"jdbc:oceanbase://{host}[:{port}]/[{database}][\\?{params}]"},
-      "jdbc:oceanbase://127.0.0.1:2881/test?pool=false&useUnicode=true&characterEncoding=utf-8&useSSL=false&"),
+      "jdbc:oceanbase://127.0.0.1:2881/test?pool=false&useUnicode=true&characterEncoding=utf-8&useSSL=false"),
 
   ;
 

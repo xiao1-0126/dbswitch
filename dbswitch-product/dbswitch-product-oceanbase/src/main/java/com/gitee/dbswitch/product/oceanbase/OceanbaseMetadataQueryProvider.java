@@ -9,6 +9,7 @@
 /////////////////////////////////////////////////////////////
 package com.gitee.dbswitch.product.oceanbase;
 
+import cn.hutool.core.text.StrPool;
 import com.gitee.dbswitch.common.type.ProductTypeEnum;
 import com.gitee.dbswitch.product.mysql.MysqlMetadataQueryProvider;
 import com.gitee.dbswitch.provider.ProductFactoryProvider;
@@ -21,6 +22,8 @@ import com.gitee.dbswitch.schema.SourceProperties;
 import com.gitee.dbswitch.schema.TableDescription;
 import java.sql.Connection;
 import java.util.List;
+import java.util.stream.Collectors;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
 public class OceanbaseMetadataQueryProvider extends AbstractMetadataProvider {
@@ -127,7 +130,10 @@ public class OceanbaseMetadataQueryProvider extends AbstractMetadataProvider {
 
   @Override
   public void appendPrimaryKeyForCreateTableSql(StringBuilder builder, List<String> primaryKeys) {
-    this.delegate.appendPrimaryKeyForCreateTableSql(builder, primaryKeys);
+    if (CollectionUtils.isNotEmpty(primaryKeys)) {
+      String primaryKeyAsString = getPrimaryKeyAsString(primaryKeys);
+      builder.append(", PRIMARY KEY (").append(primaryKeyAsString).append(")");
+    }
   }
 
   @Override
@@ -138,7 +144,15 @@ public class OceanbaseMetadataQueryProvider extends AbstractMetadataProvider {
 
   @Override
   public String getPrimaryKeyAsString(List<String> pks) {
-    return this.delegate.getPrimaryKeyAsString(pks);
+    if (!pks.isEmpty()) {
+      return quoteName(
+          StringUtils.join(
+              pks.stream().distinct().collect(Collectors.toList())
+              , quoteName(StrPool.COMMA)
+          )
+      );
+    }
+    return StringUtils.EMPTY;
   }
 
   @Override
