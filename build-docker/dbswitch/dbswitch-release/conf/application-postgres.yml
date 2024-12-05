@@ -7,7 +7,7 @@ spring:
     validation-query: SELECT 1
     test-on-borrow: true
   flyway:
-    locations: classpath:db/postgres
+    locations: classpath:db/mysql
     baseline-on-migrate: true
     table: dbswitch_schema_history
     enabled: true

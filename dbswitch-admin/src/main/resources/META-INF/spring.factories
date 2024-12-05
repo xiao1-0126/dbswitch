@@ -1,1 +1,1 @@
-org.springframework.context.ApplicationListener=com.gitee.dbswitch.admin.listener.DbswitchAdminStartedEventListener
+org.springframework.context.ApplicationListener=org.dromara.dbswitch.admin.listener.DbswitchAdminStartedEventListener

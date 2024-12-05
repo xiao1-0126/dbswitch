@@ -166,7 +166,7 @@ jdbc驱动名称：org.sqlite.JDBC
 
 ```
 jdbc连接地址：jdbc:mongodb://172.17.2.12:27017/admin?authSource=admin&authMechanism=SCRAM-SHA-1
-jdbc驱动名称：com.gitee.jdbc.mongodb.JdbcDriver
+jdbc驱动名称：org.dromara.jdbc.mongodb.JdbcDriver
 ```
 
 > 项目地址：https://gitee.com/inrgihc/jdbc-mongodb-driver
@@ -175,7 +175,7 @@ jdbc驱动名称：com.gitee.jdbc.mongodb.JdbcDriver
 
 ```
 jdbc连接地址：jdbc:jest://172.17.2.12:9200?useHttps=false
-jdbc驱动名称：com.gitee.jdbc.elasticsearch.JdbcDriver
+jdbc驱动名称：org.dromara.jdbc.elasticsearch.JdbcDriver
 ```
 
 > 项目地址：https://gitee.com/inrgihc/jdbc-jest-driver

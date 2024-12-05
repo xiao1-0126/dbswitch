@@ -1,1 +1,1 @@
-com.gitee.dbswitch.product.sqlserver.SqlserverFactoryProvider
+org.dromara.dbswitch.product.sqlserver.SqlserverFactoryProvider

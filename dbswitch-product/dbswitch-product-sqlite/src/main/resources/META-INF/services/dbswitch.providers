@@ -1,1 +1,1 @@
-com.gitee.dbswitch.product.sqlite.SqliteFactoryProvider
+org.dromara.dbswitch.product.sqlite.SqliteFactoryProvider

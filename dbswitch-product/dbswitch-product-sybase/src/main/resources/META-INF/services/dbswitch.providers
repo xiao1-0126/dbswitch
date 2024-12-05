@@ -1,1 +1,1 @@
-com.gitee.dbswitch.product.sybase.SybaseFactoryProvider
+org.dromara.dbswitch.product.sybase.SybaseFactoryProvider

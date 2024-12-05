@@ -4,8 +4,8 @@
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <parent>
     <artifactId>dbswitch-product</artifactId>
-    <groupId>com.gitee.dbswitch</groupId>
-    <version>1.9.10</version>
+    <groupId>org.dromara.dbswitch</groupId>
+    <version>2.0.0</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
 
@@ -13,113 +13,113 @@
 
   <dependencies>
     <dependency>
-      <groupId>com.gitee.dbswitch</groupId>
+      <groupId>org.dromara.dbswitch</groupId>
       <artifactId>dbswitch-product-mysql</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
-      <groupId>com.gitee.dbswitch</groupId>
+      <groupId>org.dromara.dbswitch</groupId>
       <artifactId>dbswitch-product-oracle</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
-      <groupId>com.gitee.dbswitch</groupId>
+      <groupId>org.dromara.dbswitch</groupId>
       <artifactId>dbswitch-product-postgresql</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
-      <groupId>com.gitee.dbswitch</groupId>
+      <groupId>org.dromara.dbswitch</groupId>
       <artifactId>dbswitch-product-sqlserver</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
-      <groupId>com.gitee.dbswitch</groupId>
+      <groupId>org.dromara.dbswitch</groupId>
       <artifactId>dbswitch-product-db2</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
-      <groupId>com.gitee.dbswitch</groupId>
+      <groupId>org.dromara.dbswitch</groupId>
       <artifactId>dbswitch-product-dm</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
-      <groupId>com.gitee.dbswitch</groupId>
+      <groupId>org.dromara.dbswitch</groupId>
       <artifactId>dbswitch-product-sybase</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
-      <groupId>com.gitee.dbswitch</groupId>
+      <groupId>org.dromara.dbswitch</groupId>
       <artifactId>dbswitch-product-kingbase</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
-      <groupId>com.gitee.dbswitch</groupId>
+      <groupId>org.dromara.dbswitch</groupId>
       <artifactId>dbswitch-product-highgo</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
-      <groupId>com.gitee.dbswitch</groupId>
+      <groupId>org.dromara.dbswitch</groupId>
       <artifactId>dbswitch-product-oscar</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
-      <groupId>com.gitee.dbswitch</groupId>
+      <groupId>org.dromara.dbswitch</groupId>
       <artifactId>dbswitch-product-sqlite</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
-      <groupId>com.gitee.dbswitch</groupId>
+      <groupId>org.dromara.dbswitch</groupId>
       <artifactId>dbswitch-product-mariadb</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
-      <groupId>com.gitee.dbswitch</groupId>
+      <groupId>org.dromara.dbswitch</groupId>
       <artifactId>dbswitch-product-hive</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
-      <groupId>com.gitee.dbswitch</groupId>
+      <groupId>org.dromara.dbswitch</groupId>
       <artifactId>dbswitch-product-gbase</artifactId>
       <version>${project.version}</version>
     </dependency>
     <!-- 新增加的数据库产品需要在这里追加依赖-->
     <dependency>
-      <groupId>com.gitee.dbswitch</groupId>
+      <groupId>org.dromara.dbswitch</groupId>
       <artifactId>dbswitch-product-openguass</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
-      <groupId>com.gitee.dbswitch</groupId>
+      <groupId>org.dromara.dbswitch</groupId>
       <artifactId>dbswitch-product-clickhouse</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
-      <groupId>com.gitee.dbswitch</groupId>
+      <groupId>org.dromara.dbswitch</groupId>
       <artifactId>dbswitch-product-mongodb</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
-      <groupId>com.gitee.dbswitch</groupId>
+      <groupId>org.dromara.dbswitch</groupId>
       <artifactId>dbswitch-product-elasticsearch</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
-      <groupId>com.gitee.dbswitch</groupId>
+      <groupId>org.dromara.dbswitch</groupId>
       <artifactId>dbswitch-product-starrocks</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
-      <groupId>com.gitee.dbswitch</groupId>
+      <groupId>org.dromara.dbswitch</groupId>
       <artifactId>dbswitch-product-greenplum</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
-      <groupId>com.gitee.dbswitch</groupId>
+      <groupId>org.dromara.dbswitch</groupId>
       <artifactId>dbswitch-product-doris</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
-      <groupId>com.gitee.dbswitch</groupId>
+      <groupId>org.dromara.dbswitch</groupId>
       <artifactId>dbswitch-product-oceanbase</artifactId>
       <version>${project.version}</version>
     </dependency>

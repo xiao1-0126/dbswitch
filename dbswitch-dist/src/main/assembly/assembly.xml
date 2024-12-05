@@ -13,7 +13,7 @@
 			<useProjectArtifact>true</useProjectArtifact>
 			<outputDirectory>lib</outputDirectory>
 			<excludes>
-				<exclude>com.gitee.dbswitch:dbswitch-dist</exclude>
+				<exclude>org.dromara.dbswitch:dbswitch-dist</exclude>
 			</excludes>
 		</dependencySet>
 	</dependencySets>

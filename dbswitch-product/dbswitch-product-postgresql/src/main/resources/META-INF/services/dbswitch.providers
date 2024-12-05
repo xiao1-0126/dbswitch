@@ -1,1 +1,1 @@
-com.gitee.dbswitch.product.postgresql.PostgresFactoryProvider
+org.dromara.dbswitch.product.postgresql.PostgresFactoryProvider

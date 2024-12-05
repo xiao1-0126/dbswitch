@@ -446,7 +446,7 @@ cd dbswitch && mvn clean install
 
 ```
 <dependency>
- <groupId>com.gitee.dbswitch</groupId>
+ <groupId>org.dromara.dbswitch</groupId>
  <artifactId>dbswitch-data</artifactId>
  <version>${dbswitch.version}</version>
 </dependency>

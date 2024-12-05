@@ -1,1 +1,1 @@
-com.gitee.dbswitch.product.db2.DB2FactoryProvider
+org.dromara.dbswitch.product.db2.DB2FactoryProvider

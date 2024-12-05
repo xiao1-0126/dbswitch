@@ -6,6 +6,7 @@ body:
     attributes:
       label: dbswitch版本
       options:
+        - "2.0.0"
         - "1.9.10"
         - "1.9.9"
         - "1.9.8"
@@ -13,7 +14,7 @@ body:
         - "1.9.6"
         - "1.9.5"
         - "1.9.4"
-        - "其他版本已不维护(历史版本可平滑升级上述各版本)，勿提issue"
+        - "其他版本已不维护(历史版本可平滑升级到1.9.10)，勿提issue"
     validations:
       required: true
   - type: dropdown
