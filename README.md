@@ -505,7 +505,7 @@ service.run();
 
 ## 八、项目推荐
 
-SQLREST是一款SQL2API的低代码开源工具:[https://gitee.com/inrgihc/sqlrest](https://gitee.com/inrgihc/sqlrest)
+一款SQL2API的低代码开源工具SQLREST:[https://gitee.com/inrgihc/sqlrest](https://gitee.com/inrgihc/sqlrest)
 
 ## 九、社区推荐
 
@@ -517,7 +517,7 @@ SQLREST是一款SQL2API的低代码开源工具:[https://gitee.com/inrgihc/sqlre
 
 ## 十、问题反馈
 
-如果您看到并使用了本工具，或您觉得本工具对您有价值，请为此项目**点个赞**，以表示对本项目的支持，多谢！如果您在使用时遇到了bug，欢迎在issue中反馈。也可扫描下方二维码入群讨论：（加好友请注明："程序交流"）
+如果您看到并使用了本工具，或您觉得本工具对您有价值，请为此项目**点个赞**，以表示对本项目的支持，多谢！如果您在使用时遇到了bug，欢迎在issue中反馈。也可扫描下方二维码入群讨论：（加好友请注明："dbswitch程序交流"）
 
 ![structure](images/weixin.PNG)
 
