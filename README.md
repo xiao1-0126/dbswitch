@@ -103,6 +103,14 @@ sh ./docker-maven-build.sh
 
 (2) docker容器方式部署：
 
+- H2做配置库部署
+
+这里将宿主机的/tmp目录挂载到容器上：
+```
+docker run -d --name dbswitch  -e DBTYPE=h2  -v /tmp:/tmp  -p 9088:9088 \
+  registry.cn-hangzhou.aliyuncs.com/inrgihc/dbswitch:latest
+```
+
 - MYSQL做配置库部署
 
 假设已经部署好的MySQL(5.7+)数据库地址为192.168.31.57，端口为3306，账号为test，密码为123456
@@ -293,9 +301,9 @@ dbswitch.target.writer-engine-insert=true
 
 ### 2、基于conf/application.yml配置的dbswitch-admin模块启动的WEB使用方式
 
-#### (1)、准备一个MySQL(建议版本为: 5.7+ )或PostgreSQL(建议版本：11.7+ )或者OpenGauss(建议版本：5.0+ )的数据库
+#### (1)、如果使用默认配置的H2数据库可忽略本步骤，否则准备一个MySQL(建议版本为: 5.7+ )或PostgreSQL(建议版本：11.7+ )或者OpenGauss(建议版本：5.0+ )的数据库
 
-> dbswitch-admin模块后端同时支持MySQL、PostgreSQL、OpenGauss作为配置数据库。
+> dbswitch-admin模块后端同时支持H2、MySQL、PostgreSQL、OpenGauss作为配置数据库。
 
 #### (2)、配置conf/application.yml
 
@@ -304,9 +312,9 @@ application.yml配置内容示例如下：
 ```
 spring:
   profiles:
-    # 配置包含使用的配置库类型(可选值:mysql或postgres),对应在application-mysql.yml或application-postgres.yml中配置数据库信息
+    # 配置包含使用的配置库类型(可选值:h2或mysql或postgres),对应在application-h2.yml或application-mysql.yml或application-postgres.yml中配置数据库信息
     # 如果使用OpenGauss作为配置数据库，请配置为postgres类型,dbswitch会使用postgres的jdbc驱动连接OpenGauss
-    include: mysql
+    include: h2
   application:
     name: dbswitch-admin
   tomcat:

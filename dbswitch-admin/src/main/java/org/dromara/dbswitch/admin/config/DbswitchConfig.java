@@ -31,6 +31,7 @@ public class DbswitchConfig {
     Properties props = new Properties();
     props.setProperty("PostgreSQL", "postgresql");
     props.setProperty("MySQL", "mysql");
+    props.setProperty("H2", "h2");
     databaseIdProvider.setProperties(props);
     return databaseIdProvider;
   }

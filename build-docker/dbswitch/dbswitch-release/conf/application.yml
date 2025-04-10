@@ -1,6 +1,6 @@
 spring:
   profiles:
-    include: ${DBTYPE:mysql}
+    include: ${DBTYPE:h2}
   application:
     name: dbswitch-admin
   tomcat:
