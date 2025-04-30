@@ -17,13 +17,15 @@ public class IncrementPoint {
 
   private String columnName;
   private Object maxValue;
+  private int jdbcType;
 
   private IncrementPoint() {
   }
 
-  public IncrementPoint(String columnName, Object maxValue) {
+  public IncrementPoint(String columnName, Object maxValue, int jdbcType) {
     this.columnName = columnName;
     this.maxValue = maxValue;
+    this.jdbcType = jdbcType;
   }
 
   public boolean isWorkable() {
@@ -44,5 +46,13 @@ public class IncrementPoint {
 
   public void setMaxValue(Object maxValue) {
     this.maxValue = maxValue;
+  }
+
+  public int getJdbcType() {
+    return jdbcType;
+  }
+
+  public void setJdbcType(int jdbcType) {
+    this.jdbcType = jdbcType;
   }
 }

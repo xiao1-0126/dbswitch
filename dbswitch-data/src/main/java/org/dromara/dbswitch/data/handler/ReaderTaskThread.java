@@ -349,17 +349,20 @@ public class ReaderTaskThread extends TaskProcessor<ReaderTaskResult> {
         String incrSourceColumnName = this.incrTableColumns.get(sourceTableName);
         String incrTargetColumnName = mapChecker.get(incrSourceColumnName);
         if (org.apache.commons.lang3.StringUtils.isBlank(incrTargetColumnName)) {
-          throw new RuntimeException("增量字段在目标端表中不存在");
+          throw new RuntimeException(
+              String.format("增量字段[%s]在目标端表[%s]中不存在",
+                  incrTargetColumnName, targetTableName)
+          );
         }
         MetadataService service = new DefaultMetadataService(targetDataSource, targetProductType);
         ColumnValue columnValue = service.queryIncrementPoint(targetSchemaName, targetTableName, incrTargetColumnName);
         IncrementPoint incrPoint = IncrementPoint.EMPTY;
         if (null != columnValue) {
-          if (!JdbcTypesUtils.isInteger(columnValue.getJdbcType())
-              && !JdbcTypesUtils.isDateTime(columnValue.getJdbcType())) {
-            throw new RuntimeException("增量字段必须为整型或时间类型");
+          if (!JdbcTypesUtils.isIncrement(columnValue.getJdbcType())) {
+            throw new RuntimeException(String.format("增量字段[%s]必须为整型或时间戳类型,而实际为:%s",
+                incrSourceColumnName, JdbcTypesUtils.resolveTypeName(columnValue.getJdbcType())));
           }
-          incrPoint = new IncrementPoint(incrSourceColumnName, columnValue.getValue());
+          incrPoint = new IncrementPoint(incrSourceColumnName, columnValue.getValue(), columnValue.getJdbcType());
         }
         log.info("Table: {}.{} has increment column: {}", sourceSchemaName, sourceTableName, incrSourceColumnName);
         return doFullCoverSynchronize(targetWriter, targetTableManager, sourceQuerier, transformProvider, incrPoint);

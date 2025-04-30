@@ -23,6 +23,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.dromara.dbswitch.common.consts.Constants;
 import org.dromara.dbswitch.common.entity.IncrementPoint;
 import org.dromara.dbswitch.common.entity.ResultSetWrapper;
+import org.dromara.dbswitch.common.util.JdbcTypesUtils;
 import org.dromara.dbswitch.common.util.ObjectCastUtils;
 import org.dromara.dbswitch.core.features.ProductFeatures;
 import org.dromara.dbswitch.core.provider.AbstractCommonProvider;
@@ -66,10 +67,7 @@ public class DefaultTableDataQueryProvider
     sb.append(" FROM ");
     sb.append(quoteSchemaTableName(schemaName, tableName));
     if (IncrementPoint.EMPTY != point && point.isWorkable()) {
-      sb.append(" WHERE ");
-      sb.append(quoteName(point.getColumnName()));
-      sb.append(" > ");
-      sb.append(point.getMaxValue());
+      sb.append(" WHERE ").append(toGreaterThanCondition(point));
     }
     if (CollectionUtils.isNotEmpty(orders)) {
       sb.append(" ORDER BY ");
@@ -77,6 +75,18 @@ public class DefaultTableDataQueryProvider
     }
     ProductFeatures features = getProductFeatures();
     return this.selectTableData(sb.toString(), features.convertFetchSize(this.fetchSize));
+  }
+
+  protected String toGreaterThanCondition(IncrementPoint point) {
+    StringBuilder sb = new StringBuilder();
+    sb.append(quoteName(point.getColumnName()));
+    sb.append(" > ");
+    if (JdbcTypesUtils.isInteger(point.getJdbcType())) {
+      sb.append(point.getMaxValue());
+    } else {
+      sb.append("'").append(point.getMaxValue()).append("'");
+    }
+    return sb.toString();
   }
 
   protected ResultSetWrapper selectTableData(String sql, int fetchSize) {

@@ -16,6 +16,7 @@ import org.dromara.dbswitch.core.features.ProductFeatures;
 import org.dromara.dbswitch.core.provider.AbstractFactoryProvider;
 import org.dromara.dbswitch.core.provider.meta.MetadataProvider;
 import org.dromara.dbswitch.core.provider.manage.TableManageProvider;
+import org.dromara.dbswitch.core.provider.query.TableDataQueryProvider;
 import org.dromara.dbswitch.core.provider.sync.TableDataSynchronizeProvider;
 import org.dromara.dbswitch.core.provider.write.TableDataWriteProvider;
 import javax.sql.DataSource;
@@ -35,6 +36,11 @@ public class OracleFactoryProvider extends AbstractFactoryProvider {
   @Override
   public MetadataProvider createMetadataQueryProvider() {
     return new OracleMetadataQueryProvider(this);
+  }
+
+  @Override
+  public TableDataQueryProvider createTableDataQueryProvider() {
+    return new OracleTableDataQueryProvider(this);
   }
 
   @Override
