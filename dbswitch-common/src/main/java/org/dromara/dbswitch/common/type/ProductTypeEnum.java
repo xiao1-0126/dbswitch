@@ -226,7 +226,7 @@ public enum ProductTypeEnum {
   /**
    * TDengine 数据库类型
    */
-  TDENGINE(23, "", "TDengine", "com.taosdata.jdbc.rs.RestfulDriver", 6041,
+  TDENGINE(23, "`", "TDengine", "com.taosdata.jdbc.rs.RestfulDriver", 6041,
       "/* ping */ SELECT 1",
       "jdbc:TAOS-RS://",
       new String[]{"jdbc:TAOS-RS://{host}[:{port}]/[{database}][\\?{params}]"},

@@ -6,16 +6,10 @@ body:
     attributes:
       label: dbswitch版本
       options:
-        - "2.0.2(不存在)"
+        - "2.0.2"
         - "2.0.1"
         - "2.0.0(低版本先升级到1.9.10,然后1.9.10版本升级到2.0版本请执行部署包内upgrade内的升级脚本)"
         - "1.9.10"
-        - "1.9.9"
-        - "1.9.8"
-        - "1.9.7"
-        - "1.9.6"
-        - "1.9.5"
-        - "1.9.4"
         - "其他版本已不维护(历史版本可平滑升级到1.9.10)，勿提issue"
     validations:
       required: true
@@ -38,10 +32,19 @@ body:
         - "否"
     validations:
       required: true
+  - type: dropdown
+    id: modify
+    attributes:
+      label: 是否已为项目star
+      options:
+        - "是"
+        - "否"
+    validations:
+      required: true
   - type: textarea
     id: desired-solution
     attributes:
-      label: 问题描述
+      label: 问题描述(已对项目star的提问会优先处理)
       description: 详细描述问题:(1)对于BUG反馈，请提供相应截图和日志，对于有堆栈报错信息，请提供完整的堆栈信息，对于一句话反馈的BUG将会被无视而关闭;(2)对于需求，请尽量详细描述您的需求功能;
     validations:
       required: true
