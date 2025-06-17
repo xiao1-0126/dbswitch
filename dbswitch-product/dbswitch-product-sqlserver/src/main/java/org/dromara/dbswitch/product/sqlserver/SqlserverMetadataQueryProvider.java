@@ -95,9 +95,8 @@ public class SqlserverMetadataQueryProvider extends AbstractMetadataProvider {
             + "  t.TABLE_TYPE as TABLE_TYPE, "
             + "  CONVERT(nvarchar(50),ISNULL(g.[value], '')) as COMMENTS "
             + " FROM INFORMATION_SCHEMA.TABLES t "
-            + " LEFT JOIN sysobjects d on t.TABLE_NAME = d.name "
-            + " LEFT JOIN sys.extended_properties g on g.major_id=d.id and g.minor_id='0' "
-            + " LEFT JOIN sys.schemas s on s.name = t.TABLE_SCHEMA "
+            + " LEFT JOIN sys.sysobjects d on t.TABLE_NAME = d.name "
+            + " LEFT JOIN sys.extended_properties g on g.major_id = d.id and g.minor_id = 0 and g.name = 'MS_Description'"
             + " WHERE t.TABLE_SCHEMA='%s'",
         schemaName);
     try (PreparedStatement ps = connection.prepareStatement(sql);
