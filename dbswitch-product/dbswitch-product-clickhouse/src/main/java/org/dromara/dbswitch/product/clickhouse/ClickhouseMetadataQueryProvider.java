@@ -29,6 +29,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
+@SuppressWarnings("ALL")
 @Slf4j
 public class ClickhouseMetadataQueryProvider extends AbstractMetadataProvider {
 
@@ -283,30 +284,9 @@ public class ClickhouseMetadataQueryProvider extends AbstractMetadataProvider {
         }
         break;
       case ColumnMetaData.TYPE_STRING:
-        if (isPk) {
-          retval += "String";
-        } else {
-          if (length > 0) {
-            if (length == 1) {
-              retval += "Nullable(FixedString(1))";
-            } else if (length < 4096) {
-              retval += "Nullable(FixedString(" + length + "))";
-            } else {
-              retval += "Nullable(String)";
-            }
-          } else {
-            retval += "Nullable(String)";
-          }
-        }
-
-        break;
       case ColumnMetaData.TYPE_BINARY:
       default:
-        if (isPk) {
-          retval += "String";
-        } else {
-          retval += "Nullable(String)";
-        }
+        retval += isPk ? "String" : "Nullable(String)";
         break;
     }
 

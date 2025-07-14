@@ -9,14 +9,6 @@
 /////////////////////////////////////////////////////////////
 package org.dromara.dbswitch.product.mysql;
 
-import org.dromara.dbswitch.common.consts.Constants;
-import org.dromara.dbswitch.core.provider.ProductFactoryProvider;
-import org.dromara.dbswitch.core.provider.meta.AbstractMetadataProvider;
-import org.dromara.dbswitch.core.schema.ColumnDescription;
-import org.dromara.dbswitch.core.schema.ColumnMetaData;
-import org.dromara.dbswitch.core.schema.IndexDescription;
-import org.dromara.dbswitch.core.schema.TableDescription;
-import org.dromara.dbswitch.core.schema.SourceProperties;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -29,6 +21,14 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.dromara.dbswitch.common.consts.Constants;
+import org.dromara.dbswitch.core.provider.ProductFactoryProvider;
+import org.dromara.dbswitch.core.provider.meta.AbstractMetadataProvider;
+import org.dromara.dbswitch.core.schema.ColumnDescription;
+import org.dromara.dbswitch.core.schema.ColumnMetaData;
+import org.dromara.dbswitch.core.schema.IndexDescription;
+import org.dromara.dbswitch.core.schema.SourceProperties;
+import org.dromara.dbswitch.core.schema.TableDescription;
 
 @Slf4j
 public class MysqlMetadataQueryProvider extends AbstractMetadataProvider {
@@ -253,6 +253,11 @@ public class MysqlMetadataQueryProvider extends AbstractMetadataProvider {
     switch (type) {
       case ColumnMetaData.TYPE_TIMESTAMP:
         retval += "DATETIME";
+        if (3 == length) {
+          retval += "(3)";
+        } else if (6 == length) {
+          retval += "(6)";
+        }
         break;
       case ColumnMetaData.TYPE_TIME:
         retval += "TIME";

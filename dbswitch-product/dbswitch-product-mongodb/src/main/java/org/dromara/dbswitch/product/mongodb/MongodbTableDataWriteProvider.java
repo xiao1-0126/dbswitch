@@ -9,9 +9,6 @@
 /////////////////////////////////////////////////////////////
 package org.dromara.dbswitch.product.mongodb;
 
-import cn.hutool.json.JSONUtil;
-import org.dromara.dbswitch.core.provider.ProductFactoryProvider;
-import org.dromara.dbswitch.core.provider.write.DefaultTableDataWriteProvider;
 import com.google.common.collect.Lists;
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -23,6 +20,8 @@ import java.util.List;
 import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
+import org.dromara.dbswitch.core.provider.ProductFactoryProvider;
+import org.dromara.dbswitch.core.provider.write.DefaultTableDataWriteProvider;
 
 @Slf4j
 public class MongodbTableDataWriteProvider extends DefaultTableDataWriteProvider {
@@ -77,7 +76,7 @@ public class MongodbTableDataWriteProvider extends DefaultTableDataWriteProvider
       }
       rows.add(columns);
     }
-    return JSONUtil.toJsonStr(rows);
+    return MongodbJacksonUtils.toJsonStr(rows);
   }
 
 }
