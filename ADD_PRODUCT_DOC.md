@@ -146,11 +146,11 @@ org.dromara.dbswitch.product.openguass.OpenGaussFactoryProvider
     </dependency>
 ```
 
-**(6) 根目录下的drivers下添加驱动jar文件
+**(6) 根目录下的drivers下添加驱动jar文件**
 
 在根目录下的drivers/opengauss/opengauss-3.0.0/下增加对应的版本的驱动jar文件。
 
-**(7) 前端项目中增加PGN数据库图标文件
+**(7) 前端项目中增加PGN数据库图标文件**
 
 对于前段项目，还需要在dbswitch-admin-ui/src/icons目录下增加对应数据库的PNG图标文件，文件命名需为
 org.dromara.dbswitch.common.type.ProductTypeEnum#name做文件名，.png做文件后缀。
