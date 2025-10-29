@@ -16,6 +16,7 @@ import org.dromara.dbswitch.admin.type.JobStatusEnum;
 import org.dromara.dbswitch.admin.type.ScheduleModeEnum;
 import org.dromara.dbswitch.admin.entity.AssignmentJobEntity;
 import org.dromara.dbswitch.admin.entity.AssignmentTaskEntity;
+import org.dromara.dbswitch.admin.util.CronExprUtils;
 import org.dromara.dbswitch.common.event.EventSubscriber;
 import org.dromara.dbswitch.common.event.ExceptionHandler;
 import org.dromara.dbswitch.common.event.ListenedEvent;
@@ -30,6 +31,7 @@ import javax.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.quartz.CronScheduleBuilder;
+import org.quartz.DateBuilder;
 import org.quartz.JobBuilder;
 import org.quartz.JobDetail;
 import org.quartz.JobKey;
@@ -116,7 +118,11 @@ public class ScheduleService implements InitializingBean, ExceptionHandler {
       JobDetail jobDetail = jobBuilder.storeDurably(true).build();
       Trigger cronTrigger = TriggerBuilder.newTrigger()
           .withIdentity(triggerKey)
-          .withSchedule(CronScheduleBuilder.cronSchedule(task.getCronExpression()))
+          .withSchedule(
+              CronScheduleBuilder.cronSchedule(task.getCronExpression())
+                  .withMisfireHandlingInstructionDoNothing()
+          )
+          .startAt(DateBuilder.futureDate(CronExprUtils.MIN_INTERVAL_SECONDS, DateBuilder.IntervalUnit.SECOND))
           .build();
       try {
         scheduler.scheduleJob(jobDetail, cronTrigger);
