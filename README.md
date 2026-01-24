@@ -3,7 +3,7 @@
 ![](https://gitee.com/inrgihc/dbswitch/badge/star.svg)
 ![](https://gitee.com/inrgihc/dbswitch/badge/fork.svg?theme=gvp)
 
-![dbswitch](https://gitee.com/dromara/dbswitch/raw/master/images/dbswitch-logo.png#pic_center)
+![dbswitch](docs/images/dbswitch-logo.png#pic_center)
 
 ## 一、工具介绍
 
@@ -261,7 +261,7 @@ dbswitch:
 
 > 提示：如果要将源端所有表名(或者字段名)添加前缀，可以配置```"from-pattern": "^","to-value": "T_"```;
 
-- （5）支持的数据库产品详见:[DBSWITCH对数据库产品的支持列表](SUPPORTED_PRODUCTS.md)
+- （5）支持的数据库产品详见:[DBSWITCH对数据库产品的支持列表](docs/SUPPORTED_PRODUCTS.md)
 
 #### (2)、启动方法
 
@@ -391,23 +391,23 @@ bin/startup.sh
 
 - WEB系统的部分截图：
 
- ![admin_01.png](images/admin_01.png)
+ ![admin_01.png](docs/images/admin_01.png)
  
- ![admin_02.png](images/admin_02.png)
+ ![admin_02.png](docs/images/admin_02.png)
  
- ![admin_03.png](images/admin_03.png)
+ ![admin_03.png](docs/images/admin_03.png)
  
- ![admin_04.png](images/admin_04.png)
+ ![admin_04.png](docs/images/admin_04.png)
  
- ![admin_05.png](images/admin_05.png)
+ ![admin_05.png](docs/images/admin_05.png)
  
- ![admin_06.png](images/admin_06.png)
+ ![admin_06.png](docs/images/admin_06.png)
 
- ![admin_07.png](images/admin_07.png)
+ ![admin_07.png](docs/images/admin_07.png)
 
- ![admin_08.png](images/admin_08.png)
+ ![admin_08.png](docs/images/admin_08.png)
  
- ![admin_09.png](images/admin_09.png)
+ ![admin_09.png](docs/images/admin_09.png)
 
 ### 3、两种方式的适用场景
 
@@ -443,7 +443,7 @@ bin/startup.sh
 
 ### 1、集成支持新的关系型数据库产品
 
-参考教程： [接入自定义关系型数据库的开发说明文档](ADD_PRODUCT_DOC.md)
+参考教程： [接入自定义关系型数据库的开发说明文档](docs/ADD_PRODUCT_DOC.md)
 
 ### 2、集成dbswitch模块进行二次开发
 
@@ -512,7 +512,7 @@ service.run();
 
 ## 七、贡献参与
 
-为了能让项目得到更好的可持续的发展，dbswitch期望获得更多的代码开发爱好者参与代码贡献，具体可参见文档说明：[贡献说明指南](/CONTRIBUTE.md)
+为了能让项目得到更好的可持续的发展，dbswitch期望获得更多的代码开发爱好者参与代码贡献，具体可参见文档说明：[贡献说明指南](docs/CONTRIBUTE.md)
 
 ## 八、项目推荐
 
@@ -522,7 +522,7 @@ service.run();
 
 <div>
 	<a href="https://dromara.org/zh/projects/" target="_blank">
-        <img src="https://dromara.org/logo.svg" alt="dromara" title="让每一位开源爱好者，体会到开源的快乐。">
+        <img src="https://foruda.gitee.com/avatar/1664439580221599999/5162368_dromara_1664439580.png" alt="dromara" title="让每一位开源爱好者，体会到开源的快乐。">
     </a>
 </div>
 
@@ -530,6 +530,6 @@ service.run();
 
 如果您看到并使用了本工具，或您觉得本工具对您有价值，请为此项目**点个赞**，以表示对本项目的支持，多谢！如果您在使用时遇到了bug，欢迎在issue中反馈。也可扫描下方二维码入群讨论：（加好友请注明："dbswitch程序交流"）
 
-![structure](images/weixin.PNG)
+![structure](docs/images/weixin.PNG)
 
 

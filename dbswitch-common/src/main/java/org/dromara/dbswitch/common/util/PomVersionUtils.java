@@ -20,6 +20,9 @@ import java.nio.file.Paths;
 import java.security.CodeSource;
 import java.security.ProtectionDomain;
 import java.util.Enumeration;
+import java.util.Map;
+import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import lombok.experimental.UtilityClass;
@@ -33,6 +36,13 @@ import lombok.extern.slf4j.Slf4j;
 public final class PomVersionUtils {
 
   private static final String PREFIX = "version=";
+
+  private static final Map<String, String> persistCache = new ConcurrentHashMap<>();
+
+  public static String getCachedProjectVersion() {
+    String versionStr = persistCache.computeIfAbsent(PREFIX, key -> getProjectVersion());
+    return Optional.ofNullable(versionStr).orElse("1.0.0");
+  }
 
   public static String getProjectVersion() {
     Class<?> clazz = PomVersionUtils.class;

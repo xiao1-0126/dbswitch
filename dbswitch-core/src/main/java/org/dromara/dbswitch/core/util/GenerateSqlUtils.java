@@ -78,7 +78,7 @@ public final class GenerateSqlUtils {
     sb.append(provider.getQuotedSchemaTableCombination(schemaName, tableName));
     sb.append("(");
 
-    // StarRocks 当中，字段主键的情况下，必须将字段放在最前面，并且顺序一致。
+    // StarRocks中，有主键的情况下，必须将主键字段放在最前面，并且顺序一致。
     if (type.isPrimaryKeyShouldAtFirst()) {
       List<ColumnDescription> copyFieldNames = new ArrayList<>();
       List<String> copyPrimaryKeys = new ArrayList<>();

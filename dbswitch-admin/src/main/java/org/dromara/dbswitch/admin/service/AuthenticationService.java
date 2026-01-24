@@ -21,6 +21,7 @@ import com.mchange.v2.lang.StringUtils;
 import java.util.Objects;
 import javax.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
+import org.dromara.dbswitch.common.util.PomVersionUtils;
 import org.springframework.stereotype.Service;
 
 @Slf4j
@@ -44,7 +45,7 @@ public class AuthenticationService {
     String token = TokenUtils.generateValue();
     CacheUtils.put(token, user);
     AccessTokenResponse accessTokenWrapper = new AccessTokenResponse(user.getRealName(), token,
-        CacheUtils.CACHE_DURATION_SECONDS);
+        CacheUtils.CACHE_DURATION_SECONDS, PomVersionUtils.getCachedProjectVersion());
     return Result.success(accessTokenWrapper);
   }
 

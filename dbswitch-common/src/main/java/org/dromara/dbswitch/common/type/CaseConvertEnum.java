@@ -10,6 +10,7 @@
 package org.dromara.dbswitch.common.type;
 
 import cn.hutool.core.util.StrUtil;
+import java.util.function.Function;
 
 /**
  * 处理名称转换的枚举类
@@ -38,19 +39,13 @@ public enum CaseConvertEnum {
    */
   CAMEL(StrUtil::toCamelCase);
 
-  private Converter function;
+  private Function<String, String> function;
 
-  CaseConvertEnum(Converter function) {
+  CaseConvertEnum(Function<String, String> function) {
     this.function = function;
   }
 
   public String convert(String name) {
-    return function.convert(name);
+    return function.apply(name);
   }
-
-  interface Converter {
-
-    String convert(String s);
-  }
-
 }

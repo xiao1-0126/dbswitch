@@ -48,6 +48,7 @@ public enum ProductTypeEnum {
       "SELECT 'Hello' from DUAL",
       "jdbc:oracle:thin:@",
       new String[]{"jdbc:oracle:thin:@{host}:{port}:{database}",
+          "jdbc:oracle:thin:@{host}:{port}/{database}",
           "jdbc:oracle:thin:@//{host}[:{port}]/{database}"},
       "jdbc:oracle:thin:@127.0.0.1:1521:ORCL"),
 

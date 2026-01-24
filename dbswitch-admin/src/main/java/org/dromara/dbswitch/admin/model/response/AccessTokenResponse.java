@@ -29,4 +29,7 @@ public class AccessTokenResponse {
 
   @ApiModelProperty("有效时间(单位秒)")
   private Long expireSeconds;
+
+  @ApiModelProperty("当前版本号")
+  private String version;
 }

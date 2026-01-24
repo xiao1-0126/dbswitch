@@ -39,7 +39,7 @@ public final class MachineUtils {
     sb.append("\n\tSystem Total Memory: \t" + FileUtil.readableFileSize(runtimeInfo.getTotalMemory()));
     sb.append("\n\tSystem Free Memory: \t" + FileUtil.readableFileSize(runtimeInfo.getFreeMemory()));
     sb.append("\n\tSystem Usable Memory: \t" + FileUtil.readableFileSize(runtimeInfo.getUsableMemory()));
-    sb.append("\n\tRelease dbswitch Version: \t" + PomVersionUtils.getProjectVersion());
+    sb.append("\n\tRelease dbswitch Version: \t" + PomVersionUtils.getCachedProjectVersion());
 
     return sb.toString();
   }

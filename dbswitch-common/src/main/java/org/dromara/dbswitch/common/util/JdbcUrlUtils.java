@@ -41,6 +41,8 @@ public final class JdbcUrlUtils {
       case PROP_FILE:
       case PROP_PARAMS:
         return ".+?";
+      case PROP_DATABASE:
+        return "[^;?/:]+";
       default:
         return "[\\\\w\\\\-_.~]+";
     }
