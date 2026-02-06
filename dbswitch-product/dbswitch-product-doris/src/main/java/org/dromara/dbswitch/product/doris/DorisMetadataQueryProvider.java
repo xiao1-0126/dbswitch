@@ -42,6 +42,10 @@ public class DorisMetadataQueryProvider extends AbstractMetadataProvider {
   private static final String QUERY_TABLE_METADATA_SQL =
       "SELECT `TABLE_COMMENT`,`TABLE_TYPE` FROM `information_schema`.`TABLES` "
           + "WHERE `TABLE_SCHEMA` = ? AND `TABLE_NAME` = ?";
+  private static final String QUERY_TABLE_UNIQUE_KEY_SQL =
+      "SELECT COLUMN_NAME FROM information_schema.columns "
+          + "WHERE TABLE_SCHEMA = ?  AND TABLE_NAME = ?  AND COLUMN_KEY = 'UNI' "
+          + "ORDER BY ORDINAL_POSITION";
 
   public DorisMetadataQueryProvider(ProductFactoryProvider factoryProvider) {
     super(factoryProvider);
@@ -167,7 +171,21 @@ public class DorisMetadataQueryProvider extends AbstractMetadataProvider {
       while (primaryKeys.next()) {
         ret.add(primaryKeys.getString("COLUMN_NAME"));
       }
-      return ret.stream().distinct().collect(Collectors.toList());
+      if (CollectionUtils.isNotEmpty(ret)) {
+        return ret.stream().distinct().collect(Collectors.toList());
+      }
+
+      try (PreparedStatement st = connection.prepareStatement(QUERY_TABLE_UNIQUE_KEY_SQL)) {
+        st.setString(1, schemaName);
+        st.setString(2, tableName);
+        try (ResultSet rs = st.executeQuery()) {
+          while (rs.next()) {
+            String value = rs.getString(1);
+            Optional.ofNullable(value).ifPresent(ret::add);
+          }
+        }
+      }
+      return ret;
     } catch (SQLException e) {
       throw new RuntimeException(e);
     }
@@ -349,12 +367,12 @@ public class DorisMetadataQueryProvider extends AbstractMetadataProvider {
   public void postAppendCreateTableSql(StringBuilder builder, String tblComment, List<String> primaryKeys,
       SourceProperties tblProperties) {
     if (StringUtils.isNotBlank(tblComment)) {
-      builder.append(String.format(" COMMENT '%s' ", tblComment.replace("'", "\\'" )));
+      builder.append(String.format(" COMMENT '%s' ", tblComment.replace("'", "\\'")));
     }
     if (CollectionUtils.isNotEmpty(primaryKeys)) {
       String primaryKeyAsString = getPrimaryKeyAsString(primaryKeys);
       // 自动分桶（BUCKETS AUTO）功能要求 Apache Doris 1.2.2 及以上版本
-      builder.append(" DISTRIBUTED BY HASH(").append(primaryKeyAsString).append(") ");
+      builder.append(" DISTRIBUTED BY HASH(").append(primaryKeyAsString).append(") BUCKETS 10 ");
       builder.append(" PROPERTIES ('replication_num' = '1') ");
     }
   }
