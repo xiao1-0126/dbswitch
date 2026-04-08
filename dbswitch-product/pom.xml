@@ -27,6 +27,7 @@
     <module>dbswitch-product-hive</module>
     <module>dbswitch-product-gbase</module>
     <module>dbswitch-product-openguass</module>
+    <module>dbswitch-product-uxdb</module>
     <module>dbswitch-product-mongodb</module>
     <module>dbswitch-product-clickhouse</module>
     <module>dbswitch-product-elasticsearch</module>

@@ -233,6 +233,15 @@ public enum ProductTypeEnum {
       new String[]{"jdbc:TAOS-RS://{host}[:{port}]/[{database}][\\?{params}]"},
       "jdbc:TAOS-RS://127.0.0.1:6041/test?charset=UTF-8&locale=en_US.UTF-8&timezone=UTC+8"),
 
+  /**
+   * UXDB鏁版嵁搴撶被鍨?
+   */
+  UXDB(24, "\"", "UXDB", "com.uxsino.uxdb.Driver", 52025,
+      "SELECT 1",
+      "jdbc:uxdb://",
+      new String[]{"jdbc:uxdb://{host}[:{port}]/[{database}][\\?{params}]"},
+      "jdbc:uxdb://127.0.0.1:52025/uxdb"),
+
   ;
 
   private int id;
@@ -291,7 +300,8 @@ public enum ProductTypeEnum {
    * @return boolean
    */
   public boolean isLikePostgres() {
-    return this == POSTGRESQL || this == KINGBASE || this == OPENGAUSS || this == GREENPLUM;
+    return this == POSTGRESQL || this == KINGBASE || this == OPENGAUSS || this == GREENPLUM
+        || this == UXDB;
   }
 
   /**

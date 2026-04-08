@@ -90,6 +90,11 @@
     </dependency>
     <dependency>
       <groupId>org.dromara.dbswitch</groupId>
+      <artifactId>dbswitch-product-uxdb</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.dromara.dbswitch</groupId>
       <artifactId>dbswitch-product-clickhouse</artifactId>
       <version>${project.version}</version>
     </dependency>
