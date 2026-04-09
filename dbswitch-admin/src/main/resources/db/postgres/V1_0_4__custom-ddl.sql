@@ -1,0 +1,2 @@
+ALTER TABLE DBSWITCH_ASSIGNMENT_CONFIG ADD COLUMN "custom_ddl_map" text DEFAULT NULL;
+COMMENT ON COLUMN DBSWITCH_ASSIGNMENT_CONFIG."custom_ddl_map" IS '自定义建表DDL映射(JSON格式: {"tableName":"ddl..."})';

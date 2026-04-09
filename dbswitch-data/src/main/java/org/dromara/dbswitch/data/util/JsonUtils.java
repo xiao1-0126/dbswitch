@@ -10,10 +10,12 @@
 package org.dromara.dbswitch.data.util;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
@@ -69,6 +71,18 @@ public final class JsonUtils {
 
   private static JavaType getCollectionType(Class<?> collectionClass, Class<?>... elementClasses) {
     return jacksonMapper.getTypeFactory().constructParametricType(collectionClass, elementClasses);
+  }
+
+  public static Map<String, String> toMap(String jsonString) {
+    if (Objects.nonNull(jsonString)) {
+      try {
+        return jacksonMapper.readValue(jsonString, new TypeReference<Map<String, String>>() {});
+      } catch (JsonProcessingException e) {
+        log.error("parse json [{}] to Map<String, String> error：{}", jsonString, e);
+        throw new RuntimeException(e);
+      }
+    }
+    return null;
   }
 
 }

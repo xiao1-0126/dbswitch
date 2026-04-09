@@ -48,6 +48,8 @@ export default {
         targetSyncOption: 'INSERT_UPDATE_DELETE',
         beforeSqlScripts: '',
         afterSqlScripts: '',
+        customDdlMap: {},
+        incrTableColumns: [],
       },
     }
   },
@@ -99,6 +101,7 @@ export default {
             targetSyncOption: detail.configuration.targetSyncOption,
             targetBeforeSqlScripts: detail.configuration.targetBeforeSqlScripts,
             targetAfterSqlScripts: detail.configuration.targetAfterSqlScripts,
+            customDdlMap: detail.configuration.customDdlMap || {},
           }
         } else {
           if (res.data.message) {

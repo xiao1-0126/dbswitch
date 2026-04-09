@@ -477,6 +477,25 @@
             </template>
           </el-table-column>
         </el-table>
+		
+        <!-- DDL预览/编辑入口 -->
+        <el-row v-if="dataform.autoSyncMode !== 0"
+                      label-width="160px"
+                      style="width:90%">
+          <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+            <el-button type="primary"
+                       icon="el-icon-document"
+                       :disabled="!canPreviewDdl"
+                       @click="handlePreviewDdl">预览/编辑建表语句</el-button>
+            <el-tag v-if="customDdlModifiedCount > 0"
+                     type="warning"
+                     size="small"
+                     effect="dark">已编辑 {{ customDdlModifiedCount }} 张表的建表语句</el-tag>
+          </div>
+          <label class="tips-style block" v-if="!canPreviewDdl">请先选择【源端数据源】【源端模式名】和【目的端数据源】【目的端模式名】，并完成【表名配置】后，方可使用此功能</label>
+          <label class="tips-style block" v-else>查看和编辑系统为每张目标表自动生成的 CREATE TABLE 建表语句，适用于需要调整字段类型、添加表属性、增加或修改分区配置等场景</label>
+        </el-row>
+		
       </div>
       <div v-show="active == 5"
            class="common-top">
@@ -641,14 +660,23 @@
       </div>
     </el-dialog>
 
+    <!-- DDL预览编辑对话框 -->
+    <ddl-preview-dialog
+      :dialog-visible.sync="ddlPreviewDialogVisible"
+      :preview-request-params="ddlPreviewRequestParams"
+      @confirm="handleDdlConfirm"
+      ref="ddlPreviewDialogRef"
+    />
+
   </el-card>
 </template>
 
 <script>
 import commonInfo from '@/views/task/common/info'
+import ddlPreviewDialog from '@/views/task/common/ddl-preview-dialog'
 
 export default {
-  components: { commonInfo },
+  components: { commonInfo, ddlPreviewDialog },
   data () {
     return {
       cronExprOptionList: [
@@ -763,6 +791,7 @@ export default {
         targetSyncOption: 'INSERT_UPDATE_DELETE',
         targetBeforeSqlScripts: '',
         targetAfterSqlScripts: '',
+        customDdlMap: {},
       },
       rules: {
         name: [
@@ -878,6 +907,19 @@ export default {
       preiveTableName: "",
       tempIncrTableName: "",
       tempIncrColumnName: "",
+      // DDL预览相关
+      ddlPreviewDialogVisible: false,
+      customDdlModifiedCount: 0,
+      ddlPreviewRequestParams: {},
+    }
+  },
+  computed: {
+    canPreviewDdl: function () {
+      return this.dataform.sourceConnectionId > 0
+        && this.dataform.sourceSchema
+        && this.dataform.targetConnectionId > 0
+        && this.dataform.targetSchema
+        && (this.dataform.sourceTables.length > 0 || this.dataform.includeOrExclude === 'INCLUDE')
     }
   },
   methods: {
@@ -979,6 +1021,7 @@ export default {
               targetSyncOption: detail.configuration.targetSyncOption,
               targetBeforeSqlScripts: detail.configuration.targetBeforeSqlScripts,
               targetAfterSqlScripts: detail.configuration.targetAfterSqlScripts,
+              customDdlMap: detail.configuration.customDdlMap || {},
             };
             this.selectChangedSourceConnection(this.dataform.sourceConnectionId)
             this.selectCreateChangedSourceSchema(this.dataform.sourceSchema)
@@ -1307,6 +1350,89 @@ export default {
       this.tempIncrColumnName = "";
       this.radio = "";
     },
+    // ====== DDL预览/编辑功能 ======
+    handlePreviewDdl: function () {
+      if (!this.canPreviewDdl) return
+
+      // 计算本次需要预览的源表列表（与原逻辑相同）
+      var tablesToPreview = []
+      if (this.dataform.includeOrExclude === 'EXCLUDE' && this.dataform.sourceTables.length > 0) {
+        tablesToPreview = JSON.parse(JSON.stringify(this.sourceSchemaTables))
+        for (var i = 0; i < this.dataform.sourceTables.length; ++i) {
+          var one = this.dataform.sourceTables[i]
+          tablesToPreview.some(function (item, index) {
+            if (item === one) { tablesToPreview.splice(index, 1); return true }
+          })
+        }
+      } else if (this.dataform.includeOrExclude === 'INCLUDE') {
+        tablesToPreview = this.dataform.sourceTables.length > 0
+          ? this.dataform.sourceTables : JSON.parse(JSON.stringify(this.sourceSchemaTables))
+      }
+
+      if (tablesToPreview.length === 0) {
+        this.$message.warning('没有可预览的表，请先配置表名')
+        return
+      }
+
+      var self = this
+      var tableNameMapper = this.dataform.tableNameMapper || []
+      var tableNameCase = this.dataform.tableNameCase || 'NONE'
+
+      // 调用后端接口获取表名映射结果
+      this.$http({
+        method: "POST",
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        url: "/dbswitch/admin/api/v1/mapper/preview/table",
+        data: JSON.stringify({
+          id: this.dataform.sourceConnectionId,
+          schemaName: this.dataform.sourceSchema,
+          isInclude: this.dataform.includeOrExclude === 'INCLUDE',
+          tableNames: tablesToPreview,
+          nameMapper: tableNameMapper,
+          tableNameCase: tableNameCase
+        })
+      }).then(function (res) {
+        if (0 === res.data.code) {
+          // 使用后端返回的映射结果构建表名列表
+          var tableInfoList = res.data.data.map(function (item) {
+            return {
+              sourceTableName: item.originalName,
+              targetTableName: item.targetName
+            }
+          })
+
+          // 保存请求参数，供弹窗内懒加载使用
+          self.ddlPreviewRequestParams = {
+            sourceConnectionId: self.dataform.sourceConnectionId,
+            sourceSchema: self.dataform.sourceSchema,
+            targetConnectionId: self.dataform.targetConnectionId,
+            targetSchema: self.dataform.targetSchema,
+            tableNameMapper: tableNameMapper,
+            columnNameMapper: self.dataform.columnNameMapper || [],
+            tableNameCase: tableNameCase,
+            columnNameCase: self.dataform.columnNameCase || 'NONE',
+            targetAutoIncrement: self.dataform.targetAutoIncrement || false
+          }
+
+          // 打开弹窗，传入表名列表
+          self.ddlPreviewDialogVisible = true
+          self.$nextTick(function () {
+            self.$refs['ddlPreviewDialogRef'].loadTableList(tableInfoList, self.dataform.customDdlMap)
+          })
+        } else {
+          self.$message.error(res.data.message || '获取表名映射失败')
+        }
+      }).catch(function (error) {
+        self.$message.error('获取表名映射失败: ' + (error.message || '网络错误'))
+      })
+    },
+    handleDdlConfirm: function (customDdlMap, modifiedCount) {
+      this.dataform.customDdlMap = customDdlMap
+      this.customDdlModifiedCount = modifiedCount
+    },
+    // ====== DDL预览功能结束 ======
     handleSave: function () {
       if (0 === this.dataform.autoSyncMode) {
         this.dataform.targetDropTable = false;
@@ -1356,6 +1482,7 @@ export default {
                   targetSyncOption: this.dataform.targetSyncOption,
                   targetBeforeSqlScripts: this.dataform.targetBeforeSqlScripts,
                   targetAfterSqlScripts: this.dataform.targetAfterSqlScripts,
+                  customDdlMap: this.dataform.customDdlMap,
                 }
               })
             }).then(res => {
@@ -1406,6 +1533,7 @@ export default {
                   targetSyncOption: this.dataform.targetSyncOption,
                   targetBeforeSqlScripts: this.dataform.targetBeforeSqlScripts,
                   targetAfterSqlScripts: this.dataform.targetAfterSqlScripts,
+                  customDdlMap: this.dataform.customDdlMap,
                 }
               })
             }).then(res => {

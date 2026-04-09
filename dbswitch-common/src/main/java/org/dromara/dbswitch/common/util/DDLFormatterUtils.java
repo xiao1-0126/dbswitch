@@ -78,18 +78,32 @@ public class DDLFormatterUtils {
 
   private static String formatCreateTable(String sql) {
     final StringBuilder result = new StringBuilder(60).append("    ");
-    final StringTokenizer tokens = new StringTokenizer(sql, "(,)'[]\"", true);
+    final StringTokenizer tokens = new StringTokenizer(sql, "(,)'[]\" \t\n\r\f", true);
 
     int depth = 0;
     boolean quoted = false;
+    boolean afterOpenParenOrComma = false;
     while (tokens.hasMoreTokens()) {
       final String token = tokens.nextToken();
       if (isQuote(token)) {
         quoted = !quoted;
+        afterOpenParenOrComma = false;
         result.append(token);
       } else if (quoted) {
+        afterOpenParenOrComma = false;
         result.append(token);
+      } else if (isWhitespace(token)) {
+        if (afterOpenParenOrComma) {
+          // skip whitespace after '(' or ',' at depth 1 (already added newline+indent)
+          continue;
+        }
+        if (depth <= 1) {
+          result.append(' ');
+        } else {
+          result.append(token);
+        }
       } else {
+        afterOpenParenOrComma = false;
         if (")".equals(token)) {
           depth--;
           if (depth == 0) {
@@ -99,11 +113,13 @@ public class DDLFormatterUtils {
         result.append(token);
         if (",".equals(token) && depth == 1) {
           result.append("\n       ");
+          afterOpenParenOrComma = true;
         }
         if ("(".equals(token)) {
           depth++;
           if (depth == 1) {
-            result.append("\n        ");
+            result.append("\n       ");
+            afterOpenParenOrComma = true;
           }
         }
       }
@@ -118,6 +134,14 @@ public class DDLFormatterUtils {
         "references".equals(token) ||
         "foreign".equals(token) ||
         "on".equals(token);
+  }
+
+  private static boolean isWhitespace(String token) {
+    return " ".equals(token) ||
+        "\t".equals(token) ||
+        "\n".equals(token) ||
+        "\r".equals(token) ||
+        "\f".equals(token);
   }
 
   private static boolean isQuote(String tok) {

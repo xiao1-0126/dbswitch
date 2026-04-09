@@ -17,9 +17,12 @@ import org.dromara.dbswitch.admin.config.SwaggerConfig;
 import org.dromara.dbswitch.admin.model.request.AssigmentCreateRequest;
 import org.dromara.dbswitch.admin.model.request.AssigmentUpdateRequest;
 import org.dromara.dbswitch.admin.model.request.AssignmentSearchRequest;
+import org.dromara.dbswitch.admin.model.request.DdlSinglePreviewRequest;
 import org.dromara.dbswitch.admin.model.response.AssignmentDetailResponse;
 import org.dromara.dbswitch.admin.model.response.AssignmentInfoResponse;
+import org.dromara.dbswitch.admin.model.response.DdlPreviewResponse;
 import org.dromara.dbswitch.admin.service.AssignmentService;
+import org.dromara.dbswitch.admin.service.DdlPreviewService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import java.util.List;
@@ -42,6 +45,9 @@ public class AssignmentController {
 
   @Resource
   private AssignmentService assignmentService;
+
+  @Resource
+  private DdlPreviewService ddlPreviewService;
 
   @TokenCheck
   @LogOperate(name = "创建任务", description = "'创建任务的名称为：'+#request.name")
@@ -127,6 +133,13 @@ public class AssignmentController {
   @PostMapping(value = "/export")
   public void exportAssignments(@RequestParam(value = "ids") List<Long> ids, HttpServletResponse response) {
     assignmentService.exportAssignments(ids, response);
+  }
+
+  @TokenCheck
+  @ApiOperation(value = "按需预览单张表建表DDL")
+  @PostMapping(value = "/preview-ddl/single", produces = MediaType.APPLICATION_JSON_VALUE)
+  public Result<DdlPreviewResponse> previewSingleDdl(@RequestBody DdlSinglePreviewRequest request) {
+    return ddlPreviewService.previewSingleDdl(request);
   }
 
 }

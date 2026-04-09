@@ -346,6 +346,17 @@
           </div>
         </div>
       </div>
+      <div class="custom-ddl-section" v-if="infoform.customDdlMap && Object.keys(infoform.customDdlMap).length > 0">
+        <div class="custom-ddl-title">自定义建表DDL（共 {{ Object.keys(infoform.customDdlMap).length }} 张表）</div>
+        <div class="custom-ddl-tags">
+          <el-tag
+            v-for="(ddl, tableName) in infoform.customDdlMap"
+            :key="tableName"
+            size="small"
+            type="warning"
+            style="margin: 2px 4px 2px 0">{{tableName}}</el-tag>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -386,6 +397,7 @@ export default {
         targetSyncOption: 'INSERT_UPDATE_DELETE',
         targetBeforeSqlScripts: '',
         targetAfterSqlScripts: '',
+        customDdlMap: {},
       }
     }
   },
@@ -427,7 +439,7 @@ export default {
 .common-box .datainfo {
   display: flex;
   justify-content: center;
-  align-items: center;
+  align-items: flex-start;
   width: 100%;
   gap: 24px;
 }
@@ -482,7 +494,7 @@ export default {
 .mapper {
   display: flex;
   justify-content: center;
-  align-items: center;
+  align-items: flex-start;
   width: 100%;
   gap: 24px;
 }
@@ -511,5 +523,22 @@ export default {
 
 /deep/.el-table .el-table__cell {
   padding: 0px;
+}
+
+.custom-ddl-section {
+  background-color: white;
+  padding: 16px 24px;
+  border-radius: 4px;
+}
+
+.custom-ddl-title {
+  font-size: 13px;
+  font-weight: bold;
+  color: #303133;
+  margin-bottom: 8px;
+}
+
+.custom-ddl-tags {
+  line-height: 1.8;
 }
 </style>

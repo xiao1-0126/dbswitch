@@ -14,6 +14,7 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import org.dromara.dbswitch.admin.handler.CustomDdlMapHandler;
 import org.dromara.dbswitch.admin.handler.ListPatternHandler;
 import org.dromara.dbswitch.admin.handler.ListTabColHandler;
 import org.dromara.dbswitch.admin.handler.ListTypeHandler;
@@ -24,6 +25,7 @@ import org.dromara.dbswitch.common.type.ProductTableEnum;
 import org.dromara.dbswitch.common.type.SyncOptionEnum;
 import java.sql.Timestamp;
 import java.util.List;
+import java.util.Map;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -66,6 +68,9 @@ public class AssignmentConfigEntity {
 
   @TableField("post_sql_scripts")
   private String postSqlScripts;
+
+  @TableField(value = "custom_ddl_map", typeHandler = CustomDdlMapHandler.class)
+  private Map<String, String> customDdlMap;
 
   @TableField("target_connection_id")
   private Long targetConnectionId;

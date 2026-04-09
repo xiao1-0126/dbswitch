@@ -271,20 +271,8 @@ public class ReaderTaskThread extends TaskProcessor<ReaderTaskResult> {
         log.info("Target Table {}.{} is not exits, create it!", targetSchemaName, targetTableName);
       }
 
-      // 生成建表语句并创建
-      List<String> sqlCreateTable = sourceMetaDataService.getDDLCreateTableSQL(
-          targetMetaProvider,
-          targetColumnDescriptions.stream()
-              .filter(column -> StringUtils.isNotBlank(column.getFieldName()))
-              .collect(Collectors.toList()),
-          targetPrimaryKeys,
-          targetSchemaName,
-          targetTableName,
-          sourceTableRemarks,
-          properties.getTarget().getCreateTableAutoIncrement(),
-          getTblProperties()
-      );
-
+      // 生成建表语句并创建(优先使用用户自定义DDL)
+      List<String> sqlCreateTable = getCustomOrAutoDdl(targetMetaProvider);
       JdbcTemplate targetJdbcTemplate = new JdbcTemplate(targetDataSource);
       for (String sql : sqlCreateTable) {
         checkInterrupt();
@@ -320,19 +308,8 @@ public class ReaderTaskThread extends TaskProcessor<ReaderTaskResult> {
       checkInterrupt();
 
       if (!targetExistTables.contains(targetTableName)) {
-        // 当目标端不存在该表时，则生成建表语句并创建
-        List<String> sqlCreateTable = sourceMetaDataService.getDDLCreateTableSQL(
-            targetMetaProvider,
-            targetColumnDescriptions.stream()
-                .filter(column -> StringUtils.isNotBlank(column.getFieldName()))
-                .collect(Collectors.toList()),
-            targetPrimaryKeys,
-            targetSchemaName,
-            targetTableName,
-            sourceTableRemarks,
-            properties.getTarget().getCreateTableAutoIncrement(),
-            getTblProperties()
-        );
+        // 当目标端不存在该表时，则生成建表语句并创建(优先使用用户自定义DDL)
+        List<String> sqlCreateTable = getCustomOrAutoDdl(targetMetaProvider);
 
         JdbcTemplate targetJdbcTemplate = new JdbcTemplate(targetDataSource);
         for (String sql : sqlCreateTable) {
@@ -740,6 +717,35 @@ public class ReaderTaskThread extends TaskProcessor<ReaderTaskResult> {
         .recordCount(totalCount.get())
         .totalBytes(totalBytes.get())
         .build();
+  }
+
+  /**
+   * 获取建表DDL：优先使用用户自定义的DDL，如果没有则自动生成
+   */
+  private List<String> getCustomOrAutoDdl(MetadataProvider targetMetaProvider) {
+    Map<String, String> customDdlMap = properties.getTarget().getCustomDdlMap();
+    if (customDdlMap != null && customDdlMap.containsKey(targetTableName)) {
+      String customDdl = customDdlMap.get(targetTableName);
+      if (StringUtils.isNotBlank(customDdl)) {
+        log.info("Using custom DDL for table {}->{}", sourceTableName, targetTableName);
+        List<String> list = new ArrayList<>();
+        list.add(customDdl.trim());
+        return list;
+      }
+    }
+    log.info("Auto generating DDL for table {}->{}", targetTableName, targetTableName);
+    return sourceMetaDataService.getDDLCreateTableSQL(
+        targetMetaProvider,
+        targetColumnDescriptions.stream()
+            .filter(column -> StringUtils.isNotBlank(column.getFieldName()))
+            .collect(Collectors.toList()),
+        targetPrimaryKeys,
+        targetSchemaName,
+        targetTableName,
+        sourceTableRemarks,
+        properties.getTarget().getCreateTableAutoIncrement(),
+        getTblProperties()
+    );
   }
 
   public SourceProperties getTblProperties() {

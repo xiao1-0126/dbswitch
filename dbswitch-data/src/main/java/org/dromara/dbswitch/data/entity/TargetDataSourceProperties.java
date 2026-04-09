@@ -12,6 +12,7 @@ package org.dromara.dbswitch.data.entity;
 import org.dromara.dbswitch.common.type.CaseConvertEnum;
 import org.dromara.dbswitch.common.type.ProductTypeEnum;
 import org.dromara.dbswitch.common.type.SyncOptionEnum;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import lombok.Data;
 
@@ -45,4 +46,10 @@ public class TargetDataSourceProperties {
   private String beforeSqlScripts;
   private String afterSqlScripts;
   private SyncOptionEnum targetSyncOption = SyncOptionEnum.INSERT_UPDATE_DELETE;
+
+  /**
+   * 自定义建表DDL映射(key:目标表名, value:自定义DDL语句)
+   * 仅当用户在配置任务时手动编辑过建表语句时才有值，为null时使用系统自动生成的DDL
+   */
+  private Map<String, String> customDdlMap;
 }

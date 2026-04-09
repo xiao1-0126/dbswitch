@@ -344,6 +344,7 @@ public class AssignmentService {
     targetDataSourceProperties.setTargetSyncOption(assignmentConfigEntity.getTargetSyncOption());
     targetDataSourceProperties.setBeforeSqlScripts(assignmentConfigEntity.getBeforeSqlScripts());
     targetDataSourceProperties.setAfterSqlScripts(assignmentConfigEntity.getAfterSqlScripts());
+    targetDataSourceProperties.setCustomDdlMap(assignmentConfigEntity.getCustomDdlMap());
 
     return targetDataSourceProperties;
   }

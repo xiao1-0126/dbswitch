@@ -11,6 +11,8 @@ package org.dromara.dbswitch.admin.controller.converter;
 
 import cn.hutool.extra.spring.SpringUtil;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 import org.dromara.dbswitch.admin.dao.AssignmentConfigDAO;
 import org.dromara.dbswitch.admin.dao.DatabaseConnectionDAO;
@@ -64,6 +66,7 @@ public class AssignmentDetailConverter extends
     config.setTargetSyncOption(taskConfig.getTargetSyncOption());
     config.setTargetBeforeSqlScripts(taskConfig.getBeforeSqlScripts());
     config.setTargetAfterSqlScripts(taskConfig.getAfterSqlScripts());
+    config.setCustomDdlMap(Optional.ofNullable(taskConfig.getCustomDdlMap()).orElseGet(HashMap::new));
 
     AssignmentDetailResponse detailResponse = new AssignmentDetailResponse();
     detailResponse.setId(assignmentTaskEntity.getId());

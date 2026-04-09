@@ -14,6 +14,7 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import java.sql.Timestamp;
 import java.util.List;
+import java.util.Map;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.dromara.dbswitch.admin.type.IncludeExcludeEnum;
@@ -140,5 +141,8 @@ public class AssignmentDetailResponse {
 
     @ApiModelProperty("目标端同步后置执行SQL脚本")
     private String targetAfterSqlScripts;
+
+    @ApiModelProperty("自定义建表DDL映射(key:目标表名, value:DDL语句)")
+    private Map<String, String> customDdlMap;
   }
 }

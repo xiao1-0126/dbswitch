@@ -10,6 +10,7 @@
 package org.dromara.dbswitch.admin.model.request;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -50,6 +51,7 @@ public class AssigmentBaseRequest {
     private String targetAfterSqlScripts;
     private Integer batchSize;
     private Integer channelSize;
+    private Map<String, String> customDdlMap;
   }
 
   protected AssignmentConfigEntity toAssignmentConfig(final Long assignmentId, final AssigmentConfig config) {
@@ -77,6 +79,7 @@ public class AssigmentBaseRequest {
     assignmentConfigEntity.setTargetSyncOption(config.getTargetSyncOption());
     assignmentConfigEntity.setBatchSize(getValueOrDefault(config.getBatchSize(), 10000));
     assignmentConfigEntity.setChannelSize(getValueOrDefault(config.getChannelSize(), 100));
+    assignmentConfigEntity.setCustomDdlMap(config.getCustomDdlMap());
     assignmentConfigEntity.setFirstFlag(Boolean.FALSE);
 
     return assignmentConfigEntity;

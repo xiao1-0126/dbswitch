@@ -30,3 +30,9 @@ target/
 node_modules/
 dist/
 logs/
+
+### AI Coding ###
+.workbuddy/
+.opencode/
+.cloudecode/
+.trae/
