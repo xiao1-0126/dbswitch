@@ -70,7 +70,9 @@ public final class ObjectCastUtils {
 
 
   public static byte[] castToByteArray(final Object in) {
-    if (in instanceof byte[]) {
+    if (in == null) {
+      return null;
+    } else if (in instanceof byte[]) {
       return (byte[]) in;
     } else if (in instanceof java.util.Date) {
       return in.toString().getBytes();
