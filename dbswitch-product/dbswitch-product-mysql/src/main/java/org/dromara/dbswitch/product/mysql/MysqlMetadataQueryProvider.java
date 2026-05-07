@@ -21,6 +21,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.dromara.dbswitch.common.consts.Constants;
 import org.dromara.dbswitch.core.provider.ProductFactoryProvider;
 import org.dromara.dbswitch.core.provider.meta.AbstractMetadataProvider;
@@ -291,6 +292,9 @@ public class MysqlMetadataQueryProvider extends AbstractMetadataProvider {
             } else {
               retval += "INT";
             }
+            if (v.isHaveDefault()) {
+              retval += " DEFAULT " + NumberUtils.toInt(v.getDefaultValue());
+            }
           } else {
             // Floating point values...
             if (length > 65) {
@@ -310,6 +314,9 @@ public class MysqlMetadataQueryProvider extends AbstractMetadataProvider {
               // decimal places.
               // http://mysql.mirrors-r-us.net/doc/refman/5.1/en/numeric-type-overview.html
               retval += "DOUBLE";
+            }
+            if (v.isHaveDefault()) {
+              retval += " DEFAULT " + NumberUtils.toDouble(v.getDefaultValue());
             }
           }
         }
@@ -339,6 +346,9 @@ public class MysqlMetadataQueryProvider extends AbstractMetadataProvider {
           }
         } else {
           retval += "TINYTEXT";
+        }
+        if (v.isHaveDefault()) {
+          retval += " DEFAULT " + "'" + v.getDefaultValue() + "'";
         }
         break;
       case ColumnMetaData.TYPE_BINARY:

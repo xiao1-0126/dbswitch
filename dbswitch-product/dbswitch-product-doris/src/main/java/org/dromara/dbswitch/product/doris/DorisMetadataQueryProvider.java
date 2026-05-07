@@ -22,6 +22,7 @@ import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.dromara.dbswitch.common.consts.Constants;
 import org.dromara.dbswitch.core.provider.ProductFactoryProvider;
 import org.dromara.dbswitch.core.provider.meta.AbstractMetadataProvider;
@@ -306,6 +307,10 @@ public class DorisMetadataQueryProvider extends AbstractMetadataProvider {
             } else {
               retval += "INT";
             }
+
+            if (v.isHaveDefault()) {
+              retval += " DEFAULT " + NumberUtils.toInt(v.getDefaultValue());
+            }
           } else {
             // Floating point values...
             if (length > 15) {
@@ -320,6 +325,10 @@ public class DorisMetadataQueryProvider extends AbstractMetadataProvider {
               // decimal places.
               // http://mysql.mirrors-r-us.net/doc/refman/5.1/en/numeric-type-overview.html
               retval += "DOUBLE";
+
+              if (v.isHaveDefault()) {
+                retval += " DEFAULT " + NumberUtils.toDouble(v.getDefaultValue());
+              }
             }
           }
         }
@@ -333,12 +342,23 @@ public class DorisMetadataQueryProvider extends AbstractMetadataProvider {
         } else {
           retval += "STRING";
         }
+        if (v.isHaveDefault()) {
+          retval += " DEFAULT " + "'" + v.getDefaultValue() + "'";
+        }
         break;
       case ColumnMetaData.TYPE_BINARY:
         retval += "STRING";
+
+        if (v.isHaveDefault()) {
+          retval += " DEFAULT " + "'" + v.getDefaultValue() + "'";
+        }
         break;
       default:
         retval += "STRING";
+
+        if (v.isHaveDefault()) {
+          retval += " DEFAULT " + "'" + v.getDefaultValue() + "'";
+        }
         break;
     }
 

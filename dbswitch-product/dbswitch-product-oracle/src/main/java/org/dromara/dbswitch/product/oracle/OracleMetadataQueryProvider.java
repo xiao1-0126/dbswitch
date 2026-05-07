@@ -9,6 +9,7 @@
 /////////////////////////////////////////////////////////////
 package org.dromara.dbswitch.product.oracle;
 
+import org.apache.commons.lang3.math.NumberUtils;
 import org.dromara.dbswitch.common.consts.Constants;
 import org.dromara.dbswitch.core.provider.ProductFactoryProvider;
 import org.dromara.dbswitch.core.provider.meta.AbstractMetadataProvider;
@@ -184,9 +185,16 @@ public class OracleMetadataQueryProvider extends AbstractMetadataProvider {
           }
           retval.append(')');
         }
+        if (v.isHaveDefault()) {
+          retval.append(" DEFAULT ").append(NumberUtils.toDouble(v.getDefaultValue()));
+        }
         break;
       case ColumnMetaData.TYPE_INTEGER:
         retval.append("INTEGER");
+
+        if (v.isHaveDefault()) {
+          retval.append(" DEFAULT ").append(NumberUtils.toDouble(v.getDefaultValue()));
+        }
         break;
       case ColumnMetaData.TYPE_STRING:
         if (length >= Constants.CLOB_LENGTH) {
@@ -200,6 +208,9 @@ public class OracleMetadataQueryProvider extends AbstractMetadataProvider {
           } else {
             retval.append("CLOB");// We don't know, so we just use the maximum...
           }
+        }
+        if (v.isHaveDefault()) {
+          retval.append(" DEFAULT '").append(v.getDefaultValue()).append("'");
         }
         break;
       case ColumnMetaData.TYPE_BINARY: // the BLOB can contain binary data.

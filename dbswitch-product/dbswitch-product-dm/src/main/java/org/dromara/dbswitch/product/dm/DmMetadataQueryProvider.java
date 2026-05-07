@@ -9,6 +9,7 @@
 /////////////////////////////////////////////////////////////
 package org.dromara.dbswitch.product.dm;
 
+import org.apache.commons.lang3.math.NumberUtils;
 import org.dromara.dbswitch.common.consts.Constants;
 import org.dromara.dbswitch.core.provider.ProductFactoryProvider;
 import org.dromara.dbswitch.core.provider.meta.AbstractMetadataProvider;
@@ -142,9 +143,15 @@ public class DmMetadataQueryProvider extends AbstractMetadataProvider {
             retval.append(')');
           }
         }
+        if (v.isHaveDefault()) {
+          retval.append(" DEFAULT ").append(NumberUtils.toDouble(v.getDefaultValue()));
+        }
         break;
       case ColumnMetaData.TYPE_INTEGER:
         retval.append("BIGINT");
+        if (v.isHaveDefault()) {
+          retval.append(" DEFAULT ").append(NumberUtils.toDouble(v.getDefaultValue()));
+        }
         break;
       case ColumnMetaData.TYPE_STRING:
         if (null != pks && pks.contains(fieldname)) {
@@ -155,6 +162,9 @@ public class DmMetadataQueryProvider extends AbstractMetadataProvider {
           retval.append("NVARCHAR(").append(length).append(')');
         } else {
           retval.append("TEXT");
+        }
+        if (v.isHaveDefault()) {
+          retval.append(" DEFAULT '").append(v.getDefaultValue()).append("'");
         }
         break;
       case ColumnMetaData.TYPE_BINARY:
