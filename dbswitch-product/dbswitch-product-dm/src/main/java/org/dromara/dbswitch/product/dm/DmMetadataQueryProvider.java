@@ -155,7 +155,11 @@ public class DmMetadataQueryProvider extends AbstractMetadataProvider {
         break;
       case ColumnMetaData.TYPE_STRING:
         if (null != pks && pks.contains(fieldname)) {
-          retval.append("NVARCHAR(" + length + ")");
+          if (length > 0 && length < 1900) {
+            retval.append("NVARCHAR(" + length + ")");
+          } else {
+            retval.append("NVARCHAR(1900)");
+          }
         } else if (length > 0 && length < 1900) {
           // 最大存储长度由数据库页面大小决定，支持按照字节存放字符串，数据库页面大小与实际最大存储长度的关系为:
           // 4K->1900;8k->3900;16k->8000;32k->8188
