@@ -383,7 +383,7 @@ public class MysqlMetadataQueryProvider extends AbstractMetadataProvider {
   @Override
   public void postAppendCreateTableSql(StringBuilder builder, String tblComment, List<String> primaryKeys,
       SourceProperties tblProperties) {
-    builder.append("ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin");
+    builder.append("ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci");
     if (StringUtils.isNotBlank(tblComment)) {
       builder.append(String.format(" COMMENT='%s' ", tblComment.replace("'", "\\'")));
     }
