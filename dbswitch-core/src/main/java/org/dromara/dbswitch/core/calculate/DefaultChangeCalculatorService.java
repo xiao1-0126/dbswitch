@@ -484,8 +484,8 @@ public final class DefaultChangeCalculatorService implements RecordRowChangeCalc
      * </p>
      */
     if (JdbcTypesUtils.isString(type)) {
-      String s1 = normalizeForMd5(ObjectCastUtils.castToString(o1));
-      String s2 = normalizeForMd5(ObjectCastUtils.castToString(o2));
+      String s1 = normalizeForMd5(String.valueOf(o1));
+      String s2 = normalizeForMd5(String.valueOf(o2));
       return s1.compareTo(s2);
     } else if (JdbcTypesUtils.isNumeric(type) && o1 instanceof java.lang.Number
         && o2 instanceof java.lang.Number) {
@@ -534,15 +534,9 @@ public final class DefaultChangeCalculatorService implements RecordRowChangeCalc
         return s1.compareTo(s2);
       }
     } else {
-      try {
-        return compareTo(
-            ObjectCastUtils.castToByteArray(o1),
-            ObjectCastUtils.castToByteArray(o2)
-        );
-      } catch (Exception e) {
-        log.warn("CDC compare field value failed, return 0 instead,{}", e.getMessage());
-        return 0;
-      }
+      String s1 = normalizeForMd5(o1);
+      String s2 = normalizeForMd5(o2);
+      return s1.compareTo(s2);
     }
   }
 
