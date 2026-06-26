@@ -354,7 +354,10 @@ public class ReaderTaskThread extends TaskProcessor<ReaderTaskResult> {
         List<String> dbTargetPks = metaDataByDatasourceService.queryTablePrimaryKeys(
             targetSchemaName, targetTableName);
 
-        if (!targetPrimaryKeys.isEmpty() && !dbTargetPks.isEmpty()
+        if (targetPrimaryKeys.isEmpty() && dbTargetPks.isEmpty()) {
+          return doMd5SetSynchronize(targetWriter, targetTableManager,
+              sourceQuerier, transformProvider);
+        } else if (!targetPrimaryKeys.isEmpty() && !dbTargetPks.isEmpty()
             && targetPrimaryKeys.containsAll(dbTargetPks)
             && dbTargetPks.containsAll(targetPrimaryKeys)) {
           if (targetProductType == ProductTypeEnum.MYSQL
@@ -609,6 +612,76 @@ public class ReaderTaskThread extends TaskProcessor<ReaderTaskResult> {
     return null;
   }
 
+  /**
+   * 无主键表的MD5集合比对增量
+   */
+  private ReaderTaskResult doMd5SetSynchronize(TableDataWriteProvider tableWriter,
+      TableManageProvider tableManager, TableDataQueryProvider sourceQuerier,
+      RecordTransformProvider transformer) {
+    List<String> srcFields = new ArrayList<>();
+    List<String> tgtFields = new ArrayList<>();
+    for (int i = 0; i < targetColumnDescriptions.size(); ++i) {
+      ColumnDescription scd = sourceColumnDescriptions.get(i);
+      ColumnDescription tcd = targetColumnDescriptions.get(i);
+      if (!StringUtils.isEmpty(tcd.getFieldName())) {
+        srcFields.add(scd.getFieldName());
+        tgtFields.add(tcd.getFieldName());
+      }
+    }
+    log.info("[NoPkSync] Reading rows for table [{}]", tableNameMapString);
+    Set<String> srcSet = new HashSet<>();
+    int srcCount = 0;
+    ResultSetWrapper srs = sourceQuerier.queryTableData(sourceSchemaName, sourceTableName, srcFields);
+    try (ResultSet rs = srs.getResultSet()) {
+      while (rs.next()) {
+        try {
+          java.security.MessageDigest md = java.security.MessageDigest.getInstance("MD5");
+          for (int i = 1; i <= srcFields.size(); i++) {
+            Object v = rs.getObject(i);
+            md.update((v == null ? "" : String.valueOf(v)).getBytes("UTF-8"));
+            md.update((byte) 0);
+          }
+          srcSet.add(bytesToHex(md.digest()));
+          srcCount++;
+        } catch (Exception e) { log.warn("NoPkSync hash error", e); }
+      }
+    } catch (Exception e) { log.error("NoPkSync source failed", e); throw new RuntimeException(e); }
+    finally { srs.close(); }
+
+    Set<String> tgtSet = new HashSet<>();
+    TableDataQueryProvider tqs = ProductProviderFactory.newProvider(targetProductType, targetDataSource).createTableDataQueryProvider();
+    ResultSetWrapper trs = tqs.queryTableData(targetSchemaName, targetTableName, tgtFields);
+    try (ResultSet rs = trs.getResultSet()) {
+      while (rs.next()) {
+        try {
+          java.security.MessageDigest md = java.security.MessageDigest.getInstance("MD5");
+          for (int i = 1; i <= tgtFields.size(); i++) {
+            Object v = rs.getObject(i);
+            md.update((v == null ? "" : String.valueOf(v)).getBytes("UTF-8"));
+            md.update((byte) 0);
+          }
+          tgtSet.add(bytesToHex(md.digest()));
+        } catch (Exception e) { log.warn("NoPkSync hash error", e); }
+      }
+    } catch (Exception e) { log.error("NoPkSync target failed", e); throw new RuntimeException(e); }
+    finally { trs.close(); }
+
+    if (!srcSet.equals(tgtSet)) {
+      log.info("[NoPkSync] Table [{}] has changes, reloading (src={}, tgt={})", tableNameMapString, srcCount, tgtSet.size());
+      tableManager.truncateTableData(targetSchemaName, targetTableName);
+      tableWriter.prepareWrite(targetSchemaName, targetTableName, tgtFields);
+      return doFullCoverSynchronize(tableWriter, tableManager, sourceQuerier, transformer);
+    }
+    log.info("[NoPkSync] Table [{}] no changes: {} rows", tableNameMapString, srcCount);
+    return ReaderTaskResult.builder().tableNameMapString(tableNameMapString).successCount(1)
+        .failureCount(0).totalBytes(0L).recordCount(0L).build();
+  }
+
+  private static String bytesToHex(byte[] bytes) {
+    StringBuilder sb = new StringBuilder();
+    for (byte b : bytes) sb.append(String.format("%02x", b));
+    return sb.toString();
+  }
   private ReaderTaskResult doChangeSynchronize(TableDataSynchronizeProvider synchronizer,
       RecordTransformProvider transformer) {
     final int BATCH_SIZE = fetchSize;
