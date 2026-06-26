@@ -344,9 +344,36 @@ public class ReaderTaskThread extends TaskProcessor<ReaderTaskResult> {
         log.info("Table: {}.{} has increment column: {}", sourceSchemaName, sourceTableName, incrSourceColumnName);
         return doFullCoverSynchronize(targetWriter, targetTableManager, sourceQuerier, transformProvider, incrPoint);
       } else if (properties.getTarget().getChangeDataSync()) {
+        // 自动检测：当未配置incr-table-columns时，尝试从单列整数主键自动识别增量字段
+        String autoIncrColumn = findAutoIncrementColumn();
+        if (autoIncrColumn != null) {
+          String incrTargetColumnName = mapChecker.get(autoIncrColumn);
+          if (StringUtils.isBlank(incrTargetColumnName)) {
+            throw new RuntimeException(
+                String.format("自动检测的增量字段[%s]在目标端表[%s]中不存在",
+                    autoIncrColumn, targetTableName));
+          }
+          MetadataService service = new DefaultMetadataService(targetDataSource, targetProductType);
+          ColumnValue columnValue = service.queryIncrementPoint(
+              targetSchemaName, targetTableName, incrTargetColumnName);
+          IncrementPoint incrPoint = IncrementPoint.EMPTY;
+          if (null != columnValue) {
+            if (!JdbcTypesUtils.isIncrement(columnValue.getJdbcType())) {
+              throw new RuntimeException(
+                  String.format("自动检测的增量字段[%s]必须为整型或时间戳类型,而实际为:%s",
+                      autoIncrColumn, JdbcTypesUtils.resolveTypeName(columnValue.getJdbcType())));
+            }
+            incrPoint = new IncrementPoint(autoIncrColumn, columnValue.getValue(),
+                columnValue.getJdbcType());
+          }
+          log.info("Table: {}.{} auto-detected increment column: {} (from primary key)",
+              sourceSchemaName, sourceTableName, autoIncrColumn);
+          return doFullCoverSynchronize(targetWriter, targetTableManager,
+              sourceQuerier, transformProvider, incrPoint);
+        }
+
+        // 无自动增量字段，走原有的变化量同步/全量覆盖逻辑
         log.info("Check table: {}.{} can whether use change data sync", sourceSchemaName, sourceTableName);
-        // 判断是否具备变化量同步的条件：（1）两端表结构一致，且都有一样的主键字段；(2)MySQL使用Innodb引擎；
-        // 根据主键情况判断同步的方式：变化量同步或覆盖同步
         MetadataService metaDataByDatasourceService =
             new DefaultMetadataService(targetDataSource, targetProductType);
         List<String> dbTargetPks = metaDataByDatasourceService.queryTablePrimaryKeys(
@@ -523,6 +550,28 @@ public class ReaderTaskThread extends TaskProcessor<ReaderTaskResult> {
    * @param transformer
    * @return ReaderTaskResult
    */
+
+  /**
+   * 自动检测可用作增量字段的单列整数/时间戳主键
+   *
+   * @return 增量字段名，无合适字段时返回null
+   */
+  private String findAutoIncrementColumn() {
+    if (sourcePrimaryKeys == null || sourcePrimaryKeys.size() != 1) {
+      return null;
+    }
+    String pkColumn = sourcePrimaryKeys.get(0);
+    for (ColumnDescription cd : sourceColumnDescriptions) {
+      if (cd.getFieldName().equals(pkColumn)) {
+        if (JdbcTypesUtils.isIncrement(cd.getFieldType())) {
+          return pkColumn;
+        }
+        break;
+      }
+    }
+    return null;
+  }
+
   private ReaderTaskResult doChangeSynchronize(TableDataSynchronizeProvider synchronizer,
       RecordTransformProvider transformer) {
     final int BATCH_SIZE = fetchSize;
