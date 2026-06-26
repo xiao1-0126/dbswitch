@@ -560,22 +560,21 @@ public class ReaderTaskThread extends TaskProcessor<ReaderTaskResult> {
   private String findAutoIncrementColumn() {
     // 优先级1: 按字段名匹配时间戳字段
     String[] timeFieldNames = {
-        "update_time", "updatetime", "updatestamp", "update_at", "update_date",
+        "update_time", "updatetime", "update_at", "update_date",
         "modify_time", "modifytime", "modify_at", "modify_date",
         "modified_time", "modified_at",
         "gmt_modified", "gmt_update", "gmt_modify",
         "last_update_time", "last_modified",
-        "updated_time", "updated_at"
+        "updated_time", "updated_at",
+        "uptime", "utime", "mtime", "ctime", "change_time",
+        "sync_time", "sync_timestamp"
     };
     for (String timeName : timeFieldNames) {
       for (ColumnDescription cd : sourceColumnDescriptions) {
         if (cd.getFieldName().equalsIgnoreCase(timeName)) {
-          if (JdbcTypesUtils.isDateTime(cd.getFieldType())) {
-            log.info("Auto-detected time column [{}] as increment field for table [{}]",
-                cd.getFieldName(), sourceTableName);
-            return cd.getFieldName();
-          }
-          break;
+          log.info("Auto-detected time column [{}] as increment field for table [{}]",
+              cd.getFieldName(), sourceTableName);
+          return cd.getFieldName();
         }
       }
     }
