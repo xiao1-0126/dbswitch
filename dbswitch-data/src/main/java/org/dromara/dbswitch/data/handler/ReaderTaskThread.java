@@ -567,7 +567,7 @@ public class ReaderTaskThread extends TaskProcessor<ReaderTaskResult> {
         "last_update_time", "last_modified",
         "updated_time", "updated_at",
         "uptime", "utime", "mtime", "ctime", "change_time",
-        "sync_time", "sync_timestamp"
+        "sync_time", "sync_timestamp", "mkerdate"
     };
     for (String timeName : timeFieldNames) {
       for (ColumnDescription cd : sourceColumnDescriptions) {

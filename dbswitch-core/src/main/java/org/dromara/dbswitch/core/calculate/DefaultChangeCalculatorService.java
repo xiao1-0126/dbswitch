@@ -559,20 +559,21 @@ public final class DefaultChangeCalculatorService implements RecordRowChangeCalc
     try {
       java.security.MessageDigest md5_1 = java.security.MessageDigest.getInstance("MD5");
       java.security.MessageDigest md5_2 = java.security.MessageDigest.getInstance("MD5");
+      byte[] sep = new byte[]{0};
       for (int nr : fieldnrs) {
         Object o1 = obj1[nr];
         Object o2 = obj2[nr];
-        byte[] b1 = o1 == null ? new byte[0] : ObjectCastUtils.castToByteArray(o1);
-        byte[] b2 = o2 == null ? new byte[0] : ObjectCastUtils.castToByteArray(o2);
+        byte[] b1 = (o1 == null ? "\0NULL\0" : String.valueOf(o1)).getBytes("UTF-8");
+        byte[] b2 = (o2 == null ? "\0NULL\0" : String.valueOf(o2)).getBytes("UTF-8");
         md5_1.update(b1);
         md5_2.update(b2);
+        md5_1.update(sep);
+        md5_2.update(sep);
       }
-      byte[] h1 = md5_1.digest();
-      byte[] h2 = md5_2.digest();
-      return compareTo(h1, h2);
+      return compareTo(md5_1.digest(), md5_2.digest());
     } catch (Exception e) {
       log.warn("MD5 compare failed, fallback to field compare: {}", e.getMessage());
-      return -1; // fallback: treat as not equal to trigger field compare in outer logic
+      return -1;
     }
   }
 
