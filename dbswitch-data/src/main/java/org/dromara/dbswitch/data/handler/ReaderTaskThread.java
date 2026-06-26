@@ -533,6 +533,8 @@ public class ReaderTaskThread extends TaskProcessor<ReaderTaskResult> {
       srs.close();
     }
 
+    // 增量模式下同步源端已删除的行
+    syncDeletedIfIncrement(incrementPoint, sourceQuerier, tableWriter);
     return ReaderTaskResult
         .builder()
         .tableNameMapString(tableNameMapString)
@@ -543,6 +545,54 @@ public class ReaderTaskThread extends TaskProcessor<ReaderTaskResult> {
         .build();
   }
 
+
+  /**
+   * 增量同步时从目标端删除源端已不存在的行
+   */
+  private void syncDeletedIfIncrement(IncrementPoint incrPoint, TableDataQueryProvider sourceQuerier, TableDataWriteProvider tableWriter) {
+    if (IncrementPoint.EMPTY == incrPoint) return;
+    if (!targetProperties.getTargetSyncOption().callDelete()) return;
+    if (targetPrimaryKeys.isEmpty()) return;
+    try {
+      MetadataProvider mp = ProductProviderFactory.newProvider(targetProductType, targetDataSource).createMetadataQueryProvider();
+      String fullTable = mp.getQuotedSchemaTableCombination(targetSchemaName, targetTableName);
+      java.util.function.Function<String,String> qc = c -> "`" + c + "`";
+      String cols = targetPrimaryKeys.stream().map(qc).collect(Collectors.joining(","));
+      Set<String> tgtPks = new HashSet<>();
+      new JdbcTemplate(targetDataSource).query("SELECT " + cols + " FROM " + fullTable, (rs) -> {
+        StringBuilder k = new StringBuilder();
+        for (int i = 1; i <= targetPrimaryKeys.size(); i++) { k.append('\0').append(rs.getString(i)); }
+        tgtPks.add(k.toString());
+      });
+      MetadataProvider smp = ProductProviderFactory.newProvider(sourceProductType, sourceDataSource).createMetadataQueryProvider();
+      String sFull = smp.getQuotedSchemaTableCombination(sourceSchemaName, sourceTableName);
+      String sCols = sourcePrimaryKeys.stream().map(qc).collect(Collectors.joining(","));
+      Set<String> srcPks = new HashSet<>();
+      new JdbcTemplate(sourceDataSource).query("SELECT " + sCols + " FROM " + sFull, (rs) -> {
+        StringBuilder k = new StringBuilder();
+        for (int i = 1; i <= sourcePrimaryKeys.size(); i++) { k.append('\0').append(rs.getString(i)); }
+        srcPks.add(k.toString());
+      });
+      tgtPks.removeAll(srcPks);
+      if (tgtPks.isEmpty()) return;
+      log.info("Detected {} deleted rows in table [{}]", tgtPks.size(), tableNameMapString);
+      String delSql = "DELETE FROM " + fullTable + " WHERE " + targetPrimaryKeys.stream().map(qc).map(c -> c + " = ?").collect(Collectors.joining(" AND "));
+      List<Object[]> batch = new ArrayList<>();
+      for (String pk : tgtPks) {
+        String[] parts = pk.substring(1).split("\0");
+        batch.add(parts);
+        if (batch.size() >= fetchSize) {
+          new JdbcTemplate(targetDataSource).batchUpdate(delSql, batch);
+          batch.clear();
+        }
+      }
+      if (!batch.isEmpty()) new JdbcTemplate(targetDataSource).batchUpdate(delSql, batch);
+    } catch (Exception e) {
+      log.warn("Delete detection skipped for [{}]: {}", tableNameMapString, e.getMessage());
+    }
+  }
+
+  private String quoteCol(String col) { return "`" + col + "`"; }
   /**
    * 变化量同步
    *
@@ -572,11 +622,6 @@ public class ReaderTaskThread extends TaskProcessor<ReaderTaskResult> {
     for (String timeName : timeFieldNames) {
       for (ColumnDescription cd : sourceColumnDescriptions) {
         if (cd.getFieldName().equalsIgnoreCase(timeName)) {
-          int ft = cd.getFieldType();
-          if (ft == java.sql.Types.BINARY || ft == java.sql.Types.VARBINARY
-              || ft == java.sql.Types.LONGVARBINARY || ft == java.sql.Types.BLOB) {
-            continue; // 二进制类型无法跨库做增量比较，跳过
-          }
           log.info("Auto-detected time column [{}] as increment field for table [{}]",
               cd.getFieldName(), sourceTableName);
           return cd.getFieldName();
