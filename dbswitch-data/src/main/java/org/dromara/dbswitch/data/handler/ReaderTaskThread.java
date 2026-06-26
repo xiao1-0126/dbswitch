@@ -601,8 +601,7 @@ public class ReaderTaskThread extends TaskProcessor<ReaderTaskResult> {
    */
 
   /**
-   * 自动检测可用作增量字段的列
-   * 优先级：时间戳字段名(update_time等) > 单列整数/时间戳主键
+   * 自动检测可用作增量字段的列（仅时间戳字段名匹配，自增PK已移除避免遗漏UPDATE）
    *
    * @return 增量字段名，无合适字段时返回null
    */
@@ -628,20 +627,7 @@ public class ReaderTaskThread extends TaskProcessor<ReaderTaskResult> {
       }
     }
 
-    // 优先级2: 单列整数/时间戳类型主键
-    if (sourcePrimaryKeys != null && sourcePrimaryKeys.size() == 1) {
-      String pkColumn = sourcePrimaryKeys.get(0);
-      for (ColumnDescription cd : sourceColumnDescriptions) {
-        if (cd.getFieldName().equals(pkColumn)) {
-          if (JdbcTypesUtils.isIncrement(cd.getFieldType())) {
-            log.info("Auto-detected primary key [{}] as increment field for table [{}]",
-                pkColumn, sourceTableName);
-            return pkColumn;
-          }
-          break;
-        }
-      }
-    }
+    // 优先级2已移除：自增主键只能捕获INSERT无法捕获UPDATE，统一走MD5比对
     return null;
   }
 
