@@ -636,6 +636,7 @@ public class ReaderTaskThread extends TaskProcessor<ReaderTaskResult> {
     calculator.setInterruptCheck(this::checkInterrupt);
     calculator.setRecordIdentical(false);
     calculator.setCheckJdbcType(false);
+    ((DefaultChangeCalculatorService) calculator).setUseMd5Compare(true);
 
     // 执行实际的变化同步过程
     log.info("[ChangeSync] Handle table by compare [{}] data now ... ", tableNameMapString);

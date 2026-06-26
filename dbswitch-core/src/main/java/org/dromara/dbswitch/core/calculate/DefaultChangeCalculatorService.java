@@ -53,6 +53,11 @@ public final class DefaultChangeCalculatorService implements RecordRowChangeCalc
   private boolean checkJdbcType;
 
   /**
+   * 是否使用MD5比较（代替逐字段比较）
+   */
+  private boolean useMd5Compare = false;
+
+  /**
    * 批量读取数据的行数大小
    */
   private int queryFetchSize;
@@ -70,6 +75,14 @@ public final class DefaultChangeCalculatorService implements RecordRowChangeCalc
     this.recordIdentical = recordIdentical;
     this.checkJdbcType = checkJdbcType;
     this.queryFetchSize = Constants.DEFAULT_FETCH_SIZE;
+  }
+
+  public boolean isUseMd5Compare() {
+    return useMd5Compare;
+  }
+
+  public void setUseMd5Compare(boolean useMd5Compare) {
+    this.useMd5Compare = useMd5Compare;
   }
 
   @Override
@@ -328,7 +341,9 @@ public final class DefaultChangeCalculatorService implements RecordRowChangeCalc
         } else {
           int compare = this.compare(one, two, keyNumbers, metaData);
           if (0 == compare) {
-            int compareValues = this.compare(one, two, valNumbers, metaData);
+            int compareValues = useMd5Compare
+                ? md5Compare(one, two, valNumbers, metaData)
+                : this.compare(one, two, valNumbers, metaData);
             if (compareValues == 0) {
               flagField = RowChangeTypeEnum.VALUE_IDENTICAL;
               outputRow = one;
@@ -528,6 +543,36 @@ public final class DefaultChangeCalculatorService implements RecordRowChangeCalc
         log.warn("CDC compare field value failed, return 0 instead,{}", e.getMessage());
         return 0;
       }
+    }
+  }
+
+  /**
+   * 使用MD5 hash比较两行数据是否相等（仅判断相等/不等，不排序）
+   *
+   * @param obj1     记录1
+   * @param obj2     记录2
+   * @param fieldnrs 待比较的非主键字段索引号
+   * @param metaData 记录集的元信息
+   * @return 0为相等，非0为不等
+   */
+  private int md5Compare(Object[] obj1, Object[] obj2, int[] fieldnrs, ResultSetMetaData metaData) {
+    try {
+      java.security.MessageDigest md5_1 = java.security.MessageDigest.getInstance("MD5");
+      java.security.MessageDigest md5_2 = java.security.MessageDigest.getInstance("MD5");
+      for (int nr : fieldnrs) {
+        Object o1 = obj1[nr];
+        Object o2 = obj2[nr];
+        byte[] b1 = o1 == null ? new byte[0] : ObjectCastUtils.castToByteArray(o1);
+        byte[] b2 = o2 == null ? new byte[0] : ObjectCastUtils.castToByteArray(o2);
+        md5_1.update(b1);
+        md5_2.update(b2);
+      }
+      byte[] h1 = md5_1.digest();
+      byte[] h2 = md5_2.digest();
+      return compareTo(h1, h2);
+    } catch (Exception e) {
+      log.warn("MD5 compare failed, fallback to field compare: {}", e.getMessage());
+      return -1; // fallback: treat as not equal to trigger field compare in outer logic
     }
   }
 
