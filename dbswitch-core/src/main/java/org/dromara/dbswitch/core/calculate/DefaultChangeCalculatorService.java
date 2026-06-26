@@ -591,8 +591,7 @@ public final class DefaultChangeCalculatorService implements RecordRowChangeCalc
       for (byte b : (byte[]) o) sb.append(String.format("%02x", b));
       return sb.toString();
     }
-    String s = String.valueOf(o);
-    return s.trim();
+    return java.text.Normalizer.normalize(String.valueOf(o).trim(), java.text.Normalizer.Form.NFC);
   }
 
   /**
