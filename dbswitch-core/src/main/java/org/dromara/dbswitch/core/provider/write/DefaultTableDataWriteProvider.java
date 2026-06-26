@@ -41,7 +41,9 @@ public class DefaultTableDataWriteProvider
 
   protected String getPrepareInsertTableSql(List<String> fieldNames) {
     String fullTableName = quoteSchemaTableName(schemaName, tableName);
-    return String.format("INSERT INTO %s ( %s ) VALUES ( %s )",
+    String insertKeyword = getProductType().isLikeMysql() ? "REPLACE INTO" : "INSERT INTO";
+    return String.format("%s %s ( %s ) VALUES ( %s )",
+        insertKeyword,
         fullTableName,
         quoteName(StringUtils.join(fieldNames, quoteName(","))),
         StringUtils.join(Collections.nCopies(fieldNames.size(), "?"), ","));
