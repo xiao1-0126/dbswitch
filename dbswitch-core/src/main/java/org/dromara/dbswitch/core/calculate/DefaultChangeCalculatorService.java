@@ -580,7 +580,7 @@ public final class DefaultChangeCalculatorService implements RecordRowChangeCalc
     if (o instanceof java.lang.Double) return new java.math.BigDecimal(o.toString()).stripTrailingZeros().toPlainString();
     if (o instanceof java.lang.Float) return new java.math.BigDecimal(o.toString()).stripTrailingZeros().toPlainString();
     if (o instanceof Number) return o.toString();
-    if (o instanceof java.util.Date) return String.valueOf(((java.util.Date) o).getTime());
+    if (o instanceof java.util.Date) return String.valueOf(o);
     if (o instanceof byte[]) {
       StringBuilder sb = new StringBuilder();
       for (byte b : (byte[]) o) sb.append(String.format("%02x", b));
