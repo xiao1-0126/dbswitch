@@ -572,6 +572,11 @@ public class ReaderTaskThread extends TaskProcessor<ReaderTaskResult> {
     for (String timeName : timeFieldNames) {
       for (ColumnDescription cd : sourceColumnDescriptions) {
         if (cd.getFieldName().equalsIgnoreCase(timeName)) {
+          int ft = cd.getFieldType();
+          if (ft == java.sql.Types.BINARY || ft == java.sql.Types.VARBINARY
+              || ft == java.sql.Types.LONGVARBINARY || ft == java.sql.Types.BLOB) {
+            continue; // 二进制类型无法跨库做增量比较，跳过
+          }
           log.info("Auto-detected time column [{}] as increment field for table [{}]",
               cd.getFieldName(), sourceTableName);
           return cd.getFieldName();
