@@ -225,7 +225,9 @@ public class DefaultTableDataSynchronizeProvider
       List<String> fieldNames) {
     List<String> placeHolders = Collections.nCopies(fieldNames.size(), "?");
     String fullTableName = quoteSchemaTableName(schemaName, tableName);
-    return String.format("INSERT INTO %s ( %s ) VALUES ( %s )",
+    String insertKeyword = getProductType().isLikeMysql() ? "REPLACE INTO" : "INSERT INTO";
+    return String.format("%s %s ( %s ) VALUES ( %s )",
+        insertKeyword,
         fullTableName,
         quoteName(StringUtils.join(fieldNames, quoteName(","))),
         StringUtils.join(placeHolders, ","));
