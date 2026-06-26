@@ -552,21 +552,46 @@ public class ReaderTaskThread extends TaskProcessor<ReaderTaskResult> {
    */
 
   /**
-   * 自动检测可用作增量字段的单列整数/时间戳主键
+   * 自动检测可用作增量字段的列
+   * 优先级：时间戳字段名(update_time等) > 单列整数/时间戳主键
    *
    * @return 增量字段名，无合适字段时返回null
    */
   private String findAutoIncrementColumn() {
-    if (sourcePrimaryKeys == null || sourcePrimaryKeys.size() != 1) {
-      return null;
-    }
-    String pkColumn = sourcePrimaryKeys.get(0);
-    for (ColumnDescription cd : sourceColumnDescriptions) {
-      if (cd.getFieldName().equals(pkColumn)) {
-        if (JdbcTypesUtils.isIncrement(cd.getFieldType())) {
-          return pkColumn;
+    // 优先级1: 按字段名匹配时间戳字段
+    String[] timeFieldNames = {
+        "update_time", "updatetime", "updatestamp", "update_at", "update_date",
+        "modify_time", "modifytime", "modify_at", "modify_date",
+        "modified_time", "modified_at",
+        "gmt_modified", "gmt_update", "gmt_modify",
+        "last_update_time", "last_modified",
+        "updated_time", "updated_at"
+    };
+    for (String timeName : timeFieldNames) {
+      for (ColumnDescription cd : sourceColumnDescriptions) {
+        if (cd.getFieldName().equalsIgnoreCase(timeName)) {
+          if (JdbcTypesUtils.isDateTime(cd.getFieldType())) {
+            log.info("Auto-detected time column [{}] as increment field for table [{}]",
+                cd.getFieldName(), sourceTableName);
+            return cd.getFieldName();
+          }
+          break;
         }
-        break;
+      }
+    }
+
+    // 优先级2: 单列整数/时间戳类型主键
+    if (sourcePrimaryKeys != null && sourcePrimaryKeys.size() == 1) {
+      String pkColumn = sourcePrimaryKeys.get(0);
+      for (ColumnDescription cd : sourceColumnDescriptions) {
+        if (cd.getFieldName().equals(pkColumn)) {
+          if (JdbcTypesUtils.isIncrement(cd.getFieldType())) {
+            log.info("Auto-detected primary key [{}] as increment field for table [{}]",
+                pkColumn, sourceTableName);
+            return pkColumn;
+          }
+          break;
+        }
       }
     }
     return null;
