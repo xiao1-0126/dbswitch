@@ -339,7 +339,9 @@ public final class DefaultChangeCalculatorService implements RecordRowChangeCalc
           outputRow = one;
           one = getRowData(rsold.getResultSet());
         } else {
-          int compare = this.compare(one, two, keyNumbers, metaData);
+          int compare = useMd5Compare
+              ? md5Compare(one, two, keyNumbers, metaData)
+              : this.compare(one, two, keyNumbers, metaData);
           if (0 == compare) {
             int compareValues = useMd5Compare
                 ? md5Compare(one, two, valNumbers, metaData)
