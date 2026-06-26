@@ -344,33 +344,8 @@ public class ReaderTaskThread extends TaskProcessor<ReaderTaskResult> {
         log.info("Table: {}.{} has increment column: {}", sourceSchemaName, sourceTableName, incrSourceColumnName);
         return doFullCoverSynchronize(targetWriter, targetTableManager, sourceQuerier, transformProvider, incrPoint);
       } else if (properties.getTarget().getChangeDataSync()) {
-        // 自动检测：当未配置incr-table-columns时，尝试从单列整数主键自动识别增量字段
-        String autoIncrColumn = findAutoIncrementColumn();
-        if (autoIncrColumn != null) {
-          String incrTargetColumnName = mapChecker.get(autoIncrColumn);
-          if (StringUtils.isBlank(incrTargetColumnName)) {
-            throw new RuntimeException(
-                String.format("自动检测的增量字段[%s]在目标端表[%s]中不存在",
-                    autoIncrColumn, targetTableName));
-          }
-          MetadataService service = new DefaultMetadataService(targetDataSource, targetProductType);
-          ColumnValue columnValue = service.queryIncrementPoint(
-              targetSchemaName, targetTableName, incrTargetColumnName);
-          IncrementPoint incrPoint = IncrementPoint.EMPTY;
-          if (null != columnValue) {
-            if (!JdbcTypesUtils.isIncrement(columnValue.getJdbcType())) {
-              throw new RuntimeException(
-                  String.format("自动检测的增量字段[%s]必须为整型或时间戳类型,而实际为:%s",
-                      autoIncrColumn, JdbcTypesUtils.resolveTypeName(columnValue.getJdbcType())));
-            }
-            incrPoint = new IncrementPoint(autoIncrColumn, columnValue.getValue(),
-                columnValue.getJdbcType());
-          }
-          log.info("Table: {}.{} auto-detected increment column: {} (from primary key)",
-              sourceSchemaName, sourceTableName, autoIncrColumn);
-          return doFullCoverSynchronize(targetWriter, targetTableManager,
-              sourceQuerier, transformProvider, incrPoint);
-        }
+        // 统一使用MD5全量比对，不做增量扫描
+        log.info("Check table: {}.{} can whether use change data sync", sourceSchemaName, sourceTableName);
 
         // 无自动增量字段，走原有的变化量同步/全量覆盖逻辑
         log.info("Check table: {}.{} can whether use change data sync", sourceSchemaName, sourceTableName);
@@ -620,6 +595,11 @@ public class ReaderTaskThread extends TaskProcessor<ReaderTaskResult> {
     for (String timeName : timeFieldNames) {
       for (ColumnDescription cd : sourceColumnDescriptions) {
         if (cd.getFieldName().equalsIgnoreCase(timeName)) {
+          int ft = cd.getFieldType();
+          if (ft == java.sql.Types.BINARY || ft == java.sql.Types.VARBINARY
+              || ft == java.sql.Types.LONGVARBINARY || ft == java.sql.Types.BLOB) {
+            continue;
+          }
           log.info("Auto-detected time column [{}] as increment field for table [{}]",
               cd.getFieldName(), sourceTableName);
           return cd.getFieldName();

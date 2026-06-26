@@ -559,22 +559,34 @@ public final class DefaultChangeCalculatorService implements RecordRowChangeCalc
     try {
       java.security.MessageDigest md5_1 = java.security.MessageDigest.getInstance("MD5");
       java.security.MessageDigest md5_2 = java.security.MessageDigest.getInstance("MD5");
-      byte[] sep = new byte[]{0};
       for (int nr : fieldnrs) {
-        Object o1 = obj1[nr];
-        Object o2 = obj2[nr];
-        byte[] b1 = (o1 == null ? "\0NULL\0" : String.valueOf(o1)).getBytes("UTF-8");
-        byte[] b2 = (o2 == null ? "\0NULL\0" : String.valueOf(o2)).getBytes("UTF-8");
-        md5_1.update(b1);
-        md5_2.update(b2);
-        md5_1.update(sep);
-        md5_2.update(sep);
+        String s1 = normalizeForMd5(obj1[nr]);
+        String s2 = normalizeForMd5(obj2[nr]);
+        md5_1.update(s1.getBytes("UTF-8"));
+        md5_2.update(s2.getBytes("UTF-8"));
+        md5_1.update((byte) 0);
+        md5_2.update((byte) 0);
       }
       return compareTo(md5_1.digest(), md5_2.digest());
     } catch (Exception e) {
-      log.warn("MD5 compare failed, fallback to field compare: {}", e.getMessage());
+      log.warn("MD5 compare failed, fallback: {}", e.getMessage());
       return -1;
     }
+  }
+
+  private String normalizeForMd5(Object o) {
+    if (o == null) return "";
+    if (o instanceof java.math.BigDecimal) return ((java.math.BigDecimal) o).stripTrailingZeros().toPlainString();
+    if (o instanceof java.lang.Double) return new java.math.BigDecimal(o.toString()).stripTrailingZeros().toPlainString();
+    if (o instanceof java.lang.Float) return new java.math.BigDecimal(o.toString()).stripTrailingZeros().toPlainString();
+    if (o instanceof Number) return o.toString();
+    if (o instanceof java.util.Date) return String.valueOf(((java.util.Date) o).getTime());
+    if (o instanceof byte[]) {
+      StringBuilder sb = new StringBuilder();
+      for (byte b : (byte[]) o) sb.append(String.format("%02x", b));
+      return sb.toString();
+    }
+    return String.valueOf(o);
   }
 
   /**
