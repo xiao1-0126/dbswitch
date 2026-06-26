@@ -576,11 +576,14 @@ public final class DefaultChangeCalculatorService implements RecordRowChangeCalc
 
   private String normalizeForMd5(Object o) {
     if (o == null) return "";
+    if (o instanceof Boolean) return ((Boolean) o) ? "1" : "0";
     if (o instanceof java.math.BigDecimal) return ((java.math.BigDecimal) o).stripTrailingZeros().toPlainString();
     if (o instanceof java.lang.Double) return new java.math.BigDecimal(o.toString()).stripTrailingZeros().toPlainString();
     if (o instanceof java.lang.Float) return new java.math.BigDecimal(o.toString()).stripTrailingZeros().toPlainString();
-    if (o instanceof Number) return o.toString();
+    if (o instanceof Number) return new java.math.BigDecimal(o.toString()).stripTrailingZeros().toPlainString();
     if (o instanceof java.util.Date) return String.valueOf(o);
+    if (o instanceof java.sql.Clob) try { java.sql.Clob c = (java.sql.Clob) o; return c.getSubString(1, (int) c.length()); } catch (Exception e) { return ""; }
+    if (o instanceof java.sql.NClob) try { java.sql.NClob c = (java.sql.NClob) o; return c.getSubString(1, (int) c.length()); } catch (Exception e) { return ""; }
     if (o instanceof byte[]) {
       StringBuilder sb = new StringBuilder();
       for (byte b : (byte[]) o) sb.append(String.format("%02x", b));
