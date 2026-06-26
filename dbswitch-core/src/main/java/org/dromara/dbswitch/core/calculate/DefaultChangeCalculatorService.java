@@ -339,9 +339,7 @@ public final class DefaultChangeCalculatorService implements RecordRowChangeCalc
           outputRow = one;
           one = getRowData(rsold.getResultSet());
         } else {
-          int compare = useMd5Compare
-              ? md5Compare(one, two, keyNumbers, metaData)
-              : this.compare(one, two, keyNumbers, metaData);
+          int compare = this.compare(one, two, keyNumbers, metaData);
           if (0 == compare) {
             int compareValues = useMd5Compare
                 ? md5Compare(one, two, valNumbers, metaData)
@@ -486,8 +484,8 @@ public final class DefaultChangeCalculatorService implements RecordRowChangeCalc
      * </p>
      */
     if (JdbcTypesUtils.isString(type)) {
-      String s1 = ObjectCastUtils.castToString(o1);
-      String s2 = ObjectCastUtils.castToString(o2);
+      String s1 = normalizeForMd5(ObjectCastUtils.castToString(o1));
+      String s2 = normalizeForMd5(ObjectCastUtils.castToString(o2));
       return s1.compareTo(s2);
     } else if (JdbcTypesUtils.isNumeric(type) && o1 instanceof java.lang.Number
         && o2 instanceof java.lang.Number) {
