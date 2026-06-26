@@ -626,8 +626,6 @@ public class ReaderTaskThread extends TaskProcessor<ReaderTaskResult> {
         }
       }
     }
-
-    // 优先级2已移除：自增主键只能捕获INSERT无法捕获UPDATE，统一走MD5比对
     return null;
   }
 
