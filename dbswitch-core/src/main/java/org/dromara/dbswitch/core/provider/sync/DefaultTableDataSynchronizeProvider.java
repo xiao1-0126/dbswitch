@@ -102,26 +102,8 @@ public class DefaultTableDataSynchronizeProvider
     if (log.isDebugEnabled()) {
       log.debug("Execute Insert SQL : {}", this.insertStatementSql);
     }
-
     try {
-      try {
-        jdbcTemplate.batchUpdate(this.insertStatementSql, records, this.insertArgsType);
-      } catch (Exception e) {
-        if (e instanceof java.sql.BatchUpdateException) {
-          for (Object[] dataList : records) {
-            try {
-              jdbcTemplate.update(this.insertStatementSql, dataList, this.updateArgsType);
-            } catch (Exception ex) {
-              log.error("Failed to insert by SQL: {}, value: {}", this.insertStatementSql,
-                  JSONUtil.toJsonStr(dataList));
-              throw ex;
-            }
-          }
-        } else {
-          throw e;
-        }
-      }
-
+      batchUpdateWithDeadlockRetry(this.insertStatementSql, records, this.insertArgsType);
       tx.commit(status);
       return records.size();
     } catch (Exception e) {
@@ -150,31 +132,12 @@ public class DefaultTableDataSynchronizeProvider
       }
       dataLists.add(nr);
     }
-
     TransactionStatus status = tx.getTransaction(getDefaultTransactionDefinition());
     if (log.isDebugEnabled()) {
       log.debug("Execute Update SQL : {}", this.updateStatementSql);
     }
-
     try {
-      try {
-        jdbcTemplate.batchUpdate(this.updateStatementSql, dataLists, this.updateArgsType);
-      } catch (Exception e) {
-        if (e instanceof java.sql.BatchUpdateException) {
-          for (Object[] dataList : dataLists) {
-            try {
-              jdbcTemplate.update(this.updateStatementSql, dataList, this.updateArgsType);
-            } catch (Exception ex) {
-              log.error("Failed to update by SQL: {}, value: {}", this.updateStatementSql,
-                  JSONUtil.toJsonStr(dataList));
-              throw ex;
-            }
-          }
-        } else {
-          throw e;
-        }
-      }
-
+      batchUpdateWithDeadlockRetry(this.updateStatementSql, dataLists, this.updateArgsType);
       tx.commit(status);
       return dataLists.size();
     } catch (Exception e) {
@@ -195,14 +158,12 @@ public class DefaultTableDataSynchronizeProvider
       }
       dataLists.add(nr);
     }
-
     TransactionStatus status = tx.getTransaction(getDefaultTransactionDefinition());
     if (log.isDebugEnabled()) {
       log.debug("Execute Delete SQL : {}", this.deleteStatementSql);
     }
-
     try {
-      jdbcTemplate.batchUpdate(this.deleteStatementSql, dataLists, this.deleteArgsType);
+      batchUpdateWithDeadlockRetry(this.deleteStatementSql, dataLists, this.deleteArgsType);
       tx.commit(status);
       return dataLists.size();
     } catch (Exception e) {
@@ -211,6 +172,32 @@ public class DefaultTableDataSynchronizeProvider
     } finally {
       dataLists.clear();
     }
+  }
+
+  private void batchUpdateWithDeadlockRetry(String sql, List<Object[]> records, int[] argTypes) {
+    for (int retry = 0; retry < 3; retry++) {
+      try {
+        jdbcTemplate.batchUpdate(sql, records, argTypes);
+        return;
+      } catch (Exception e) {
+        if (isDeadlockException(e) && retry < 2) {
+          log.warn("Deadlock detected, retrying batch ({}/{})...", retry + 1, 3);
+          try { Thread.sleep(100L * (retry + 1)); } catch (InterruptedException ignored) {}
+        } else {
+          throw e;
+        }
+      }
+    }
+  }
+
+  private boolean isDeadlockException(Throwable e) {
+    while (e != null) {
+      if (e.getMessage() != null && e.getMessage().contains("Deadlock")) {
+        return true;
+      }
+      e = e.getCause();
+    }
+    return false;
   }
 
   /**
