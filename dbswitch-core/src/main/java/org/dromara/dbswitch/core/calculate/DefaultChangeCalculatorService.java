@@ -323,62 +323,52 @@ public final class DefaultChangeCalculatorService implements RecordRowChangeCalc
 
       RecordTransformProvider transformer = task.getTransformer();
 
-      // 进入核心比较计算算法区域
-      RowChangeTypeEnum flagField = null;
-      Object[] outputRow;
-      Object[] one = getRowData(rsold.getResultSet());
-      Object[] two = transformer.doTransform(task.getNewSchemaName(), task.getNewTableName(),
-          queryFieldColumn, getRowData(rsnew.getResultSet()));
-      while (true) {
+      // === HashMap-based CDC (avoids sort-order issues with cross-DB collation) ===
+      java.util.LinkedHashMap<String, Object[]> targetMap = new java.util.LinkedHashMap<>();
+      Object[] tr;
+      while ((tr = getRowData(rsnew.getResultSet())) != null) {
+        tr = transformer.doTransform(task.getNewSchemaName(), task.getNewTableName(),
+            queryFieldColumn, tr);
+        String key = buildPkKey(tr, keyNumbers, metaData);
+        targetMap.put(key, tr);
+      }
+      
+      java.util.HashSet<String> matchedKeys = new java.util.HashSet<>();
+      Object[] sr;
+      while ((sr = getRowData(rsold.getResultSet())) != null) {
         Optional.ofNullable(checkInterrupt).ifPresent(Runnable::run);
-        if (one == null && two == null) {
-          break;
-        } else if (one == null && two != null) {
-          flagField = RowChangeTypeEnum.VALUE_INSERT;
-          outputRow = two;
-          two = transformer.doTransform(task.getNewSchemaName(), task.getNewTableName(),
-              queryFieldColumn, getRowData(rsnew.getResultSet()));
-        } else if (one != null && two == null) {
-          flagField = RowChangeTypeEnum.VALUE_DELETED;
-          outputRow = one;
-          one = getRowData(rsold.getResultSet());
-        } else {
-          int compare = this.compare(one, two, keyNumbers, metaData);
-          if (0 == compare) {
-            int compareValues = useMd5Compare
-                ? md5Compare(one, two, valNumbers, metaData)
-                : this.compare(one, two, valNumbers, metaData);
-            if (compareValues == 0) {
-              flagField = RowChangeTypeEnum.VALUE_IDENTICAL;
-              outputRow = one;
-            } else {
-              flagField = RowChangeTypeEnum.VALUE_CHANGED;
-              outputRow = two;
-            }
+        String key = buildPkKey(sr, keyNumbers, metaData);
+        Object[] matched = targetMap.get(key);
 
-            one = getRowData(rsold.getResultSet());
-            two = transformer.doTransform(task.getNewSchemaName(), task.getNewTableName(),
-                queryFieldColumn, getRowData(rsnew.getResultSet()));
-          } else {
-            if (compare < 0) {
-              flagField = RowChangeTypeEnum.VALUE_DELETED;
-              outputRow = one;
-              one = getRowData(rsold.getResultSet());
-            } else {
-              flagField = RowChangeTypeEnum.VALUE_INSERT;
-              outputRow = two;
-              two = transformer.doTransform(task.getNewSchemaName(), task.getNewTableName(), queryFieldColumn,
-                  getRowData(rsnew.getResultSet()));
-            }
+        if (matched == null) {
+            log.info("INSERT: src_key=[{}], target_map_size={}", key.substring(0, Math.min(80, key.length())), targetMap.size());
+          if (!recordIdentical) {
+            Object[] xf = transformer.doTransform(task.getNewSchemaName(),
+                task.getNewTableName(), queryFieldColumn, sr);
+            handler.handle(Collections.unmodifiableList(targetColumns), xf, jdbcTypes,
+                RowChangeTypeEnum.VALUE_INSERT);
+          }
+        } else {
+          matchedKeys.add(key);
+          int cmp = useMd5Compare
+              ? md5Compare(sr, matched, valNumbers, metaData)
+              : this.compare(sr, matched, valNumbers, metaData);
+          if (cmp != 0) {
+            Object[] xf = transformer.doTransform(task.getNewSchemaName(),
+                task.getNewTableName(), queryFieldColumn, sr);
+            handler.handle(Collections.unmodifiableList(targetColumns), xf, jdbcTypes,
+                RowChangeTypeEnum.VALUE_CHANGED);
           }
         }
-
-        if (!this.recordIdentical && RowChangeTypeEnum.VALUE_IDENTICAL == flagField) {
-          continue;
+      }
+      
+      
+      // Unmatched target rows → Delete (existed before but not in source now)
+      for (java.util.Map.Entry<String, Object[]> entry : targetMap.entrySet()) {
+        if (!matchedKeys.contains(entry.getKey())) {
+          handler.handle(Collections.unmodifiableList(targetColumns), entry.getValue(), jdbcTypes,
+              RowChangeTypeEnum.VALUE_DELETED);
         }
-
-        // 这里对计算的单条记录结果进行处理
-        handler.handle(Collections.unmodifiableList(targetColumns), outputRow, jdbcTypes, flagField);
       }
 
       if (log.isDebugEnabled()) {
@@ -599,6 +589,24 @@ public final class DefaultChangeCalculatorService implements RecordRowChangeCalc
     }
   }
 
+  private String buildPkKey(Object[] row, int[] keyNumbers, ResultSetMetaData metaData) {
+    StringBuilder sb = new StringBuilder();
+    for (int nr : keyNumbers) {
+      try {
+        int jdbcType = metaData.getColumnType(nr + 1);
+        sb.append(normalizeForMd5(row[nr], jdbcType));
+      } catch (Exception e) {
+        sb.append(normalizeForMd5(row[nr]));
+      }
+      sb.append('\0');
+    }
+    return sb.toString();
+  }
+
+  /**
+   * 按JDBC列类型归一化字段值，消除不同JDBC驱动返回Java类型差异导致的MD5不一致。
+   */
+
   private String normalizeForMd5(Object o) {
     if (o == null) return "";
     if (o instanceof Boolean) return ((Boolean) o) ? "1" : "0";
@@ -625,10 +633,6 @@ public final class DefaultChangeCalculatorService implements RecordRowChangeCalc
     }
     return java.text.Normalizer.normalize(String.valueOf(o).trim(), java.text.Normalizer.Form.NFC).toLowerCase();
   }
-
-  /**
-   * 按JDBC列类型归一化字段值，消除不同JDBC驱动返回Java类型差异导致的MD5不一致。
-   */
   private String normalizeForMd5(Object o, int jdbcType) {
     if (o == null) return "";
     
