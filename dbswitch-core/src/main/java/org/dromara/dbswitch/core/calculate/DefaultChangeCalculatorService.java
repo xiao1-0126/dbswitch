@@ -337,37 +337,29 @@ public final class DefaultChangeCalculatorService implements RecordRowChangeCalc
       Object[] sr;
       while ((sr = getRowData(rsold.getResultSet())) != null) {
         Optional.ofNullable(checkInterrupt).ifPresent(Runnable::run);
-        String key = buildPkKey(sr, keyNumbers, metaData);
+        // Transform source row BEFORE comparison so PK key and value comparison
+        // use the same post-transform data as target rows (stored transformed in map)
+        Object[] srTransformed = transformer.doTransform(task.getNewSchemaName(),
+            task.getNewTableName(), queryFieldColumn, sr);
+        String key = buildPkKey(srTransformed, keyNumbers, metaData);
         Object[] matched = targetMap.get(key);
 
         if (matched == null) {
             log.info("INSERT: src_key=[{}], target_map_size={}", key.substring(0, Math.min(80, key.length())), targetMap.size());
           if (!recordIdentical) {
-            Object[] xf = transformer.doTransform(task.getNewSchemaName(),
-                task.getNewTableName(), queryFieldColumn, sr);
-            handler.handle(Collections.unmodifiableList(targetColumns), xf, jdbcTypes,
+            handler.handle(Collections.unmodifiableList(targetColumns), srTransformed, jdbcTypes,
                 RowChangeTypeEnum.VALUE_INSERT);
           }
         } else {
           matchedKeys.add(key);
           int cmp = useMd5Compare
-              ? md5Compare(sr, matched, valNumbers, metaData)
-              : this.compare(sr, matched, valNumbers, metaData);
+              ? md5Compare(srTransformed, matched, valNumbers, metaData)
+              : this.compare(srTransformed, matched, valNumbers, metaData);
           if (cmp != 0) {
-            Object[] xf = transformer.doTransform(task.getNewSchemaName(),
-                task.getNewTableName(), queryFieldColumn, sr);
-            handler.handle(Collections.unmodifiableList(targetColumns), xf, jdbcTypes,
+            log.info("VALUE_CHANGED: src_key=[{}]", key.substring(0, Math.min(80, key.length())));
+            handler.handle(Collections.unmodifiableList(targetColumns), srTransformed, jdbcTypes,
                 RowChangeTypeEnum.VALUE_CHANGED);
           }
-        }
-      }
-      
-      
-      // Unmatched target rows → Delete (existed before but not in source now)
-      for (java.util.Map.Entry<String, Object[]> entry : targetMap.entrySet()) {
-        if (!matchedKeys.contains(entry.getKey())) {
-          handler.handle(Collections.unmodifiableList(targetColumns), entry.getValue(), jdbcTypes,
-              RowChangeTypeEnum.VALUE_DELETED);
         }
       }
 
