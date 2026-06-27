@@ -536,6 +536,11 @@ public final class DefaultChangeCalculatorService implements RecordRowChangeCalc
     } else {
       String s1 = normalizeForMd5(o1);
       String s2 = normalizeForMd5(o2);
+      if (!s1.equals(s2)) {
+        log.info("UDT compare diff: type={}, o1.class={}, o2.class={}, s1=[{}], s2=[{}]",
+            type, o1 == null ? "null" : o1.getClass().getSimpleName(),
+            o2 == null ? "null" : o2.getClass().getSimpleName(), s1, s2);
+      }
       return s1.compareTo(s2);
     }
   }
@@ -575,15 +580,16 @@ public final class DefaultChangeCalculatorService implements RecordRowChangeCalc
     if (o instanceof java.lang.Double) return new java.math.BigDecimal(o.toString()).stripTrailingZeros().toPlainString();
     if (o instanceof java.lang.Float) return new java.math.BigDecimal(o.toString()).stripTrailingZeros().toPlainString();
     if (o instanceof Number) return new java.math.BigDecimal(o.toString()).stripTrailingZeros().toPlainString();
-    if (o instanceof java.util.Date) return String.valueOf(((java.util.Date) o).getTime() / 1000);
-    if (o instanceof java.sql.Clob) try { java.sql.Clob c = (java.sql.Clob) o; return c.getSubString(1, (int) c.length()); } catch (Exception e) { return ""; }
-    if (o instanceof java.sql.NClob) try { java.sql.NClob c = (java.sql.NClob) o; return c.getSubString(1, (int) c.length()); } catch (Exception e) { return ""; }
-    if (o instanceof byte[]) {
-      StringBuilder sb = new StringBuilder();
-      for (byte b : (byte[]) o) sb.append(String.format("%02x", b));
-      return sb.toString();
+    if (o instanceof java.time.LocalDateTime) {
+      return String.valueOf(java.sql.Timestamp.valueOf((java.time.LocalDateTime) o).getTime() / 1000);
     }
-    return java.text.Normalizer.normalize(String.valueOf(o).trim(), java.text.Normalizer.Form.NFC);
+    if (o instanceof java.time.LocalDate) {
+      return String.valueOf(java.sql.Date.valueOf((java.time.LocalDate) o).getTime() / 1000);
+    }
+    if (o instanceof java.time.LocalTime) {
+      return String.valueOf(java.sql.Time.valueOf((java.time.LocalTime) o).getTime() / 1000);
+    }
+    if (o instanceof java.util.Date) return String.valueOf(((java.util.Date) o).getTime() / 1000);
   }
 
   /**

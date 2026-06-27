@@ -1,6 +1,8 @@
 spring:
   profiles:
-    include: ${DBTYPE:h2}
+    include: h2
+    #include: mysql
+    #include: postgres
   application:
     name: dbswitch-admin
   tomcat:
@@ -23,3 +25,15 @@ mybatis:
 dbswitch:
   configuration:
     drivers-base-path: ${APP_DRIVERS_PATH}
+
+# Swagger在线接口开关
+springfox:
+  documentation:
+    enabled: false
+    auto-startup: false
+    swagger.v2:
+      enabled: false
+    openApi:
+      enabled: false
+    swagger-ui:
+      enabled: false
