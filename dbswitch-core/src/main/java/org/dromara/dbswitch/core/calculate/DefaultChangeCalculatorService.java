@@ -318,43 +318,52 @@ public final class DefaultChangeCalculatorService implements RecordRowChangeCalc
         String key = buildPkKey(tr, keyNumbers, metaData);
         targetMap.put(key, tr);
       }
-      
-      java.util.HashSet<String> matchedKeys = new java.util.HashSet<>();
-      Object[] sr;
-      while ((sr = getRowData(rsold.getResultSet())) != null) {
-        Optional.ofNullable(checkInterrupt).ifPresent(Runnable::run);
-        // Transform source row BEFORE comparison so PK key and value comparison
-        // use the same post-transform data as target rows (stored transformed in map)
-        Object[] srTransformed = transformer.doTransform(task.getNewSchemaName(),
-            task.getNewTableName(), queryFieldColumn, sr);
-        String key = buildPkKey(srTransformed, keyNumbers, metaData);
-        Object[] matched = targetMap.get(key);
 
-        if (matched == null) {
-            log.info("INSERT: src_key=[{}], target_map_size={}", key.substring(0, Math.min(80, key.length())), targetMap.size());
-          if (!recordIdentical) {
-            handler.handle(Collections.unmodifiableList(targetColumns), srTransformed, jdbcTypes,
-                RowChangeTypeEnum.VALUE_INSERT);
-          }
-        } else {
-          matchedKeys.add(key);
-          int cmp = useMd5Compare
-              ? md5Compare(srTransformed, matched, valNumbers, metaData)
-              : this.compare(srTransformed, matched, valNumbers, metaData);
-          if (cmp != 0) {
-            log.info("VALUE_CHANGED: src_key=[{}]", key.substring(0, Math.min(80, key.length())));
-            handler.handle(Collections.unmodifiableList(targetColumns), srTransformed, jdbcTypes,
-                RowChangeTypeEnum.VALUE_CHANGED);
-          }
-        }
-      }
+      int srcTotal = 0, insertCnt = 0, updateCnt = 0, deleteCnt = 0;
+       java.util.HashSet<String> matchedKeys = new java.util.HashSet<>();
+       Object[] sr;
+       while ((sr = getRowData(rsold.getResultSet())) != null) {
+        srcTotal++;
+         Optional.ofNullable(checkInterrupt).ifPresent(Runnable::run);
+         // Transform source row BEFORE comparison so PK key and value comparison
+         // use the same post-transform data as target rows (stored transformed in map)
+         Object[] srTransformed = transformer.doTransform(task.getNewSchemaName(),
+             task.getNewTableName(), queryFieldColumn, sr);
+         String key = buildPkKey(srTransformed, keyNumbers, metaData);
+         Object[] matched = targetMap.get(key);
+ 
+         if (matched == null) {
+            insertCnt++;
+             log.info("INSERT: src_key=[{}], target_map_size={}", key.substring(0, Math.min(80, key.length())), targetMap.size());
+           if (!recordIdentical) {
+             handler.handle(Collections.unmodifiableList(targetColumns), srTransformed, jdbcTypes,
+                 RowChangeTypeEnum.VALUE_INSERT);
+           }
+         } else {
+           matchedKeys.add(key);
+           int cmp = useMd5Compare
+               ? md5Compare(srTransformed, matched, valNumbers, metaData)
+               : this.compare(srTransformed, matched, valNumbers, metaData);
+           if (cmp != 0) {
+            updateCnt++;
+             log.info("VALUE_CHANGED: src_key=[{}]", key.substring(0, Math.min(80, key.length())));
+             handler.handle(Collections.unmodifiableList(targetColumns), srTransformed, jdbcTypes,
+                 RowChangeTypeEnum.VALUE_CHANGED);
+           }
+         }
+       }
+ 
+      // 未匹配的目标行 → Delete
+       for (java.util.Map.Entry<String, Object[]> entry : targetMap.entrySet()) {
+         if (!matchedKeys.contains(entry.getKey())) {
+          deleteCnt++;
+           handler.handle(Collections.unmodifiableList(targetColumns), entry.getValue(), jdbcTypes,
+               RowChangeTypeEnum.VALUE_DELETED);
+         }
+       }
 
-      if (log.isDebugEnabled()) {
-        log.debug("###### Calculate CDC Over now");
-      }
-
-      // 结束返回前的回调
-      handler.destroy(Collections.unmodifiableList(targetColumns));
+      log.info("[CDC-v5] {}: src={}, tgt={}, ins={}, upd={}, del={}",
+          task.getOldTableName(), srcTotal, targetMap.size(), insertCnt, updateCnt, deleteCnt);
 
     } catch (SQLException e) {
       throw new RuntimeException(e);
