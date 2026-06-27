@@ -1,4 +1,4 @@
-FROM 18883251993/dbswitch:2.0.2-charset-fix
+FROM registry.cn-hangzhou.aliyuncs.com/inrgihc/openjdk:8-jre-alpine
 
 ENV TZ=Asia/Shanghai
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
