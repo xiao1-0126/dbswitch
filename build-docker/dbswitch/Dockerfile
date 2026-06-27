@@ -1,4 +1,4 @@
-FROM registry.cn-hangzhou.aliyuncs.com/inrgihc/openjdk:8-jre-alpine
+FROM docker.1ms.run/openjdk:8u212-jre-alpine3.9
 
 ENV TZ=Asia/Shanghai
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone

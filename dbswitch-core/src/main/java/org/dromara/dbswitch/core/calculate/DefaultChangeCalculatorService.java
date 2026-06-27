@@ -573,7 +573,7 @@ public final class DefaultChangeCalculatorService implements RecordRowChangeCalc
         md5_2.update((byte) 0);
       }
       int cmp = compareTo(md5_1.digest(), md5_2.digest());
-      if (cmp != 0 && md5DiffLogged.compareAndSet(false, true)) {
+      if (cmp != 0) {
         for (int nr : fieldnrs) {
           int jdbcType;
           try { jdbcType = metaData.getColumnType(nr + 1); } catch (Exception e) { jdbcType = java.sql.Types.OTHER; }
