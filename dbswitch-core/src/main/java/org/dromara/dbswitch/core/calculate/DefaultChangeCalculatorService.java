@@ -55,6 +55,8 @@ public final class DefaultChangeCalculatorService implements RecordRowChangeCalc
   /**
    * 是否使用MD5比较（代替逐字段比较）
    */
+  private java.util.concurrent.atomic.AtomicBoolean md5DiffLogged = new java.util.concurrent.atomic.AtomicBoolean(false);
+
   private boolean useMd5Compare = false;
 
   /**
@@ -559,16 +561,38 @@ public final class DefaultChangeCalculatorService implements RecordRowChangeCalc
       java.security.MessageDigest md5_1 = java.security.MessageDigest.getInstance("MD5");
       java.security.MessageDigest md5_2 = java.security.MessageDigest.getInstance("MD5");
       for (int nr : fieldnrs) {
-        String s1 = normalizeForMd5(obj1[nr]);
-        String s2 = normalizeForMd5(obj2[nr]);
+        int jdbcType;
+        try { jdbcType = metaData.getColumnType(nr + 1); } catch (Exception e) { jdbcType = java.sql.Types.OTHER; }
+        String s1 = normalizeForMd5(obj1[nr], jdbcType);
+        String s2 = normalizeForMd5(obj2[nr], jdbcType);
         md5_1.update(s1.getBytes("UTF-8"));
         md5_2.update(s2.getBytes("UTF-8"));
         md5_1.update((byte) 0);
         md5_2.update((byte) 0);
       }
-      return compareTo(md5_1.digest(), md5_2.digest());
+      int cmp = compareTo(md5_1.digest(), md5_2.digest());
+      if (cmp != 0 && md5DiffLogged.compareAndSet(false, true)) {
+        for (int nr : fieldnrs) {
+          int jdbcType;
+          try { jdbcType = metaData.getColumnType(nr + 1); } catch (Exception e) { jdbcType = java.sql.Types.OTHER; }
+          String s1 = normalizeForMd5(obj1[nr], jdbcType);
+          String s2 = normalizeForMd5(obj2[nr], jdbcType);
+          if (!s1.equals(s2)) {
+            String cn;
+            try { cn = metaData.getColumnLabel(nr + 1); } catch (Exception e) { cn = "col#" + nr; }
+            log.info("MD5 diff field [{}]: jdbcType={}, t1={}, t2={}, v1=[{}], v2=[{}]",
+                cn, jdbcType,
+                obj1[nr] == null ? "null" : obj1[nr].getClass().getSimpleName(),
+                obj2[nr] == null ? "null" : obj2[nr].getClass().getSimpleName(),
+                s1.substring(0, Math.min(80, s1.length())),
+                s2.substring(0, Math.min(80, s2.length())));
+            break;
+          }
+        }
+      }
+      return cmp;
     } catch (Exception e) {
-      log.warn("MD5 compare failed, fallback: {}", e.getMessage());
+      log.warn("MD5 compare failed: {}", e.getMessage());
       return -1;
     }
   }
@@ -598,6 +622,82 @@ public final class DefaultChangeCalculatorService implements RecordRowChangeCalc
       return sb.toString();
     }
     return java.text.Normalizer.normalize(String.valueOf(o).trim(), java.text.Normalizer.Form.NFC).toLowerCase();
+  }
+
+  /**
+   * 按JDBC列类型归一化字段值，消除不同JDBC驱动返回Java类型差异导致的MD5不一致。
+   */
+  private String normalizeForMd5(Object o, int jdbcType) {
+    if (o == null) return "";
+    
+    // Boolean / Bit → "0" or "1" regardless of driver Java type (Boolean, Integer, byte[], etc.)
+    if (org.dromara.dbswitch.common.util.JdbcTypesUtils.isBoolean(jdbcType)
+        || org.dromara.dbswitch.common.util.JdbcTypesUtils.isInteger(jdbcType) && jdbcType == java.sql.Types.BIT) {
+      if (o instanceof Boolean) return ((Boolean) o) ? "1" : "0";
+      if (o instanceof Number) return ((Number) o).intValue() != 0 ? "1" : "0";
+      if (o instanceof byte[]) return ((byte[]) o).length > 0 && ((byte[]) o)[0] != 0 ? "1" : "0";
+      return "0";
+    }
+    
+    // Integer types → BigDecimal plain string (handles Short, Integer, Long, BigInteger uniformly)
+    if (org.dromara.dbswitch.common.util.JdbcTypesUtils.isInteger(jdbcType)) {
+      if (o instanceof Number) return new java.math.BigDecimal(o.toString()).stripTrailingZeros().toPlainString();
+      if (o instanceof Boolean) return ((Boolean) o) ? "1" : "0";
+      return String.valueOf(o).trim();
+    }
+    
+    // Numeric types → BigDecimal plain string (handles BigDecimal, Double, Float uniformly)
+    if (org.dromara.dbswitch.common.util.JdbcTypesUtils.isNumeric(jdbcType)) {
+      if (o instanceof Number) return new java.math.BigDecimal(o.toString()).stripTrailingZeros().toPlainString();
+      return String.valueOf(o).trim();
+    }
+    
+    // DateTime types → epoch seconds (handles Timestamp, Date, Time, LocalDateTime, LocalDate, LocalTime)
+    if (org.dromara.dbswitch.common.util.JdbcTypesUtils.isDateTime(jdbcType)) {
+      long epoch;
+      if (o instanceof java.time.LocalDateTime) {
+        epoch = java.sql.Timestamp.valueOf((java.time.LocalDateTime) o).getTime() / 1000;
+      } else if (o instanceof java.time.LocalDate) {
+        epoch = java.sql.Date.valueOf((java.time.LocalDate) o).getTime() / 1000;
+      } else if (o instanceof java.time.LocalTime) {
+        epoch = java.sql.Time.valueOf((java.time.LocalTime) o).getTime() / 1000;
+      } else if (o instanceof java.util.Date) {
+        epoch = ((java.util.Date) o).getTime() / 1000;
+      } else {
+        return String.valueOf(o).trim().toLowerCase();
+      }
+      return String.valueOf(epoch);
+    }
+    
+    // Binary types → hex string (handles byte[], Blob uniformly)
+    if (org.dromara.dbswitch.common.util.JdbcTypesUtils.isBinary(jdbcType)) {
+      byte[] bytes;
+      if (o instanceof byte[]) {
+        bytes = (byte[]) o;
+      } else if (o instanceof java.sql.Blob) {
+        try {
+          java.sql.Blob blob = (java.sql.Blob) o;
+          bytes = blob.getBytes(1, (int) blob.length());
+        } catch (Exception e) {
+          return "";
+        }
+      } else {
+        return String.valueOf(o).trim().toLowerCase();
+      }
+      StringBuilder sb = new StringBuilder();
+      for (byte b : bytes) sb.append(String.format("%02x", b));
+      return sb.toString();
+    }
+    
+    // String types → trimmed + lowercased + NFC normalized
+    if (org.dromara.dbswitch.common.util.JdbcTypesUtils.isString(jdbcType)) {
+      if (o instanceof java.sql.Clob) try { java.sql.Clob c = (java.sql.Clob) o; return java.text.Normalizer.normalize(c.getSubString(1, (int) c.length()).trim(), java.text.Normalizer.Form.NFC).toLowerCase(); } catch (Exception e) { return ""; }
+      if (o instanceof java.sql.NClob) try { java.sql.NClob c = (java.sql.NClob) o; return java.text.Normalizer.normalize(c.getSubString(1, (int) c.length()).trim(), java.text.Normalizer.Form.NFC).toLowerCase(); } catch (Exception e) { return ""; }
+      return java.text.Normalizer.normalize(String.valueOf(o).trim(), java.text.Normalizer.Form.NFC).toLowerCase();
+    }
+    
+    // Fallback: use the object-type-based version
+    return normalizeForMd5(o);
   }
 
   /**
