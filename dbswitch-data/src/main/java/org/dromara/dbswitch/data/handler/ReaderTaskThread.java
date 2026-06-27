@@ -355,8 +355,8 @@ public class ReaderTaskThread extends TaskProcessor<ReaderTaskResult> {
             targetSchemaName, targetTableName);
 
         if (targetPrimaryKeys.isEmpty() && dbTargetPks.isEmpty()) {
-          return doMd5SetSynchronize(targetWriter, targetTableManager,
-              sourceQuerier, transformProvider);
+          log.info("[NoPkSync] Table [{}] 无主键，使用全部列作为伪主键进行 HashMap CDC 比对", tableNameMapString);
+          return doChangeSynchronize(targetSynchronizer, transformProvider);
         } else if (!targetPrimaryKeys.isEmpty() && !dbTargetPks.isEmpty()
             && targetPrimaryKeys.containsAll(dbTargetPks)
             && dbTargetPks.containsAll(targetPrimaryKeys)) {
