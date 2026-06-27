@@ -8,6 +8,12 @@ ENV APP_DRIVERS_PATH=/dbswitch-release/drivers
 
 COPY dbswitch-release /dbswitch-release
 
+# Persistent data directory (H2 database, logs)
+RUN mkdir -p /data
+VOLUME /data
+
+
+
 EXPOSE      9088
 
 USER        root

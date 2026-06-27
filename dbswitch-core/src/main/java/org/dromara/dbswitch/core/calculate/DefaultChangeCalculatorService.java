@@ -590,6 +590,14 @@ public final class DefaultChangeCalculatorService implements RecordRowChangeCalc
       return String.valueOf(java.sql.Time.valueOf((java.time.LocalTime) o).getTime() / 1000);
     }
     if (o instanceof java.util.Date) return String.valueOf(((java.util.Date) o).getTime() / 1000);
+    if (o instanceof java.sql.Clob) try { java.sql.Clob c = (java.sql.Clob) o; return c.getSubString(1, (int) c.length()); } catch (Exception e) { return ""; }
+    if (o instanceof java.sql.NClob) try { java.sql.NClob c = (java.sql.NClob) o; return c.getSubString(1, (int) c.length()); } catch (Exception e) { return ""; }
+    if (o instanceof byte[]) {
+      StringBuilder sb = new StringBuilder();
+      for (byte b : (byte[]) o) sb.append(String.format("%02x", b));
+      return sb.toString();
+    }
+    return java.text.Normalizer.normalize(String.valueOf(o).trim(), java.text.Normalizer.Form.NFC).toLowerCase();
   }
 
   /**
