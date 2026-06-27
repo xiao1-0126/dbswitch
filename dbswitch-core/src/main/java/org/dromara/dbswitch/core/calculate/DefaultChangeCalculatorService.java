@@ -318,6 +318,8 @@ public final class DefaultChangeCalculatorService implements RecordRowChangeCalc
       if (log.isDebugEnabled()) {
         log.debug("###### Enter CDC calculate now");
       }
+      log.info("[CDC-v4] HashMap-based comparison, useMd5Compare={}, md5DiffLogged={}",
+          useMd5Compare, md5DiffLogged.get());
 
       Optional.ofNullable(checkInterrupt).ifPresent(Runnable::run);
 
