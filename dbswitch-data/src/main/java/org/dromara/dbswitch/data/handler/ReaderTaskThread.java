@@ -355,8 +355,8 @@ public class ReaderTaskThread extends TaskProcessor<ReaderTaskResult> {
             targetSchemaName, targetTableName);
 
         if (targetPrimaryKeys.isEmpty() && dbTargetPks.isEmpty()) {
-          log.info("[NoPkSync] Table [{}] 无主键，使用全部列作为伪主键进行 HashMap CDC 比对", tableNameMapString);
-          return doChangeSynchronize(targetSynchronizer, transformProvider);
+          return doMd5SetSynchronize(targetWriter, targetTableManager,
+              sourceQuerier, transformProvider);
         } else if (!targetPrimaryKeys.isEmpty() && !dbTargetPks.isEmpty()
             && targetPrimaryKeys.containsAll(dbTargetPks)
             && dbTargetPks.containsAll(targetPrimaryKeys)) {
@@ -638,7 +638,9 @@ public class ReaderTaskThread extends TaskProcessor<ReaderTaskResult> {
           java.security.MessageDigest md = java.security.MessageDigest.getInstance("MD5");
           for (int i = 1; i <= srcFields.size(); i++) {
             Object v = rs.getObject(i);
-            md.update((v == null ? "" : String.valueOf(v)).getBytes("UTF-8"));
+            int jdbcType = sourceColumnDescriptions.get(i - 1).getFieldType();
+            String s = org.dromara.dbswitch.core.calculate.DefaultChangeCalculatorService.normalizeForMd5(v, jdbcType);
+            md.update(s.getBytes("UTF-8"));
             md.update((byte) 0);
           }
           srcSet.add(bytesToHex(md.digest()));
@@ -657,7 +659,9 @@ public class ReaderTaskThread extends TaskProcessor<ReaderTaskResult> {
           java.security.MessageDigest md = java.security.MessageDigest.getInstance("MD5");
           for (int i = 1; i <= tgtFields.size(); i++) {
             Object v = rs.getObject(i);
-            md.update((v == null ? "" : String.valueOf(v)).getBytes("UTF-8"));
+            int jdbcType = targetColumnDescriptions.get(i - 1).getFieldType();
+            String s = org.dromara.dbswitch.core.calculate.DefaultChangeCalculatorService.normalizeForMd5(v, jdbcType);
+            md.update(s.getBytes("UTF-8"));
             md.update((byte) 0);
           }
           tgtSet.add(bytesToHex(md.digest()));

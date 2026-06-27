@@ -594,7 +594,7 @@ public final class DefaultChangeCalculatorService implements RecordRowChangeCalc
    * 按JDBC列类型归一化字段值，消除不同JDBC驱动返回Java类型差异导致的MD5不一致。
    */
 
-  private String normalizeForMd5(Object o) {
+  public static String normalizeForMd5(Object o) {
     if (o == null) return "";
     if (o instanceof Boolean) return ((Boolean) o) ? "1" : "0";
     if (o instanceof java.math.BigDecimal) return ((java.math.BigDecimal) o).stripTrailingZeros().toPlainString();
@@ -620,7 +620,7 @@ public final class DefaultChangeCalculatorService implements RecordRowChangeCalc
     }
     return java.text.Normalizer.normalize(String.valueOf(o).trim(), java.text.Normalizer.Form.NFC).toLowerCase();
   }
-  private String normalizeForMd5(Object o, int jdbcType) {
+  public static String normalizeForMd5(Object o, int jdbcType) {
     if (o == null) return "";
     
     // Boolean / Bit → "0" or "1" regardless of driver Java type (Boolean, Integer, byte[], etc.)
