@@ -167,14 +167,15 @@ public final class DefaultChangeCalculatorService implements RecordRowChangeCalc
         .map(s -> columnsMap.getOrDefault(s, s))
         .collect(Collectors.toList());
 
-    ExamineUtils.check(
-        !fieldsPrimaryKeyOld.isEmpty() && !fieldsPrimaryKeyNew.isEmpty(),
-        "计算变化量的表中存在无主键的表"
-    );
-    ExamineUtils.check(
-        isListEqual(fieldsPrimaryKeyOld, fieldsMappedPrimaryKeyNew),
-        "两个表的主键映射关系不匹配"
-    );
+    boolean noPk = fieldsPrimaryKeyOld.isEmpty() || fieldsPrimaryKeyNew.isEmpty();
+    if (noPk) {
+      log.warn("表 [{}] 没有主键，使用全部列作为伪主键进行CDC比对", task.getOldTableName());
+    } else {
+      ExamineUtils.check(
+          isListEqual(fieldsPrimaryKeyOld, fieldsMappedPrimaryKeyNew),
+          "两个表的主键映射关系不匹配"
+      );
+    }
 
     if (useOwnFieldsColumns) {
       // 如果自己配置了字段列表，判断子集关系
@@ -185,12 +186,14 @@ public final class DefaultChangeCalculatorService implements RecordRowChangeCalc
           || !fieldsAllColumnOld.containsAll(mappedFieldColumns)) {
         throw new RuntimeException("指定的字段列不完全在两个表中存在");
       }
-      boolean same = (mappedFieldColumns.containsAll(fieldsPrimaryKeyOld)
-          && task.getFieldColumns().containsAll(fieldsPrimaryKeyNew));
-      if (!same) {
-        throw new RuntimeException("提供的比较字段中未包含主键");
+      if (!noPk) {
+        boolean same = (mappedFieldColumns.containsAll(fieldsPrimaryKeyOld)
+            && task.getFieldColumns().containsAll(fieldsPrimaryKeyNew));
+        if (!same) {
+          throw new RuntimeException("提供的比较字段中未包含主键");
+        }
       }
-      same = (fieldsAllColumnOld.containsAll(mappedFieldColumns)
+      boolean same = (fieldsAllColumnOld.containsAll(mappedFieldColumns)
           && fieldsAllColumnNew.containsAll(task.getFieldColumns()));
       if (!same) {
         throw new RuntimeException("提供的比较字段中存在表中不存在(映射关系对不上)的字段");
@@ -205,12 +208,14 @@ public final class DefaultChangeCalculatorService implements RecordRowChangeCalc
 
     // 计算除主键外的比较字段
     List<String> fieldsOfCompareValue = new ArrayList<>();
-    if (useOwnFieldsColumns) {
-      fieldsOfCompareValue.addAll(task.getFieldColumns());
-    } else {
-      fieldsOfCompareValue.addAll(fieldsAllColumnNew);
+    if (!noPk) {
+      if (useOwnFieldsColumns) {
+        fieldsOfCompareValue.addAll(task.getFieldColumns());
+      } else {
+        fieldsOfCompareValue.addAll(fieldsAllColumnNew);
+      }
+      fieldsOfCompareValue.removeAll(fieldsPrimaryKeyNew);
     }
-    fieldsOfCompareValue.removeAll(fieldsPrimaryKeyNew);
 
     // 构造查询列字段
     List<String> queryFieldColumn;
@@ -228,7 +233,7 @@ public final class DefaultChangeCalculatorService implements RecordRowChangeCalc
     ResultSetWrapper rsnew = null;
 
     try {
-      // 提取新旧两表数据的结果集(按主键排序后的)
+      // 提取新旧两表数据的结果集
       TableDataQueryProvider oldQuery = ProductProviderFactory
           .newProvider(task.getOldProductType(), task.getOldDataSource())
           .createTableDataQueryProvider();
@@ -259,41 +264,26 @@ public final class DefaultChangeCalculatorService implements RecordRowChangeCalc
         log.debug("###### Check data validate now");
       }
 
-      // 检查结果集源信息是否一直
+      // 检查结果集列数一致
       int oldcnt = rsold.getResultSet().getMetaData().getColumnCount();
       int newcnt = rsnew.getResultSet().getMetaData().getColumnCount();
       if (oldcnt != newcnt) {
         throw new RuntimeException(String.format("两个表的字段总个数不相等，即：%d!=%d", oldcnt, newcnt));
-      } else {
-        for (int k = 1; k < metaData.getColumnCount(); ++k) {
-          String key1 = rsnew.getResultSet().getMetaData().getColumnLabel(k);
-          if (null == key1) {
-            key1 = rsnew.getResultSet().getMetaData().getColumnName(k);
-          }
-
-          String key2 = rsold.getResultSet().getMetaData().getColumnLabel(k);
-          if (null == key2) {
-            key2 = rsold.getResultSet().getMetaData().getColumnName(k);
-          }
-
-          if (checkJdbcType) {
-            int type1 = rsold.getResultSet().getMetaData().getColumnType(k);
-            int type2 = rsnew.getResultSet().getMetaData().getColumnType(k);
-            if (type1 != type2) {
-              throw new RuntimeException(String.format("字段 [name=%s -> %s] 的数据类型不同，因 %s!=%s !",
-                  key1, key2,
-                  JdbcTypesUtils.resolveTypeName(type1), JdbcTypesUtils.resolveTypeName(type2)));
-            }
-          }
-
-        }
       }
 
-      // 计算主键字段序列在结果集中的索引号
-      int[] keyNumbers = new int[fieldsPrimaryKeyNew.size()];
-      for (int i = 0; i < keyNumbers.length; ++i) {
-        String fn = fieldsPrimaryKeyNew.get(i);
-        keyNumbers[i] = getIndexOfField(fn, metaData);
+      // 计算主键字段序列在结果集中的索引号（无主键表使用全部列作为伪主键）
+      int[] keyNumbers;
+      if (noPk) {
+        keyNumbers = new int[metaData.getColumnCount()];
+        for (int i = 0; i < keyNumbers.length; ++i) {
+          keyNumbers[i] = i;
+        }
+      } else {
+        keyNumbers = new int[fieldsPrimaryKeyNew.size()];
+        for (int i = 0; i < keyNumbers.length; ++i) {
+          String fn = fieldsPrimaryKeyNew.get(i);
+          keyNumbers[i] = getIndexOfField(fn, metaData);
+        }
       }
 
       // 计算比较(非主键)字段序列在结果集中的索引号
@@ -314,14 +304,8 @@ public final class DefaultChangeCalculatorService implements RecordRowChangeCalc
         targetColumns.add(columnsMap.getOrDefault(key, key));
         jdbcTypes[k - 1] = metaData.getColumnType(k);
       }
-
-      if (log.isDebugEnabled()) {
-        log.debug("###### Enter CDC calculate now");
-      }
-      log.info("[CDC-v4] HashMap-based comparison, useMd5Compare={}, md5DiffLogged={}",
-          useMd5Compare, md5DiffLogged.get());
-
       Optional.ofNullable(checkInterrupt).ifPresent(Runnable::run);
+      log.info("[CDC-v5] HashMap-based CDC, noPk={}, useMd5Compare={}", noPk, useMd5Compare);
 
       RecordTransformProvider transformer = task.getTransformer();
 
