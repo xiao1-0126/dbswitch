@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env bash
 #
 # Author : tang
 # Date :2021-07-31
@@ -32,7 +32,7 @@ echo -n `date +'%Y-%m-%d %H:%M:%S'`              >>${APP_RUN_LOG}
 echo "---- Start service [${APP_MAIN}] process. ">>${APP_RUN_LOG}
 
 # JVMFLAGS JVM参数可以在这里设置
-JVMFLAGS="-Dfile.encoding=UTF-8 -XX:+DisableExplicitGC -XX:+PrintGCDetails -XX:+PrintGCTimeStamps -Xloggc:./gc.log"
+JVMFLAGS="-Dfile.encoding=UTF-8 -server -Xms4096m -Xmx4096m -Xmn2048m -XX:+DisableExplicitGC "
 
 if [ "$JAVA_HOME" != "" ]; then
   JAVA="$JAVA_HOME/bin/java"
@@ -48,4 +48,13 @@ do
 done
 CLASSPATH="$CLASSPATH:$APP_EXT_PATH/*"
 
-$JAVA -cp $CLASSPATH $JVMFLAGS $APP_MAIN $APP_CONF_PATH
+res=`ps aux|grep java|grep $APP_HOME|grep $APP_MAIN|grep -v grep|awk '{print $2}'`
+if [ -n "$res"  ]; then
+        echo "$res program is already running"
+        exit 1
+fi
+
+# Docker: exec replaces shell with Java → Java as PID 1, logs to stdout (docker logs)
+# logback.xml also writes to ./logs/ via FILE & ERRORFILE appenders
+exec $JAVA -cp $CLASSPATH $JVMFLAGS $APP_MAIN $APP_CONF_PATH
+
