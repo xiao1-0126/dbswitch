@@ -140,6 +140,8 @@ public final class DefaultChangeCalculatorService implements RecordRowChangeCalc
     ExamineUtils.checkNotNull(task, "task");
     ExamineUtils.checkNotNull(handler, "handler");
 
+    this.md5DiffLogged.set(false);
+
     if (log.isDebugEnabled()) {
       log.debug("###### Begin execute calculate table CDC data now");
     }
