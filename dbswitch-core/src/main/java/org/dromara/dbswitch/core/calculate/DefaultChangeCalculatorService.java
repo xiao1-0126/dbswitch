@@ -311,22 +311,33 @@ public final class DefaultChangeCalculatorService implements RecordRowChangeCalc
 
       // === HashMap-based CDC (avoids sort-order issues with cross-DB collation) ===
       java.util.LinkedHashMap<String, Object[]> targetMap = new java.util.LinkedHashMap<>();
+      int MAX_CDC_ROWS = 100000;
+      int tgtCount = 0;
       Object[] tr;
+      boolean tooManyRows = false;
       while ((tr = getRowData(rsnew.getResultSet())) != null) {
-        tr = transformer.doTransform(task.getNewSchemaName(), task.getNewTableName(),
-            queryFieldColumn, tr);
-        String key = buildPkKey(tr, keyNumbers, metaData);
-        targetMap.put(key, tr);
+        if (!tooManyRows && ++tgtCount > MAX_CDC_ROWS) {
+          tooManyRows = true;
+          log.warn("表 [{}] 目标行数超过 {} ({} 行)，跳过 HashMap CDC 比对",
+              task.getOldTableName(), MAX_CDC_ROWS, tgtCount);
+        }
+        if (!tooManyRows) {
+          tr = transformer.doTransform(task.getNewSchemaName(), task.getNewTableName(),
+              queryFieldColumn, tr);
+          String key = buildPkKey(tr, keyNumbers, metaData);
+          targetMap.put(key, tr);
+        }
       }
 
+      if (tooManyRows) {
+        log.warn("[CDC-v5] {}: 行数超限已跳过CDC比对", task.getOldTableName());
+      } else {
       int srcTotal = 0, insertCnt = 0, updateCnt = 0, deleteCnt = 0;
        java.util.HashSet<String> matchedKeys = new java.util.HashSet<>();
        Object[] sr;
        while ((sr = getRowData(rsold.getResultSet())) != null) {
         srcTotal++;
          Optional.ofNullable(checkInterrupt).ifPresent(Runnable::run);
-         // Transform source row BEFORE comparison so PK key and value comparison
-         // use the same post-transform data as target rows (stored transformed in map)
          Object[] srTransformed = transformer.doTransform(task.getNewSchemaName(),
              task.getNewTableName(), queryFieldColumn, sr);
          String key = buildPkKey(srTransformed, keyNumbers, metaData);
@@ -353,7 +364,6 @@ public final class DefaultChangeCalculatorService implements RecordRowChangeCalc
          }
        }
  
-      // 未匹配的目标行 → Delete
        for (java.util.Map.Entry<String, Object[]> entry : targetMap.entrySet()) {
          if (!matchedKeys.contains(entry.getKey())) {
           deleteCnt++;
@@ -364,7 +374,8 @@ public final class DefaultChangeCalculatorService implements RecordRowChangeCalc
 
       log.info("[CDC-v5] {}: src={}, tgt={}, ins={}, upd={}, del={}",
           task.getOldTableName(), srcTotal, targetMap.size(), insertCnt, updateCnt, deleteCnt);
-
+      }
+      handler.destroy(Collections.unmodifiableList(targetColumns));
     } catch (SQLException e) {
       throw new RuntimeException(e);
     } finally {
