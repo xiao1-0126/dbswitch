@@ -365,7 +365,7 @@ public class ReaderTaskThread extends TaskProcessor<ReaderTaskResult> {
               targetSchemaName, targetTableName, targetDataSource)) {
             return doFullCoverSynchronize(targetWriter, targetTableManager, sourceQuerier, transformProvider);
           } else {
-            return doChangeSynchronize(targetSynchronizer, transformProvider);
+            return doChangeSynchronize(targetSynchronizer, transformProvider, targetWriter, targetTableManager, sourceQuerier);
           }
         } else {
           return doFullCoverSynchronize(targetWriter, targetTableManager, sourceQuerier, transformProvider);
@@ -690,7 +690,8 @@ public class ReaderTaskThread extends TaskProcessor<ReaderTaskResult> {
     return sb.toString();
   }
   private ReaderTaskResult doChangeSynchronize(TableDataSynchronizeProvider synchronizer,
-      RecordTransformProvider transformer) {
+      RecordTransformProvider transformer, TableDataWriteProvider fallbackWriter,
+      TableManageProvider fallbackManager, TableDataQueryProvider fallbackQuerier) {
     final int BATCH_SIZE = fetchSize;
 
     List<String> sourceFields = new ArrayList<>();
@@ -730,8 +731,8 @@ public class ReaderTaskThread extends TaskProcessor<ReaderTaskResult> {
     calculator.setCheckJdbcType(false);
     ((DefaultChangeCalculatorService) calculator).setUseMd5Compare(true);
 
-    // 执行实际的变化同步过程
     log.info("[ChangeSync] Handle table by compare [{}] data now ... ", tableNameMapString);
+    try {
     calculator.executeCalculate(param, new RecordRowHandler() {
 
       private long countInsert = 0;
@@ -875,6 +876,13 @@ public class ReaderTaskThread extends TaskProcessor<ReaderTaskResult> {
       }
 
     });
+    } catch (RuntimeException e) {
+      if (e.getMessage() != null && e.getMessage().contains("CDC row limit exceeded")) {
+        log.warn("[ChangeSync] Table [{}] 超过CDC行数上限，降级为全量覆盖同步", tableNameMapString);
+        return doFullCoverSynchronize(fallbackWriter, fallbackManager, fallbackQuerier, transformer);
+      }
+      throw e;
+    }
 
     return ReaderTaskResult
         .builder()

@@ -318,7 +318,7 @@ public final class DefaultChangeCalculatorService implements RecordRowChangeCalc
       while ((tr = getRowData(rsnew.getResultSet())) != null) {
         if (!tooManyRows && ++tgtCount > MAX_CDC_ROWS) {
           tooManyRows = true;
-          log.warn("表 [{}] 目标行数超过 {} ({} 行)，跳过 HashMap CDC 比对",
+          log.warn("表 [{}] 目标行数超过 {} ({} 行)，HashMap CDC 降级为全量覆盖",
               task.getOldTableName(), MAX_CDC_ROWS, tgtCount);
         }
         if (!tooManyRows) {
@@ -330,8 +330,8 @@ public final class DefaultChangeCalculatorService implements RecordRowChangeCalc
       }
 
       if (tooManyRows) {
-        log.warn("[CDC-v5] {}: 行数超限已跳过CDC比对", task.getOldTableName());
-      } else {
+        throw new RuntimeException("CDC row limit exceeded");
+      }
       int srcTotal = 0, insertCnt = 0, updateCnt = 0, deleteCnt = 0;
        java.util.HashSet<String> matchedKeys = new java.util.HashSet<>();
        Object[] sr;
@@ -374,7 +374,6 @@ public final class DefaultChangeCalculatorService implements RecordRowChangeCalc
 
       log.info("[CDC-v5] {}: src={}, tgt={}, ins={}, upd={}, del={}",
           task.getOldTableName(), srcTotal, targetMap.size(), insertCnt, updateCnt, deleteCnt);
-      }
       handler.destroy(Collections.unmodifiableList(targetColumns));
     } catch (SQLException e) {
       throw new RuntimeException(e);
