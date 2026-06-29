@@ -671,10 +671,13 @@ public class ReaderTaskThread extends TaskProcessor<ReaderTaskResult> {
     finally { trs.close(); }
 
     if (!srcSet.equals(tgtSet)) {
+      if (srcCount > 50000 || tgtSet.size() > 50000) {
+        log.warn("[NoPkSync] Table [{}] changes detected but too large for full reload (src={}, tgt={}) — skipped, please add PK or sync manually",
+            tableNameMapString, srcCount, tgtSet.size());
+        return ReaderTaskResult.builder().tableNameMapString(tableNameMapString).successCount(1)
+            .failureCount(0).totalBytes(0L).recordCount(0L).build();
+      }
       log.info("[NoPkSync] Table [{}] has changes, reloading (src={}, tgt={})", tableNameMapString, srcCount, tgtSet.size());
-      tableManager.truncateTableData(targetSchemaName, targetTableName);
-      tableWriter.prepareWrite(targetSchemaName, targetTableName, tgtFields);
-      return doFullCoverSynchronize(tableWriter, tableManager, sourceQuerier, transformer);
     }
     log.info("[NoPkSync] Table [{}] no changes: {} rows", tableNameMapString, srcCount);
     return ReaderTaskResult.builder().tableNameMapString(tableNameMapString).successCount(1)
