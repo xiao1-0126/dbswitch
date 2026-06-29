@@ -1,7 +1,7 @@
 spring:
   datasource:
     driver-class-name: org.h2.Driver
-    url: jdbc:h2:/data/dbswitch_db;MODE=MySQL;CASE_INSENSITIVE_IDENTIFIERS=TRUE;DATABASE_TO_UPPER=FALSE;DATABASE_TO_LOWER=FALSE
+    url: jdbc:h2:/data/dbswitch_db;MODE=MySQL;CASE_INSENSITIVE_IDENTIFIERS=TRUE;DATABASE_TO_UPPER=FALSE;DATABASE_TO_LOWER=FALSE;CACHE_SIZE=262144;MAX_COMPACT_TIME=2000;DEFRAG_ALWAYS=TRUE
     username: root
     password: 123456
     validation-query: SELECT 1
@@ -11,3 +11,12 @@ spring:
     baseline-on-migrate: true
     table: DBSWITCH_SCHEMA_HISTORY
     enabled: true
+
+  quartz:
+    job-store-type: jdbc
+    jdbc:
+      initialize-schema: never
+    properties:
+      org.quartz.jobStore.isClustered: false
+      org.quartz.jobStore.misfireThreshold: 60000
+      org.quartz.threadPool.threadCount: 10
