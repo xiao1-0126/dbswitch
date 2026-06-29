@@ -48,11 +48,7 @@ public class ResultSetWrapper implements AutoCloseable {
 
   @Override
   public void close() {
-    try {
-      connection.setAutoCommit(isAutoCommit);
-    } catch (SQLException e) {
-      log.warn("Jdbc Connection setAutoCommit() failed, error: {}", e.getMessage());
-    }
+    // 先关闭流式 ResultSet，再操作 Connection（MySQL 流式要求）
     try {
       resultSet.close();
     } catch (SQLException e) {
@@ -62,6 +58,11 @@ public class ResultSetWrapper implements AutoCloseable {
       statement.close();
     } catch (SQLException e) {
       log.warn("Jdbc Statement close() failed, error: {}", e.getMessage());
+    }
+    try {
+      connection.setAutoCommit(isAutoCommit);
+    } catch (SQLException e) {
+      log.warn("Jdbc Connection setAutoCommit() failed, error: {}", e.getMessage());
     }
     try {
       connection.close();
