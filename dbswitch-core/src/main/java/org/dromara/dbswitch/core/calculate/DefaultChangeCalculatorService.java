@@ -311,7 +311,7 @@ public final class DefaultChangeCalculatorService implements RecordRowChangeCalc
 
       // === HashMap-based CDC (avoids sort-order issues with cross-DB collation) ===
       java.util.LinkedHashMap<String, Object[]> targetMap = new java.util.LinkedHashMap<>();
-      int MAX_CDC_ROWS = 100000;
+      int MAX_CDC_ROWS = 5000;
       int tgtCount = 0;
       Object[] tr;
       boolean tooManyRows = false;
